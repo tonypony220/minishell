@@ -7,6 +7,12 @@
 #define OUT 1
 #define IN 0
 #define CHILD_PID 0 
+/* commands 
+ * cat >> file 
+ * ls | less >> file
+ * echo 
+ */
+extern char** environ;
 
 int	err(char* err_str)
 {
@@ -45,8 +51,8 @@ int		new_process(char **args, int fd[2])
 		fd[OUT] && ((dup2(fd[OUT], OUT) >= 0) || err("dup2")) && close(fd[OUT]);   	
 		fd[IN] && ((dup2(fd[IN], IN) >= 0) || err("dup2")) && close(fd[IN]);   	
 
-		if (execvp(args[0], args) == -1) 
-			err("lsh");
+		if (execve(args[0], args, environ) == -1)
+            err("Could not execve");
 	}
 
 	else 					/* parent pid = child pid */
@@ -88,14 +94,13 @@ int main(void)
 //    free(line);
 //    free(args);
 
-	char *args[3] = {"cat", "text", 0};
-	char *args2[3] = {"less", 0, 0};
+	char *args[3] = {"/bin/cat", "text", 0};
+	char *args2[3] = {"/usr/bin/less", 0, 0};
 	int fd[2] = {0, 0};
 //	fd[OUT] = open("text", O_WRONLY | O_APPEND);
 
-	int p ;
-	((p = pipe(fd)) == -1) && err("pipe creation failed");
-	printf("%d piperet\n", p);
+	/* pipe() return 0 if success */
+	(pipe(fd) == -1) && err("pipe creation failed");
 
 	int fd2[2] = {fd[0], fd[1]};
 
