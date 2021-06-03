@@ -46,14 +46,13 @@ int		new_process(char **args, int fd[2])
 		fd[IN] && ((dup2(fd[IN], IN) >= 0) || err("dup2")) && close(fd[IN]);   	
 
 		if (execvp(args[0], args) == -1) 
-			perror("lsh");
+			err("lsh");
 	}
 
 	else 					/* parent pid = child pid */
 	{
-//		 wait(&status);		
 
-		wpid = waitpid(pid, &status, WUNTRACED);
+//		wpid = waitpid(pid, &status, WUNTRACED);
 	
 		if (WIFEXITED(status))  
 										/* WIFEXITED True if the process terminated 
@@ -89,22 +88,26 @@ int main(void)
 //    free(line);
 //    free(args);
 
-	char *args[3] = {"cat", "src", 0};
-	char *args2[3] = {"less", "src", 0};
+	char *args[3] = {"cat", "text", 0};
+	char *args2[3] = {"less", 0, 0};
 	int fd[2] = {0, 0};
 //	fd[OUT] = open("text", O_WRONLY | O_APPEND);
 
-	(pipe(fd) == -1) && err("pipe creation failed");
+	int p ;
+	((p = pipe(fd)) == -1) && err("pipe creation failed");
+	printf("%d piperet\n", p);
 
-	int fd2[2] = {fd[0], fd[1]};		
+	int fd2[2] = {fd[0], fd[1]};
 
+	//printf("fds %d\n", fd[OUT], fd[IN]);
 	fd[0] = 0;
 	fd2[1] = 0;
-//	printf("file fd %d\n", fd[OUT]);
 	new_process(args, fd); 
+	wait(&status);
+	close(fd[1]);
 	new_process(args2, fd2);
+	wait(NULL);		
 	close(fd[0]);
-	close(fd2[1]);
 }
 
 
