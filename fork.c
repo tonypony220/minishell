@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <fcntl.h>
+#include "libft/libft.h"
+#include <sys/stat.h>
 
 #define OUT 1
 #define IN 0
@@ -107,12 +109,25 @@ int main(void)
 	//printf("fds %d\n", fd[OUT], fd[IN]);
 	fd[0] = 0;
 	fd2[1] = 0;
+
+#if 0
 	new_process(args, fd); 
 	wait(&status);
 	close(fd[1]);
 	new_process(args2, fd2);
 	wait(NULL);		
 	close(fd[0]);
+#endif
+
+	struct stat buf;
+	char **paths = ft_split(getenv("PATH"), ':');
+	while(*paths)
+	{
+
+		printf("%d %s\n", stat(ft_strjoin(*paths, "/cat"), &buf), *paths);
+		//perror("");
+		paths++;
+	}
 }
 
 
