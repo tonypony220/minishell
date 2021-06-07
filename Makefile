@@ -6,7 +6,7 @@ OBJS	=	${SRCS:.c=.o}
 
 CFLAGS	=   # -O0 -Wall -Wextra -Werror -g #-fsanitize=address
 
-HEAD	=	#cub3d.h
+HEAD	=	minishell.h
 
 CC		=	gcc
 
@@ -28,7 +28,7 @@ $(SUBDIRS):
 #%.o: %.c $(HEAD)
 #		$(CC) -Imlx -Ignl -Ilibft ${CFLAGS} -c $< -o ${<:.c=.o}
 
-${NAME}: ${OBJS}
+${NAME}: ${OBJS} ${HEAD}
 		$(CC) ${OBJS} -Llibft -lft -o ${NAME}
 
 all:	${NAME}

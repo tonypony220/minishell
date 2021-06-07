@@ -1,20 +1,16 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <fcntl.h>
-#include "libft/libft.h"
-#include <sys/stat.h>
+#include "minishell.h"
 
-#define OUT 1
-#define IN 0
-#define CHILD_PID 0 
-/* commands 
- * cat >> file 
+/* commands:
+ * cat >> file
+ * cat | less file
  * ls | less >> file
  * echo 
  */
+
 extern char** environ;
+
+int last_exit_code;
+int pipes_number;
 
 int	err(char* err_str)
 {
@@ -29,6 +25,7 @@ int		new_process(char **args, int fd[2])
 
 	int	pid, wpid;
 	int status;
+	char *path;
 
 	//printf("pid %d %d\n", getpid(), 0);
 	
@@ -41,9 +38,10 @@ int		new_process(char **args, int fd[2])
 	}
 	else if (pid == CHILD_PID)
 	{
+		path = find_path(ps->args[0]);
+		!path && err(ft_strjoin(ps-args[0], ": command not found"));
 //  	printf("parent pid %d getpid %d getppid %d\n", pid, getpid(), getppid());
 //
-
 //		fd[OUT] = open("text", O_WRONLY | O_APPEND);
 //		int d = dup2(fd[1], 1);
 //		printf("%d<<\n", d);
@@ -53,83 +51,94 @@ int		new_process(char **args, int fd[2])
 		fd[OUT] && ((dup2(fd[OUT], OUT) >= 0) || err("dup2")) && close(fd[OUT]);   	
 		fd[IN] && ((dup2(fd[IN], IN) >= 0) || err("dup2")) && close(fd[IN]);   	
 
-		if (execve(args[0], args, environ) == -1)
+		if (execve(path, args, environ) == -1)
             err("Could not execve");
 	}
 
 	else 					/* parent pid = child pid */
-	{
-
-//		wpid = waitpid(pid, &status, WUNTRACED);
-	
-		if (WIFEXITED(status))  
-										/* WIFEXITED True if the process terminated 
-										 * normally by a call to _exit(2) or exit(3).
-										 * If WIFEXITED(status) is true, WEXITSTATUS evaluates to the low-order 
-			 					 		 * 8 bits of the argument passed to _exit(2) or exit(3) by the child. */
-
-		   printf("Exit status: %d\n", WEXITSTATUS(status));  
-
-		else if (WIFSIGNALED(status)) 
-										/* WIFSIGNALED True if the process terminated 
-										 * due to receipt of a signal. */
-
-			psignal(WTERMSIG(status), "Exit signal");
-	}
 
 	return 1;
 }
 
-
-int path_executable(char *name)
+int **multi_alloc(int rows, int columns)
 {
-	struct stat buf;
+// todo exiting process when allocation fails
+
+	int** x;
 	int i;
 
-	ft_memset(&buf, 0, sizeof(buf));
-	i = !stat(name, &buf) && (S_IXUSR & buf.st_mode);
-	//printf("\t\texec %d %s \n", S_IXUSR & buf.st_mode, name);
-	return (i);
+	x = malloc (sizeof (int*) * rows + 1);
+	!x && err("shit");
+	x[rows] = 0;
+
+	i = -1;
+	while (++i < rows)
+	{
+		x[i] = malloc(sizeof(int) * columns);
+		!x[i] && err("shit");
+	}
 }
 
-
-char *find_path(char *name)
-/* waiting name without spaces in start
- * todo different handlingn of returned NULL in cases with '/' or without */
+struct process *find_ps_pipe_to(struct process **ps, int pipe_number)
 {
-	char **env_paths;
-	char *path;
-	char *s;
-
-	path = (char*)((unsigned long)name * (name[0] == '/' || name[0] == '.'));
-	(!path && (s = getenv("PATH"))) || (s = "");
-	env_paths = ft_split(s, ':');
-	while(*env_paths)
+	while (*ps)
 	{
-		if (!path
-		   && path_executable(ft_strjoin(*env_paths, ft_strjoin("/", name))))
-			path = ft_strjoin(*env_paths, ft_strjoin("/", name));
-		else
-			free(*env_paths);
-		env_paths++;
+		if ((**ps).pipe[IN] == pipe_number))
+			return (*ps);
+		ps++;
 	}
-	(path
-	&& path_executable(path)
-	&& (path = ft_strdup(path)))
-	|| (path = 0);
-	return (path);
+	err("fatal");
 }
 
-
-void tst_find_path(void)
+int handle_processes(struct process **ps)
 {
-	char *path[] = {"cat", "less", "cor", "/bin/cat", "./asdf", "./a.out", 0};
-	int i = 0;
-	while (path[i])
+	struct process **tmp;
+	int **fds;
+
+	fds = multi_alloc(pipes_number, 2);
+	fds -= 1; /* number <> index mapping */
+
+	tmp = ps;
+	while (*ps)
 	{
-		printf("%s >> %s\n",  path[i], find_path(path[i]));
-		i++;
+		if ((**ps).pipe[OUT] && !(**ps).file)
+		{
+			int pipe_number = (**ps).pipe[OUT];
+			/* pipe() return 0 if success */
+			(pipe(fds[pipe_number]) == -1) && err("pipe creation failed");
+			(**ps).fd[OUT] = fds[pipe_number][OUT];
+			(**ps).fds = fds + 1;
+			(*find_ps_pipe_to(tmp, pipe_number)).fd[IN] = fds[pipe_number][IN];
+			(*find_ps_pipe_to(tmp, pipe_number)).fds = fds + 1;
+		}
+		else if (ps.status & REDIRECT)
+
+		new_process(*ps);
+		close(fd[0]);
+		ps++;
 	}
+	ps = tmp;
+	while (*ps)
+	{
+		ps.status & WAIT && wait(&status);
+		if (WIFEXITED(status))
+			/* WIFEXITED True if the process terminated
+			 * normally by a call to _exit(2) or exit(3).
+			 * If WIFEXITED(status) is true, WEXITSTATUS evaluates to the low-order
+			 * 8 bits of the argument passed to _exit(2) or exit(3) by the child. */
+			printf("Exit status: %d\n", WEXITSTATUS(status));
+
+		else if (WIFSIGNALED(status))
+			/* WIFSIGNALED True if the process terminated
+			 * due to receipt of a signal. */
+			psignal(WTERMSIG(status), "Exit signal");
+
+		/* status should exist even if */
+		last_exit_code = WEXITSTATUS(status);
+		ps++;
+		/*  free(proc); */
+	}
+	return (1);
 }
 
 int main(void)
@@ -156,30 +165,33 @@ int main(void)
 	/* pipe() return 0 if success */
 	(pipe(fd) == -1) && err("pipe creation failed");
 
-	int fd2[2] = {fd[0], fd[1]};
-
 	//printf("fds %d\n", fd[OUT], fd[IN]);
-	fd[0] = 0;
-	fd2[1] = 0;
+
+#if 1
+	new_process(args, fd);
+	close(fd[1]);
+
+	new_process(args2, fd2);
+	close(fd[0]);
+	wait(&status);
+	wait(NULL);
+#endif
+
+
 
 #if 0
-	new_process(args, fd); 
-	wait(&status);
-	close(fd[1]);
-	new_process(args2, fd2);
-	wait(NULL);		
-	close(fd[0]);
-#endif
+
 	tst_find_path();
 
-	//char **paths = ft_split("", ':');
-	//while (*paths)
-	//{
-	//	printf("%s\n", *paths);
-	//	free (*paths);
-	//	paths++;
-	//}
+	char **paths = ft_split("", ':');
+	while (*paths)
+	{
+		printf("%s\n", *paths);
+		free (*paths);
+		paths++;
+	}
 
+#endif
 }
 
 
