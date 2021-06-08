@@ -1,10 +1,10 @@
 dir		=   .
 
-SRCS	=	fork.c 
+SRCS	=	fork.c multalloc.c find_path.c
 
 OBJS	=	${SRCS:.c=.o}
 
-CFLAGS	=   # -O0 -Wall -Wextra -Werror -g #-fsanitize=address
+CFLAGS	=    -O0 -g #-Wall -Wextra -Werror -g #-fsanitize=address
 
 HEAD	=	minishell.h
 
