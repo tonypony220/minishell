@@ -11,16 +11,29 @@ int path_executable(char *name)
 	return (i);
 }
 
+void ft_str_to_lower(char *str)
+{
+	str--;
+	while (*(++str))
+		*str = ft_tolower(*str);
+}
 
 char *find_path(char *name)
 /* waiting name without spaces in start
+ * function will not fit for variables cause they case sensitive
  * todo different handlingn of returned NULL in cases with '/' or without */
 {
 	char **env_paths;
 	char *path;
 	char *s;
 
-	path = (char*)((unsigned long)name * (name[0] == '/' || name[0] == '.'));
+	/* executable name should be lower case */
+
+	path = 0;
+	if (!ft_strnstr(name, UPPER_EXCLUDED_BUILTINS, 1 << 31))
+		ft_str_to_lower(name);
+	ft_strnstr(name, WR_BUILTINS, 1 << 31) && (path = name);
+	!path && (path = (char*)((unsigned long)name * (name[0] == '/' || name[0] == '.')));
 	(!path && (s = getenv("PATH"))) || (s = "");
 	env_paths = ft_split(s, ':');
 	while(*env_paths)

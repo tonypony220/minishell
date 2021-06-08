@@ -61,5 +61,9 @@ int main(void/**/)
 	write(1, "hello\n", 6);
 	printf("%d\n", (*b)->o);
 //	printf("%d\n", (*b + 1)->o);
+
+	char *str = "STRING";
+	ft_str_to_lower(&str);
+	printf("%s \n", str);
 	return (1);
 }

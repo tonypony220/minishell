@@ -4,3 +4,5 @@ sleep
 tags
 text
 *.o
+demo_fork.c
+src
