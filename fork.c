@@ -32,24 +32,62 @@ void		close_fds(int **fds)
 //	printf("closed fds\n");
 }
 
+void			dispatching_process(struct process *ps)
+{
+	char *path;
+	char *name;
+
+	path = ps->args[0];
+	/* executable name should be lower case */
+	if (!ft_strnstr(UPPER_EXCLUDED_BUILTINS, path, 1 << 31))
+		ft_str_to_lower(path);
+	(ft_strnstr(SELF_BUILTINS, path, 1 << 31) && (ps->status |= DIRECT));
+	if (ft_strnstr(BUILTINS, path, 1 << 31) && (ps->status |= BUILTIN))
+		return ;
+
+	// todo BUILTINS
+	if (path[0] == '/' || path[0] == '.')
+		return ;
+	name = find_path(ps->args[0]);
+	if (name)
+	{
+		free(path);
+		ps->args[0] = name;
+	}
+	else
+		err("bad command!\n");
+
+	(*ps).status |= WAIT;
+
+	printf("'%s' path args '%s' '%s'\n", path, ps->args[0], ps->args[1]);
+	// todo how it exits if wrong path
+	//!path && err(ft_strjoin(ps->args[0], ": command not found"));
+	//ps->args[0] = path;
+	//(*ps).status |= WAIT;
+}
+
+int			execute_builtin(struct process *ps)
+{
+	// unset errors with leading numbers or equality sign
+	printf("\texecuting command builit %s %s\n",
+		   ps->args[0], ps->args[1]);
+	exit(0);
+}
+
 int			create_new_process(struct process *ps)
 {
 	/* param fd: waiting only fd to redirect, else 0 */
 	int		pid;
-	char	*path;
 
+	printf("exec %s %s %s\n", RED, ps->args[0], RESET);
 	if ((pid = fork()) == -1)
 		err("fork failed"); // todo not exit
 	else if (pid == CHILD_PID)
 	{
-		// todo BUILTINS
-		path = find_path(ps->args[0]);
-		printf("'%s' path args '%s' '%s'\n", path, ps->args[0], ps->args[1]);
-		// todo how it exits if wrong path
-		!path && err(ft_strjoin(ps->args[0], ": command not found"));
+		printf("%s %d %d fds pipe %d %d %d\n",
+			   ps->args[0], ps->fd[IN], ps->fd[OUT], ps->pipe[IN],
+			   ps->pipe[OUT], ps->status & BUILTIN);
 
-		ps->args[0] = path;
-		printf("%s %d %d fds pipe %d %d\n", ps->args[0], ps->fd[IN], ps->fd[OUT], ps->pipe[IN], ps->pipe[OUT]);
 		/* maybe enough for redirection todo check it */
 		ps->fd[OUT] > 2 && ((dup2(ps->fd[OUT], OUT) >= 0) || err("dup2")); // && close(fd[OUT]);
 		ps->fd[IN] > 2 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2"));// && close(fd[IN]);
@@ -57,13 +95,16 @@ int			create_new_process(struct process *ps)
 		//	ps->pipe[OUT] != -1 && ((dup2(ps->fd[OUT], OUT) >= 0) || err("dup2")); // && close(fd[OUT]);
 		//	ps->pipe[IN] != -1 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2"));// && close(fd[IN]);
 		close_fds(ps->fds);
-		if (execve(path, ps->args, environ) == -1)
+		if (ps->status & BUILTIN)
+			execute_builtin(ps);
+		if (execve(ps->args[0], ps->args, environ) == -1)
 		{
-			(*ps).status &= ~WAIT;
-			err("Could not execve"); // todo not exit
+//			(*ps).status &= ~WAIT; will not affect parent process :(
+			printf(RED"FAILED %s"RESET"\n", ps->args[0]);
+			err(RED"Could not execve"RESET); // todo how memory clears;
 		}
 	}
-	printf("process run...\n");
+	//printf("process ...\n");
 	return (1);
 }
 
@@ -78,10 +119,10 @@ struct process *find_ps_pipe_to(struct process **ps, int pipe_number)
 	err("fatal");
 }
 
-int set_process_fd(struct process *ps, int **fds)
-{
-	return (1);
-}
+///int set_process_fd(struct process *ps, int **fds)
+///{
+///	return (1);
+///}
 
 int handle_processes(struct process **ps)
 {
@@ -120,19 +161,23 @@ int handle_processes(struct process **ps)
 			printf("%d FLAG\n", flag);
 			((**ps).fd[OUT] = open((**ps).file, flag));
 		}
-		(**ps).status |= WAIT;
 
 		//(**ps) & SEQ && ((**ps).status |= WAIT);
-		printf("PROCESS (%s,  %s ) PIPE(%d  %d) FD (%d %d) FILE '%s'\n",
+
+		/* cases to execute directly: exit export unset */
+		dispatching_process(*ps);
+		printf("PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN (%d)\n",
 			   (*ps)->args[0],
 			   (*ps)->args[1],
 			   (*ps)->pipe[0],
 			   (*ps)->pipe[1],
 			   (*ps)->fd[0],
 			   (*ps)->fd[1],
-			   (*ps)->file);
+			   (*ps)->file,
+			   (*ps)->status & BUILTIN);
+		!((*ps)->status & DIRECT) && create_new_process(*ps);
+		((*ps)->status & DIRECT) && execute_builtin(*ps);
 
-		create_new_process(*ps);
 		//((**ps).status & SEQ) && wait_process(*ps);
 		ps++;
 	}
@@ -195,7 +240,7 @@ int main(void)
 	//char *args2[3] = {"/usr/bin/less", 0, 0};
 	redirs_nbr = 2;
 
-	ps[0]->args = ft_split("ls", ' ');
+	ps[0]->args = ft_split("echo HELLOLLLLLLL!", ' ');
 	ps[0]->pipe[0] = -1;
 	ps[0]->pipe[1] = 0;
 	ps[1]->args = ft_split("CAT -e", ' ');

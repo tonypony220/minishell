@@ -6,6 +6,12 @@
 #include "libft/libft.h"
 #include <sys/stat.h>
 
+#define RED 	"\033[1;31m"
+#define GREEN  	"\033[0;32m"
+#define RESET  	"\033[0;0m"
+#define BOLD   	"\033[;1m"
+#define REVERSE "\033[;7m"
+
 #define OUT 1
 #define IN 0
 #define CHILD_PID 0
@@ -17,10 +23,12 @@
 #define A_FILE 1 << 5  /* append to dile */
 #define SEQ 1 << 6	/* process terminates ';'. and not concurent executing */
 #define BUILTIN 1 << 7
+#define DIRECT 1 << 8  /*  */
 
 #define BUILTINS "env echo pwd export unset exit"
-#define WR_BUILTINS "env echo pwd"  /* which write */
-#define UPPER_BUILTINS "ENV ECHO PWD CD"  /* which has upper aliases */
+#define WR_BUILTINS "env echo pwd"  			/* which write */
+#define SELF_BUILTINS "export unset exit"  	/* which execute */
+#define UPPER_BUILTINS "ENV ECHO PWD CD"  		/* which has upper aliases */
 #define UPPER_EXCLUDED_BUILTINS "EXPORT UNSET EXIT"  /* which has not upper aliases */
 
 struct		process
@@ -35,10 +43,10 @@ struct		process
 	char	*file;    /* filename to redirections */
 };
 
-void ft_str_to_lower(char *str);
-int arr_len(void **p);
-int path_executable(char *name);
-char *find_path(char *name);
-void tst_find_path(void);
-int freemultalloc(void **p);
-void **multalloc(int rows, int columns, unsigned long size);
+void		ft_str_to_lower(char *str);
+int			arr_len(void **p);
+int			path_executable(char *name);
+char		*find_path(char *name);
+void		tst_find_path(void);
+int			freemultalloc(void **p);
+void		**multalloc(int rows, int columns, unsigned long size);

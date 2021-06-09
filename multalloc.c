@@ -15,9 +15,14 @@ int			arr_len(void **p)
 
 int			freemultalloc(void **p)
 {
+	void **tmp;
+
 	while (*p)
+	{
 		free(*p);
-	free(p);
+		p++;
+	}
+	free(tmp);
 	return (1);
 }
 

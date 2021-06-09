@@ -18,37 +18,34 @@ void ft_str_to_lower(char *str)
 		*str = ft_tolower(*str);
 }
 
+
 char *find_path(char *name)
 /* waiting name without spaces in start
  * function will not fit for variables cause they case sensitive
- * todo different handlingn of returned NULL in cases with '/' or without */
+ * todo different handlingn of returned NULL in cases with '/' or without
+ * todo join(char **arr) function */
 {
 	char **env_paths;
+	char **mem;
 	char *path;
-	char *s;
+	char *mid;
 
-	/* executable name should be lower case */
-
-	path = 0;
-	if (!ft_strnstr(name, UPPER_EXCLUDED_BUILTINS, 1 << 31))
-		ft_str_to_lower(name);
-	ft_strnstr(name, WR_BUILTINS, 1 << 31) && (path = name);
-	!path && (path = (char*)((unsigned long)name * (name[0] == '/' || name[0] == '.')));
-	(!path && (s = getenv("PATH"))) || (s = "");
-	env_paths = ft_split(s, ':');
+	env_paths = ft_split(getenv("PATH"), ':');
+	mem = env_paths;
 	while(*env_paths)
 	{
-		if (!path
-			&& path_executable(ft_strjoin(*env_paths, ft_strjoin("/", name))))
-			path = ft_strjoin(*env_paths, ft_strjoin("/", name));
-		else
-			free(*env_paths);
+		if (path_executable((path = ft_strjoin(
+				*env_paths, (mid = ft_strjoin("/", name))))))
+		{
+			free(mid);
+			break;
+		}
+		free(path);
+		free(mid);
+		path = 0;
 		env_paths++;
 	}
-	(path
-	 && path_executable(path)
-	 && (path = ft_strdup(path)))
-	|| (path = 0);
+	freemultalloc((void**)mem);
 	return (path);
 }
 
