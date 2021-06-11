@@ -15,11 +15,11 @@
 #define OUT 1
 #define IN 0
 #define CHILD_PID 0
-
 #define WAIT 1 << 1
-#define REDIRECT 1 << 2
-#define W_FILE 1 << 3
-#define R_FILE 1 << 4
+#define COMMAND 1 << 2
+//#define REDIRECT 1 << 2
+//#define W_FILE 1 << 3
+//#define R_FILE 1 << 4
 #define A_FILE 1 << 5  /* append to dile */
 #define SEQ 1 << 6	/* process terminates ';'. and not concurent executing */
 #define BUILTIN 1 << 7
@@ -50,3 +50,4 @@ char		*find_path(char *name);
 void		tst_find_path(void);
 int			freemultalloc(void **p);
 void		**multalloc(int rows, int columns, unsigned long size);
+int			printmultalloc(void **p);

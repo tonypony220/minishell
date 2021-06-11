@@ -35,14 +35,30 @@ void		close_fds(int **fds)
 void			dispatching_process(struct process *ps)
 {
 	char *path;
-	char *name;
+	//char *name;
+	char **arr;
+	//char *builtins[] = {"env", "echo", "pwd", "export", "unset", "exit"};
 
 	path = ps->args[0];
 	/* executable name should be lower case */
-	if (!ft_strnstr(UPPER_EXCLUDED_BUILTINS, path, 1 << 31))
+	arr = ft_split(UPPER_EXCLUDED_BUILTINS, ' ');
+	if (!ft_str_in_strs(path, arr))
 		ft_str_to_lower(path);
-	(ft_strnstr(SELF_BUILTINS, path, 1 << 31) && (ps->status |= DIRECT));
-	if (ft_strnstr(BUILTINS, path, 1 << 31) && (ps->status |= BUILTIN))
+	printmultalloc((void**)arr);
+	//printf(GREEN"HELLO"RESET"\n");
+	freemultalloc((void**)arr);
+
+	arr = ft_split(SELF_BUILTINS, ' ');
+	(ft_str_in_strs(path, arr)) && (ps->status |= DIRECT);
+	printmultalloc((void**)arr);
+	freemultalloc((void**)arr);
+
+	arr = ft_split(BUILTINS, ' ');
+	ft_str_in_strs(path, arr) && (ps->status |= BUILTIN);
+	printmultalloc((void**)arr);
+	freemultalloc((void**)arr);
+
+	if (ps->status & BUILTIN)
 		return ;
 
 	// todo BUILTINS
@@ -240,7 +256,7 @@ int main(void)
 	//char *args2[3] = {"/usr/bin/less", 0, 0};
 	redirs_nbr = 2;
 
-	ps[0]->args = ft_split("echo HELLOLLLLLLL!", ' ');
+	ps[0]->args = ft_split("ech HELLOLLLLLLL!", ' ');
 	ps[0]->pipe[0] = -1;
 	ps[0]->pipe[1] = 0;
 	ps[1]->args = ft_split("CAT -e", ' ');
