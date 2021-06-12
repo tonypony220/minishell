@@ -5,12 +5,16 @@
 #include <fcntl.h>
 #include "libft/libft.h"
 #include <sys/stat.h>
+#include <sysexits.h>
+#include <sys/errno.h>
 
 #define RED 	"\033[1;31m"
 #define GREEN  	"\033[0;32m"
 #define RESET  	"\033[0;0m"
 #define BOLD   	"\033[;1m"
 #define REVERSE "\033[;7m"
+
+#define CMD_NOT_FOUND_CODE 127
 
 #define OUT 1
 #define IN 0
@@ -40,6 +44,8 @@ struct		process
 	int		**fds; 	  /* all fds inherited from parent process pipe() */
 				  	  /* mapping would be pipe number = fds index + 1 */
 	int		status;
+	int		exit_code; /* reserved unix exit code
+	                   * https://tldp.org/LDP/abs/html/exitcodes.html   */
 	char	*file;    /* filename to redirections */
 };
 
