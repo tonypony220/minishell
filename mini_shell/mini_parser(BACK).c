@@ -31,15 +31,22 @@ void	double_quote(char *line, int i, t_shell *shell)
 {
 	int j;
 
-	j = i;
 	while(line[i] != '\0') //kkkk'kkkekekekeke
 	{
 		if (line[i] == '\"')
 		{
 			shell->dq_err = 1;
 			i++;
+			j = i;
 			while (line[i] != '\0')
 			{
+/* 				if (line[i] == '$')
+					shell->env_sign = 1; */
+/* 				if (line[i] == '$')
+				{
+					ft_putendl("???", 1);
+					add_env_to_str(&line, shell, j);
+				} */
 				if (line[i] == '\"')
 				{
 					shell->dq_err = 0;
@@ -70,155 +77,157 @@ int		check_cmd(char *line, int *i, t_shell *shell)
 	return (1);
 }
 
-/* void	print_cmd(t_shell *shell)
+void	print_cmd(t_shell *shell)
 {
 	while (shell->cmd)
 	{
 		ft_putendl(shell->cmd->cmd, 1);
-		//printf("%s - %d\n", shell->cmd->cmd, shell->cmd->i);
 		shell->cmd = shell->cmd->next;
 	}
-} */
+}
 
-void	print_cmd(t_shell *shell)
+/* int	check_for_env(char *line, int status)
 {
 	int i;
 
 	i = 0;
-	while (shell->args[i] != '\0')
+	while (line[i] != '\0')
 	{
-		ft_putendl(shell->args[i], 1);
-		//printf("%s - %d\n", shell->cmd->cmd, shell->cmd->i);
+		if (line[i] == '$')
+		{
+			status = 1;
+
+		}
 		i++;
 	}
+	return (0);
 }
 
-/* void	print_cmd(t_list *cmd)
+int	add_env_to_str(char **line, t_shell *shell, int i)
 {
-	while (cmd)
-	{
-		ft_putendl(cmd->cmd, 1);
-		cmd = cmd->next;
-	}
-} */
-
-char	**make_map(t_list *head, int size, t_shell *shell)
-{
-	char **map;
-	int d;
-
-	d = 0;	
-	if (!(map = (char **)malloc((size + 1) * sizeof(char *))))
-	{
-		ft_putendl("ERROR", 1);
-		return (NULL);
-	}
-	while (head)
-	{
-		map[d] = ft_strdup(head->cmd);
-		head = head->next;
-		d++;
-	}
-	map[d] = '\0';
-	ft_lstclear(&head);
-	return (map);
-}
-
-t_list	*parse_cmd(char *line, int *i, t_list *cmd, t_shell *shell)
-{
+	char *tmp;
+	char *tmp2;
+	char *env;
 	int j;
 	int end;
 
-	j = *i;
-	//shell->cmd.i++;
-	//printf("%s\n", line);
-	while (line[*i] != ' ' && line[*i] != '\0')
+	j = i;
+	//ft_putendl(line[0], 1);
+	//printf("%c\n", line[0][i]);
+	while (line[0][i] != '\"')
 	{
-		if (line[*i] == ' ' || line[*i + 1] == '\0')
+		if (line[0][i] == '$')
 		{
-			space_skip(line, i);
-			end = *i;
-			if (line[*i + 1] == '\0')
-				end++;
-			ft_lstadd(&cmd, line, j, end);
-			j = end++;
+			end = i;
+			tmp = ft_substr(line[0], j - 1, end);
+			i++;
+			while (line[0][i] != ' ' && line[0][i] != '\'' && line[0][i] != '\"'
+					&& line[0][i] != '\\' && line[0][i] != '$')
+					i++;
+			//printf("[%c] & [%c]\n", line[0][end], line[0][i]);
+			tmp2 = ft_substr(line[0], i, ft_strlen(line[0]) - i);
+			env = ft_strdup(get_env(shell, line[0], end + 1, i - 1));
+			//printf("tmp - [%s]\nenv - [%s]\ntmp2 - [%s]\n", tmp, env, tmp2);
+			tmp = ft_strjoin(tmp, env);
+			//ft_putendl("new tmp2 - ", 0);
+			//ft_putendl(tmp2, 1);
+			line[0] = ft_strjoin(tmp, tmp2);
+			//printf("new1 - [%s]\n", str);
+			//ft_putendl(line[0], 1);
+			free(env);
+			free(tmp);
+			free(tmp2);
+			//free(str);
+			return (check_for_env(shell, line[0], j));
 		}
-		(*i)++;
+		(i)++;
 	}
-	return (cmd);
-	//size = ft_lstsize(cmd);
-	//shell->cmd = make_map(cmd, size, shell);
-	//print_cmd(cmd);
-	//ft_lstclear(&cmd);
-/* 	shell->cmd = cmd;
-	print_cmd(shell);
-	ft_lstclear(&shell->cmd); */
-	//shell->cmd.cmd = ft_substr(line, j, end - j);
-	//shell->cmd.c_type = 0;
-	//shell->cmd.next = NULL;
-}
+	return (0);
+} */
 
-t_list	*parse_to_list(char *line, int *i, t_shell *shell)
+/* char	*env_in_quotes(char *line, t_shell *shell)
 {
-	t_list	*cmd;
+	int i;
+	char *tmp;
+	char *str;
+	char *end;
+	int j;
 
-	cmd = NULL;
-	//parse_cmd(line, i, &cmd);
-	while(line[*i] != '\0')
+	i = 0;
+	while (line[i] != '\0')
 	{
-/* 		if (line[i] == '\'')
-			parse_single_quotes(line, &i, &cmd);
 		if (line[i] == '\"')
-			parse_double_quotes(line, &i, &cmd);
-		if (line[i] == '\\')
-			parse_back_slash(line, &i, &cmd);
-		if (line[i] == '$')
-			parse_env_sign(line, &i, &cmd);
-		if (line[i] == '>' || line[i] == '>>' || line[i] == '<')
-			parse_redirect(line, &i, &cmd);
-		if (line[i] == '|' || line[i] == ';')
-			parse_pipe_and_semicolon(line, &i, &cmd);
-		else
-			parse_cmd(line, &i, &cmd); */
-		cmd = parse_cmd(line, i, cmd, shell);
-		(*i)++;
+		{
+			str = ft_substr(line, 0, i);
+			j = i;
+			while (line[++i] != '\"')
+			{
+				if (line[i] == '$')
+					shell->env_sign = 1;
+			}
+			tmp = ft_substr(str, j, i - j + 1);
+		}
+		i++;
 	}
-	shell->arg_size = ft_lstsize(cmd);
-	shell->args = make_map(cmd, shell->arg_size, shell);
-	ft_lstclear(&cmd);
-	return (cmd);
-}
+	ft_putendl(tmp, 1);
+	free(tmp);
+	return (NULL);
+} */
 
-void	clear_map(char **map, int size)
+void	exec_check(t_shell *shell)
 {
-	while (size >= 0)
-	{
-		if (map[size])
-			free(map[size]);
-		size--;
-	}
-	if (map)
-		free(map);
+	if (ft_strncmp(shell->cmd->cmd, "env", 3) == 0)
+		ft_env(shell);
 }
 
 int			mini_parser(char *line, t_shell *shell)
 {
 	int i;
+	t_list	*cmd;
 
 	i = 0;
-	if (line == NULL)
-		return (0);
+	cmd = NULL;
 	space_skip(line, &i);
 	if (line[i] == ';' || line[i] == '|')
 		return (error_out(shell, "syntax error near unexpected token")); // ';' or '|'
 	if (check_cmd(line, &i, shell) < 1) //check for syntax errors
 		return (-1);
-	//parse_cmd(line, &i, shell);
-	//shell->cmd = parse_to_list(line, &i, shell);
-	parse_to_list(line, &i, shell);
+	//cmd = parse_cmd(line, &i, shell);
+	while(line[i] != '\0')
+	{
+		if (line[i] == '\'')
+			parse_single_quotes(line, &cmd, &i, shell);
+		if (line[i] == '\"')
+			parse_double_quotes(line, &cmd, &i, shell);
+		if (line[i] == '$')
+			parse_env_sign(line, &cmd, &i, shell);
+/* 		if (line[i] == '\\')
+			parse_back_slash(line, &cmd, &i, shell);
+		if (line[i] == '>' || line[i] == '>>' || line[i] == '<')
+			parse_redirect(line, &cmd, &i, shell);
+		if (line[i] == '|' || line[i] == ';')
+			parse_pipe_and_semicolon(line, &cmd, &i, shell); */
+		//ft_putendl("YA TYT", 1);
+		//printf("%c\n", line[i]);
+/* 		if (line[i] == '\'')
+		{
+			ft_putendl("LOL", 1);
+			break ;
+		} */
+/* 		if (line[i] == ' ')
+			space_skip(line, &i); */
+		else
+			parse_cmd(line, &cmd, &i, shell);
+		if (line[i] == '\0')
+			break ;
+		i++;
+	}
+	if (cmd == NULL)
+		return (0);
+	shell->cmd = cmd;
+	//exec_check(shell);
 	print_cmd(shell);
-	clear_map(shell->args, shell->arg_size);
-	//ft_lstclear(&shell->cmd);
+	ft_lstclear(&shell->cmd);
 	return (1);
 }
 
@@ -248,7 +257,6 @@ int			mini_parser(char *line, t_shell *shell)
 	return (1);
 } */
 
-
 /* int		mini_cmd(t_shell *shell)
 {
 	if (shell->pars.has_pipe)
@@ -258,8 +266,7 @@ int			mini_parser(char *line, t_shell *shell)
 		do_cmd_stuff(shell); // default stuff
 		shell->pars.semi_colon--;
 	}
-} */ 
-// 									^MINI_CMD^
+} */
 
 int		start_shell(t_shell *shell)
 {
@@ -271,7 +278,9 @@ int		start_shell(t_shell *shell)
 		//find_pwd(); to find and store pwd in string to display in prompt
 		ft_putendl("[minishell(%%s)]# ", 0); // %s for pwd path
 		get_next_line(0, &line);
+		shell->err = 0;
 		//printf("%s\n", line);
+		//ft_putendl(line, 1);
 		if (ft_strncmp(line, "vihod", 5) == 0)
 			shell->status = 0;
 		mini_parser(line, shell);
@@ -285,6 +294,7 @@ int		start_shell(t_shell *shell)
 		//free(shell->cmd.cmd);
 		//ft_lstclear(&shell->cmd);
 	}
+	ft_env_clear(&shell->env);
 	return (1);
 }
 
@@ -304,7 +314,7 @@ t_par	init_pars(void)
 	return (pars);
 }
 
-int	main(int ac, char **av, char **env)
+int	main(int ac, char **av, char **envp)
 {
 	t_shell	shell;
 	t_par	pars;
@@ -317,6 +327,10 @@ int	main(int ac, char **av, char **env)
 	shell.err = 0;
 	shell.sq_err = 0;
 	shell.dq_err = 0;
+	shell.env_len = 0;
+	shell.env_value = NULL;
+	shell.env_sign = 0;
+	init_env(envp, &shell);
 	system("clear");
 	start_shell(&shell);
 	return (0);

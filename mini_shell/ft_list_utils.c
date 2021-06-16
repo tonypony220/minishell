@@ -36,18 +36,17 @@ t_list	*ft_lstlast(t_list *lst)
 	return (lst);
 }
 
-t_list	*ft_lstadd(t_list **lst, char *line, int j, int end)
+t_list	*ft_lstadd(t_list **lst, char *line, t_shell *shell)
 {
 	t_list	*first;
 	t_list	*new;
-	int i;
 
 	if (!line)
 		return (NULL);
 	if (!(new = (t_list*)malloc(sizeof(*new))))
 		return (0);
-	i = j;
-	new->cmd = ft_substr(line, j, end - j);
+	new->cmd = ft_substr(line, shell->start, shell->end - shell->start);
+	check_for_env(&new->cmd, shell);
 	new->next = NULL;
 	if (!*lst)
 		*lst = new;

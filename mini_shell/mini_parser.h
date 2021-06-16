@@ -68,6 +68,10 @@ typedef struct s_shell
 	int		sq_err;
 	int		arg_size;
 	int		env_len;
+	int		env_sign;
+	int		i;
+	int		start;
+	int		end;
 }	t_shell;
 
 //GNL UTILS
@@ -88,13 +92,15 @@ int		mini_cmd(t_shell *shell);
 
 //PARSER
 int		mini_parser(char *line, t_shell *shell);
-int		check_cmd(char *line, int *i, t_shell *shell);
+int		check_cmd(char *line, t_shell *shell);
 //void	parse_cmd(char *line, int *i, t_shell *shell);
-int		parse_cmd(char *line, t_list **cmd, int *i, t_shell *shell);
-int		parse_single_quotes(char *line, t_list **cmd, int *i, t_shell *shell);
-int		parse_double_quotes(char *line, t_list **cmd, int *i, t_shell *shell);
-t_list	*parse_to_list(char *line, int *i, t_shell *shell);
-int	parse_env_sign(char *line, t_list **cmd, int *i, t_shell *shell);
+int		parse_cmd(char *line, t_list **cmd, t_shell *shell);
+int		parse_single_quotes(char *line, t_list **cmd, t_shell *shell);
+int		parse_double_quotes(char *line, t_list **cmd, t_shell *shell);
+int	parse_env_sign(char *line, t_list **cmd, t_shell *shell);
+
+char	*add_env_to_str(char *line, t_shell *shell);
+int	check_for_env(char **line, t_shell *shell);
 
 //ENV
 void	init_env(char **envp, t_shell *shell);
@@ -117,14 +123,14 @@ int	error_out(t_shell *shell, char *error);
 //UTILS
 int	ft_strncmp(const char *s1, const char *s2, size_t n);
 void	ft_putendl(char *s, int endl);
-int		space_skip(const char *nptr, int *index);
+int		space_skip(const char *nptr, t_shell *shell);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_strdup(const char *s);
 int		ft_isalnum(int c);
 
 //LIST STUFF
 t_list	*ft_lstlast(t_list *lst);
-t_list	*ft_lstadd(t_list **lst, char *line, int j, int end);
+t_list	*ft_lstadd(t_list **lst, char *line, t_shell *shell);
 int		ft_lstsize(t_list *lst);
 void	ft_lstclear(t_list **list);
 
