@@ -35,6 +35,8 @@
 #define UPPER_BUILTINS "ENV ECHO PWD CD"  		/* which has upper aliases */
 #define UPPER_EXCLUDED_BUILTINS "EXPORT UNSET EXIT"  /* which has not upper aliases */
 
+int last_exit_code;
+
 struct		process
 {
 	char	**args;
@@ -49,6 +51,14 @@ struct		process
 	char	*file;    /* filename to redirections */
 };
 
+
+struct				dict
+{
+	char			*key;
+	char			*value;
+};
+
+
 void		ft_str_to_lower(char *str);
 int			arr_len(void **p);
 int			path_executable(char *name);
@@ -57,3 +67,25 @@ void		tst_find_path(void);
 int			freemultalloc(void **p);
 void		**multalloc(int rows, int columns, unsigned long size);
 int			printmultalloc(void **p);
+
+int			yosh_echo(struct process *ps);
+
+			/* dict functions */
+t_list					*get_dict_by_key(t_list *lst, void* (*f)(void *), char* key);
+void					del_dict(struct dict* content);
+t_list					*del_dict_by_key(t_list *lst, void (*del)(void *),
+											void* (*f)(void *), char* key);
+void					*dict_key(struct dict* content);
+int						dict_set_default(t_list *lst, char* key, char* value);
+void					env_content_print(struct dict* content);
+struct dict				*new_dict(char *key, char *value);
+void					upload_env_to_dict(char **envp, t_list **env);
+int						cmp_dict_keys(struct dict* content, struct dict* ref);
+t_list	*ft_lst_find(t_list *lst, void *data_ref, int (*cmp)());
+void	ft_lst_rm(t_list **lst, void *data_ref, 
+					int (*cmp)(), void (*del)(void *));
+
+void	ft_list_remove_if(t_list **lst, 
+							void *data_ref, 
+							int (*cmp)(),
+							void (*free_fct)(void *));

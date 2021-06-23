@@ -26,7 +26,6 @@
 
 extern char** environ;
 
-int last_exit_code;
 int redirs_nbr;
 
 int	err(char* err_str)
@@ -119,7 +118,14 @@ int			execute_builtin(struct process *ps)
 	// unset errors with leading numbers or equality sign
 	printf("\texecuting command builit %s %s\n",
 		   ps->args[0], ps->args[1]);
-	exit(0);
+	ft_strcmp(ps->args[0], "echo") || yosh_echo(ps);
+	/// ft_strcmp(ps->args[0], "export") || yosh_export(ps);
+	/// ft_strcmp(ps->args[0], "pwd") 	 || yosh_pwd(ps);
+	/// ft_strcmp(ps->args[0], "env") 	 || yosh_env(ps);
+	/// ft_strcmp(ps->args[0], "exit")   || yosh_exit(ps);
+	/// ft_strcmp(ps->args[0], "unset")  || yosh_unset(ps);
+	if (!(ps->status & DIRECT))
+		exit(ps->exit_code);
 }
 
 int			create_new_process(struct process *ps)
@@ -127,7 +133,7 @@ int			create_new_process(struct process *ps)
 	/* param fd: waiting only fd to redirect, else 0 */
 	int		pid;
 
-	printf("forking process %s %s %s\n", RED, ps->args[0], RESET);
+	printf("forking process %s %s %s\n", GREEN, ps->args[0], RESET);
 	if ((pid = fork()) == -1)
 		err("fork failed"); // todo not exit
 	else if (pid == CHILD_PID)
@@ -149,7 +155,7 @@ int			create_new_process(struct process *ps)
 		{
 			display_err(ps);
 			if (errno == 2)
-				exit(123); //CMD_NOT_FOUND_CODE);
+				exit(127);  //CMD_NOT_FOUND_CODE);
 			exit(EXIT_FAILURE);
 //			(*ps).status &= ~WAIT; will not affect parent process :(
 			//printf(RED"FAILED %s"RESET"\n", ps->args[0]);
@@ -219,7 +225,7 @@ int handle_processes(struct process **ps)
 		/* cases to execute directly: exit export unset */
 		dispatching_process(*ps);
 
-		printf("PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN (%d)\n",
+		printf("PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d)\n",
 			   (*ps)->args[0],
 			   (*ps)->args[1],
 			   (*ps)->pipe[0],
@@ -227,7 +233,7 @@ int handle_processes(struct process **ps)
 			   (*ps)->fd[0],
 			   (*ps)->fd[1],
 			   (*ps)->file,
-			   (*ps)->status & BUILTIN);
+			   (*ps)->status & BUILTIN && 1);
 
 		if (((*ps)->exit_code) == 0)
 		{
@@ -277,12 +283,13 @@ int wait_process(struct process *ps)
 	ps->exit_code && (exit_code = ps->exit_code) && display_err(ps);
 	last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
-	printf("\t\tExit code: %d (%s)\n",  last_exit_code ,*ps->args);
+	printf("\t\tExit code: %d (%s)\n", last_exit_code , *ps->args);
 	/*  free_ps(ps); */
 	return (0);
 }
 
-int main(void)
+
+int main(int ac, char **av, char **envp)
 {
 	write(1, "start\n\n", 7);
 
@@ -294,6 +301,42 @@ int main(void)
 
 #if 1
 	struct process **ps;
+	t_list *env_lst;
+	t_list *one;
+	struct dict *d;
+
+	env_lst = 0;
+	//write(1, "HERE\n", 5);
+	upload_env_to_dict(envp, &env_lst);
+	//ft_lstiter(env_lst, env_content_print);
+	//ft_lstdelone(ft_lstlast(env_lst), del_dict);
+	dict_set_default(env_lst, "ONE", "1234");
+	dict_set_default(env_lst, "ONE", "1111");
+	ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
+	ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
+	ft_lstiter(env_lst, env_content_print);
+	write(1, "\n\n", 2);
+	//env_content_print(get_dict_by_key(env_lst, get_key_from_dict, "ONE")->content);
+//del_dict_by_key(env_lst, del_dict, dict_key, "PATH");
+	//one = get_dict_by_key(env_lst, dict_key, "ONE");
+	//one = ft_lst_find(env_lst, (d = new_dict("BO", 0)), cmp_dict_keys);
+	free(d);
+	ft_lst_rm(&env_lst, (d = new_dict("ONE", 0)), cmp_dict_keys, del_dict);
+	free(d);
+	ft_lst_rm(&env_lst, (d = new_dict("TERM_PROGRAM", 0)), cmp_dict_keys, del_dict);
+	free(d);
+	ft_lstiter(env_lst, env_content_print);
+	//ft_list_remove_if(env_lst, (d = new_dict("ONE", 0)), cmp_dict_keys, del_dict);
+	write(1, "HERE\n", 5);
+	free(d);
+	if (one)
+		env_content_print(one->content);
+	else printf(GREEN"nothing"RESET);
+	//t_list *found = ft_dictget(env_lst, env_content_get_key, "PATH");
+	////printf("%p\n", found);
+	//printf("found %s %s\n", ((struct env_dict*)found->content)->key, ((struct env_dict*)found->content)->value);
+
+
 	ps = (struct process**)multalloc(2, 1, sizeof(struct process));
 	if (!ps)
 		err("SHIT");
@@ -307,25 +350,40 @@ int main(void)
 	//char *args2[3] = {"/usr/bin/less", 0, 0};
 	redirs_nbr = 2;
 
-	ps[0]->args = ft_split("ech HELLOLLLLLLL!", ' ');
+	ps[0]->args = ft_split("echo HELLOLLLLLLL! $?", ' ');
 	ps[0]->pipe[0] = -1;
 	ps[0]->pipe[1] = 0;
-	//ps[1]->args = ft_split("CAT -e", ' ');
-	ps[1]->args = ft_split("./seg_p", ' ');
+	ps[1]->args = ft_split("CAT -e", ' ');
+	//ps[1]->args = ft_split("../sub", ' ');
 	ps[1]->pipe[0] = 0;
 	ps[1]->pipe[1] = -1;
 //	ps[1]->file = "text";
 //	ps[1]->status |= A_FILE;
 	//printf("process number %d\n", arr_len((void**)ps));
 	handle_processes(ps);
+#endif
+
+#if 0
+// chdir function is declared
+// inside this header
+	char s[100];
+	// printing current working directory
+	printf("%s\n", getcwd(s, 100));
+	printf("%s\n", getenv("PWD"));
+
+	// using the command
+	chdir("..");
+
+	// printing current working directory
+	printf("%s\n", getcwd(s, 100));
+	printf("%s\n", getenv("PWD"));
+
+	// after chdir is executed
 	freemultalloc((void**)ps[0]->args);
 	freemultalloc((void**)ps[1]->args);
 #endif
-}
-
 
 #if 0
-
 	tst_find_path();
 
 	char **paths = ft_split("", ':');
@@ -339,6 +397,7 @@ int main(void)
 }
 #endif
 
+}
 
 
 
