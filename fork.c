@@ -67,6 +67,7 @@ void		close_fds(int **fds)
 //	printf("closed fds\n");
 }
 
+
 void			dispatching_process(struct process *ps)
 {
 	char *path;
@@ -87,6 +88,8 @@ void			dispatching_process(struct process *ps)
 	(ft_str_in_strs(path, arr)) && (ps->status |= DIRECT);
 //	printmultalloc((void**)arr);
 	freemultalloc((void**)arr);
+
+	!ft_strcmp("export", path) && ps->args[1] && (ps->status |= DIRECT);
 
 	arr = ft_split(BUILTINS, ' ');
 	ft_str_in_strs(path, arr) && (ps->status |= BUILTIN);
@@ -118,23 +121,27 @@ int			execute_builtin(struct process *ps)
 	// unset errors with leading numbers or equality sign
 	printf("\texecuting command builit %s %s\n",
 		   ps->args[0], ps->args[1]);
-	ft_strcmp(ps->args[0], "echo") || yosh_echo(ps);
-	/// ft_strcmp(ps->args[0], "export") || yosh_export(ps);
-	/// ft_strcmp(ps->args[0], "pwd") 	 || yosh_pwd(ps);
-	/// ft_strcmp(ps->args[0], "env") 	 || yosh_env(ps);
-	/// ft_strcmp(ps->args[0], "exit")   || yosh_exit(ps);
-	/// ft_strcmp(ps->args[0], "unset")  || yosh_unset(ps);
+	ft_strcmp(ps->args[0], "echo") || msh_echo(ps);
+	ft_strcmp(ps->args[0], "export") || msh_export(ps);
+	/// ft_strcmp(ps->args[0], "pwd") 	 || msh_pwd(ps);
+	/// ft_strcmp(ps->args[0], "env") 	 || msh_env(ps);
+	/// ft_strcmp(ps->args[0], "exit")   || msh_exit(ps);
+	/// ft_strcmp(ps->args[0], "unset")  || msh_unset(ps);
 	if (!(ps->status & DIRECT))
 		exit(ps->exit_code);
 }
 
+/* It's not strighforward way to detect leaks in child process,
+ * so to save time those are won't be hadleled.
+ * Closing fds is reuquired, cause pipes waits for closing 
+ * all it's end or EOF */
 int			create_new_process(struct process *ps)
 {
-	/* param fd: waiting only fd to redirect, else 0 */
 	int		pid;
 
 	printf("forking process %s %s %s\n", GREEN, ps->args[0], RESET);
-	if ((pid = fork()) == -1)
+
+	if ((pid = fork()) == -1) // todo why fork creates several leaks ????
 		err("fork failed"); // todo not exit
 	else if (pid == CHILD_PID)
 	{
@@ -151,16 +158,14 @@ int			create_new_process(struct process *ps)
 		close_fds(ps->fds);
 		if (ps->status & BUILTIN)
 			execute_builtin(ps);
-		if (execve(ps->args[0], ps->args, environ) == -1)
-		{
-			display_err(ps);
-			if (errno == 2)
-				exit(127);  //CMD_NOT_FOUND_CODE);
-			exit(EXIT_FAILURE);
+		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env));
+		display_err(ps);
+		if (errno == 2)
+			exit(127);  //CMD_NOT_FOUND_CODE);
+		exit(EXIT_FAILURE);
 //			(*ps).status &= ~WAIT; will not affect parent process :(
-			//printf(RED"FAILED %s"RESET"\n", ps->args[0]);
-			//err(RED"Could not execve"RESET); // todo how memory clears;
-		}
+		//printf(RED"FAILED %s"RESET"\n", ps->args[0]);
+		//err(RED"Could not execve"RESET); // todo how memory clears;
 	}
 	//printf("process ...\n");
 	return (1);
@@ -182,7 +187,7 @@ struct process *find_ps_pipe_to(struct process **ps, int pipe_number)
 ///	return (1);
 ///}
 
-int handle_processes(struct process **ps)
+int handle_processes(struct process **ps, t_list *env)
 {
 	struct process **tmp;
 	int **fds;
@@ -194,11 +199,12 @@ int handle_processes(struct process **ps)
 	tmp = ps;
 	while (*ps)
 	{
-		/* seems that REDIRECT flag not having reason */
-		/* seems there is no case when auto read to file */
-		/* cases [-1][0] [0][1]
-		 * 	 [0] [ 0][1] [1][2]  1 pipe, 2 file
-		 **/
+		/* 	 seems that REDIRECT flag not having reason 
+		 * 	 seems there is no case when auto read to file 
+		 * 	 cases [-1][0] [0][1]
+		 * 	   [0] [ 0][1] [1][2]  1 pipe, 2 file
+		 */
+		(*ps)->env = env;
 		if ((**ps).pipe[OUT] != -1 && !((**ps).file)) //(**ps).status &(W_FILE | A_FILE)))
 		{
 //			write(1, "pipe ps\n", 8);
@@ -305,18 +311,19 @@ int main(int ac, char **av, char **envp)
 	t_list *one;
 	struct dict *d;
 
+
 	env_lst = 0;
 	//write(1, "HERE\n", 5);
 	upload_env_to_dict(envp, &env_lst);
-	//ft_lstiter(env_lst, env_content_print);
+	//ft_lstiter(env_lst, dict_print);
 	//ft_lstdelone(ft_lstlast(env_lst), del_dict);
 	dict_set_default(env_lst, "ONE", "1234");
 	dict_set_default(env_lst, "ONE", "1111");
 	ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
 	ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
-	ft_lstiter(env_lst, env_content_print);
+	ft_lstiter(env_lst, dict_print);
 	write(1, "\n\n", 2);
-	//env_content_print(get_dict_by_key(env_lst, get_key_from_dict, "ONE")->content);
+	//dict_print(get_dict_by_key(env_lst, get_key_from_dict, "ONE")->content);
 //del_dict_by_key(env_lst, del_dict, dict_key, "PATH");
 	//one = get_dict_by_key(env_lst, dict_key, "ONE");
 	//one = ft_lst_find(env_lst, (d = new_dict("BO", 0)), cmp_dict_keys);
@@ -325,12 +332,12 @@ int main(int ac, char **av, char **envp)
 	free(d);
 	ft_lst_rm(&env_lst, (d = new_dict("TERM_PROGRAM", 0)), cmp_dict_keys, del_dict);
 	free(d);
-	ft_lstiter(env_lst, env_content_print);
+	ft_lstiter(env_lst, dict_print);
 	//ft_list_remove_if(env_lst, (d = new_dict("ONE", 0)), cmp_dict_keys, del_dict);
 	write(1, "HERE\n", 5);
 	free(d);
 	if (one)
-		env_content_print(one->content);
+		dict_print(one->content);
 	else printf(GREEN"nothing"RESET);
 	//t_list *found = ft_dictget(env_lst, env_content_get_key, "PATH");
 	////printf("%p\n", found);
@@ -360,7 +367,7 @@ int main(int ac, char **av, char **envp)
 //	ps[1]->file = "text";
 //	ps[1]->status |= A_FILE;
 	//printf("process number %d\n", arr_len((void**)ps));
-	handle_processes(ps);
+	handle_processes(ps, env_lst);
 #endif
 
 #if 0

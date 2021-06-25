@@ -287,6 +287,9 @@ int		start_shell(t_shell *shell)
 		//mini_cmd(shell);
 		//ft_putendl(shell->cmd.cmd, 1);
 		//mini_exec(&line, shell);
+		
+		/*   executor( process, t_list env)  */
+	
 		//print_cmd(shell);
 		//if (ft_strncmp(shell->cmd->cmd, "exit", 4) == 0)
 		//		shell->status = 0;

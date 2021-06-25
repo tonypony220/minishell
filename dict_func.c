@@ -24,20 +24,6 @@ void					del_dict(struct dict* content)
 	free(content->key);
 }
 
-/* function not working */
-//t_list					*del_dict_by_key(t_list *lst, void (*del)(void *),
-//											void* (*f)(void *), char* key)
-//{
-//	t_list *one;
-//	t_list *tmp;
-//
-//	one = get_dict_by_key(lst, f, key);
-//	tmp = one->next;
-//	//ft_lstdelone(one, del);
-//	one = 0;
-//	ft_lstlast(lst)->next = tmp;
-//	return (0);
-//}
 
 void					*dict_key(struct dict* content)
 {
@@ -67,8 +53,7 @@ int						dict_set_default(t_list *lst, char* key, char* value)
 	}
 }
 
-
-void					env_content_print(struct dict* content)
+void					dict_print(struct dict* content)
 {
 	printf("\t%s=%s\n", content->key, content->value);
 }
@@ -85,21 +70,3 @@ struct dict			*new_dict(char *key, char *value)
 	return (new);
 }
 
-void					upload_env_to_dict(char **envp, t_list **env)
-{
-	t_list				*new;
-	char				**key_value;
-	struct dict			*content;
-
-	while(*envp)
-	{
-		key_value = ft_split(*envp, '=');
-		content = new_dict(key_value[0], key_value[1]);
-		new = ft_lstnew(content);
-		//new = lstnew_env(key_value[0], key_value[1]);
-		ft_lstadd_back(env, new);
-		//write(1, "HERE\n", 5);
-		free(key_value);
-		envp++;
-	}
-}

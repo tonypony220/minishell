@@ -1,8 +1,8 @@
 #include "minishell.h"
 
-int yosh_echo(struct process *ps)
+int					msh_echo(struct process *ps)
 {
-	int i;
+	int				i;
 
 	i = 1;
 	!ft_strcmp(ps->args[1], "-n") && (i = 2);
@@ -19,3 +19,58 @@ int yosh_echo(struct process *ps)
 	!ft_strcmp(ps->args[1], "-n") && printf("\n");
 	return (1);
 }
+
+int					msh_export(struct process *ps)
+{
+	char			**key_value;
+
+	if (ps->args[1])	
+	{
+		if (!(key_value = ft_split(*ps->args[1], '=')))
+			return (0);
+		if (!(ret = dict_add_back(env, key_value[0], key_value[1])))
+			return (0);
+		free(key_value);
+	}
+	else
+	{
+		ft_lst_sort_bubble(ps->env, cmp_dict_keys);
+		ft_lstiter(ps->env, env_dict_print);
+	}
+	return (1);
+}
+
+void				msh_unset(struct process *ps)
+{
+	struct dict *d;
+
+	ft_lst_rm(&env_lst, (d = new_dict(ps->args[1], 0)), cmp_dict_keys, del_dict);
+	free(d);
+}
+
+int					msh_env(struct process *ps)
+{
+	ft_lstiter(ps->env, dict_print);	
+}
+
+int					msh_pwd(struct process *ps)
+{
+	t_list pwd;		
+
+	pwd = ft_lst;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
