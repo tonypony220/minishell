@@ -1,15 +1,12 @@
 #include "minishell.h"
 
-int					dict_add_back(t_list **env, char *key, char *value)
+int					dict_add_back(t_list **env, struct dict *content) //char *key, char *value)
 {
 	t_list				*new;
-	struct dict			*content;
 
-	if (!(content = new_dict(key, value)))
-		return (0);
 	if (!(new = ft_lstnew(content)))
 	{
-		free(content);
+		del_dict(content);
 		return (0);
 	}
 	ft_lstadd_back(env, new);
@@ -19,13 +16,16 @@ int					dict_add_back(t_list **env, char *key, char *value)
 /* note key and value strs are allocated */
 int					upload_env_to_dict(char **envp, t_list **env)
 {
+	struct dict *dict;
 	int ret;
 
 	ret = 1;
 	while(*envp && ret)
 	{
 		key_value = ft_split(*envp, '=');
-		ret = dict_add_back(env, key_value[0], key_value[1]);
+		if (!(dict = new_dict(key, value)));
+			return (0);
+		ret = dict_add_back(env, dict);
 		free(key_value);
 		envp++;
 	}

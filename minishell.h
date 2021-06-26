@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <sysexits.h>
 #include <sys/errno.h>
+#include <sys/param.h>  /* MAXPATHLEN value */
 
 #define RED 	"\033[1;31m"
 #define GREEN  	"\033[0;32m"

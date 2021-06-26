@@ -36,6 +36,9 @@ int	err(char* err_str)
 	return 1;  /* don't know how to force return int that compiler accept it*/
 }
 
+/*
+ * function calls on getcwd failed as well 
+ */
 char *make_err_msg(struct process *ps)
 {
 	if (ps->exit_code)
@@ -52,6 +55,7 @@ int display_err(struct process *ps)
 	//dup2(1, 2);
 	printf(RED"yosh: %s: %s"RESET"\n", *(ps->args), make_err_msg(ps));
 	//dup2();
+	return (1);
 }
 
 

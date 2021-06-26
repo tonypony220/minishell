@@ -23,14 +23,16 @@ int					msh_echo(struct process *ps)
 int					msh_export(struct process *ps)
 {
 	char			**key_value;
+	int				ret;
 
 	if (ps->args[1])	
-	{
+	{	
+			
 		if (!(key_value = ft_split(*ps->args[1], '=')))
 			return (0);
-		if (!(ret = dict_add_back(env, key_value[0], key_value[1])))
-			return (0);
+		ret = dict_set_default(ps->env, key_value[0], key_value[1]);
 		free(key_value);
+		return (ret);
 	}
 	else
 	{
@@ -51,13 +53,41 @@ void				msh_unset(struct process *ps)
 int					msh_env(struct process *ps)
 {
 	ft_lstiter(ps->env, dict_print);	
+	return (1);
 }
 
+/* function return always ok because prints error directly */
 int					msh_pwd(struct process *ps)
 {
-	t_list pwd;		
+	char buf[MAXPATHLEN];
 
-	pwd = ft_lst;
+	getcwd(buf, 0) && printf("%s\n", sizeof(buf)) || display_err(ps);
+	return (1);
+}
+
+/* cd . 
+ * 	  .. 
+ * 	  ../path 
+ *	  /path
+ *
+ * returns:	
+ *	  0 - malloc fail	
+ *	  1 - ok
+ *	 -1 - bad dir
+ */ 
+int					msh_cd(struct process *ps)
+{
+	char buf[MAXPATHLEN];
+	char *path;
+	int r;
+
+	path = ps->args[1];
+	(r = chdir(path)) && display_err(ps);
+	if (r) 
+		return (-1);
+	getcwd(buf, sizeof(buf))
+	r = dict_set_default(ps->env, ft_strdup("PWD"), ft_strdup(buf));
+	return (r);
 }
 
 
