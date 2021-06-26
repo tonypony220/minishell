@@ -7,7 +7,7 @@ char					**ft_lst_to_strs(t_list *lst, char* (*pull_str)())
 	int					size;
 
 	size = ft_lstsize(lst);
-	if (!(env = ft_calloc(size * sizeof(env))))
+	if (!(env = ft_calloc(size * sizeof(env), 1)))
 		return (0);
 	tmp_env = env;
 	while (lst)

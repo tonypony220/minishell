@@ -16,7 +16,7 @@ void	ft_lst_rm(t_list **lst, void *data_ref,
 		{
 			prev && (prev->next = curr->next);
 			!prev && (*lst = curr->next);
-			ft_lst_delone(curr, del);
+			ft_lstdelone(curr, del);
 			!prev && (curr = *lst);
 			prev && (curr = prev->next);
 			continue ;

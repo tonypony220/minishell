@@ -16,14 +16,15 @@ int					dict_add_back(t_list **env, struct dict *content) //char *key, char *val
 /* note key and value strs are allocated */
 int					upload_env_to_dict(char **envp, t_list **env)
 {
-	struct dict *dict;
-	int ret;
+	struct dict		*dict;
+	char			**key_value;
+	int				ret;
 
 	ret = 1;
 	while(*envp && ret)
 	{
 		key_value = ft_split(*envp, '=');
-		if (!(dict = new_dict(key, value)));
+		if (!(dict = new_dict(key_value[0], key_value[1])))
 			return (0);
 		ret = dict_add_back(env, dict);
 		free(key_value);

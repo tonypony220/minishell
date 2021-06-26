@@ -6,3 +6,4 @@ text
 *.o
 demo_fork.c
 src
+libft_old

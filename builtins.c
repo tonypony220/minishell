@@ -46,7 +46,8 @@ void				msh_unset(struct process *ps)
 {
 	struct dict *d;
 
-	ft_lst_rm(&env_lst, (d = new_dict(ps->args[1], 0)), cmp_dict_keys, del_dict);
+	ft_lst_rm(&ps->env, (d = new_dict(ps->args[1], 0)),
+			  cmp_dict_keys, del_dict);
 	free(d);
 }
 
@@ -85,7 +86,7 @@ int					msh_cd(struct process *ps)
 	(r = chdir(path)) && display_err(ps);
 	if (r) 
 		return (-1);
-	getcwd(buf, sizeof(buf))
+	getcwd(buf, sizeof(buf));
 	r = dict_set_default(ps->env, ft_strdup("PWD"), ft_strdup(buf));
 	return (r);
 }

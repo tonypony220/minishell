@@ -15,12 +15,12 @@ void	ft_lst_sort_bubble(t_list **lst, int (*cmp)())
 		ptr = *lst;
 		while (ptr->next)
 		{
-			if (cmp(ptr->data, ptr->next->data) > 0)
+			if (cmp(ptr->content, ptr->next->content) > 0)
 			{
 				swapped = 1;
-				tmp = ptr->data;
-				ptr->data = ptr->next->data;
-				ptr->next->data = tmp;
+				tmp = ptr->content;
+				ptr->content = ptr->next->content;
+				ptr->next->content = tmp;
 			}
 			ptr = ptr->next;
 		}

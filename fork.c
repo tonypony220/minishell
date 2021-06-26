@@ -133,6 +133,7 @@ int			execute_builtin(struct process *ps)
 	/// ft_strcmp(ps->args[0], "unset")  || msh_unset(ps);
 	if (!(ps->status & DIRECT))
 		exit(ps->exit_code);
+	return (0);
 }
 
 /* It's not strighforward way to detect leaks in child process,
@@ -162,7 +163,7 @@ int			create_new_process(struct process *ps)
 		close_fds(ps->fds);
 		if (ps->status & BUILTIN)
 			execute_builtin(ps);
-		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env));
+		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env, dict_key));
 		display_err(ps);
 		if (errno == 2)
 			exit(127);  //CMD_NOT_FOUND_CODE);
@@ -313,18 +314,19 @@ int main(int ac, char **av, char **envp)
 	struct process **ps;
 	t_list *env_lst;
 	t_list *one;
-	struct dict *d;
+	struct dict *d = 0;
 
 
 	env_lst = 0;
 	//write(1, "HERE\n", 5);
 	upload_env_to_dict(envp, &env_lst);
-	//ft_lstiter(env_lst, dict_print);
+	ft_lstiter(env_lst, dict_print);
 	//ft_lstdelone(ft_lstlast(env_lst), del_dict);
-	dict_set_default(env_lst, "ONE", "1234");
-	dict_set_default(env_lst, "ONE", "1111");
-	ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
-	ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
+	dict_set_default(env_lst, ft_strdup("ONE"), ft_strdup("1234"));
+	write(1, "HERE\n", 5);
+	dict_set_default(env_lst, ft_strdup("ONE"), ft_strdup("2222"));
+	//ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
+	//ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
 	ft_lstiter(env_lst, dict_print);
 	write(1, "\n\n", 2);
 	//dict_print(get_dict_by_key(env_lst, get_key_from_dict, "ONE")->content);
@@ -340,9 +342,9 @@ int main(int ac, char **av, char **envp)
 	//ft_list_remove_if(env_lst, (d = new_dict("ONE", 0)), cmp_dict_keys, del_dict);
 	write(1, "HERE\n", 5);
 	free(d);
-	if (one)
-		dict_print(one->content);
-	else printf(GREEN"nothing"RESET);
+	//if (one)
+	//	dict_print(one->content);
+	//else printf(GREEN"nothing"RESET);
 	//t_list *found = ft_dictget(env_lst, env_content_get_key, "PATH");
 	////printf("%p\n", found);
 	//printf("found %s %s\n", ((struct env_dict*)found->content)->key, ((struct env_dict*)found->content)->value);
