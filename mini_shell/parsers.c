@@ -1,59 +1,23 @@
 #include "mini_parser.h"
 
-int	parse_cmd(char *line, t_list **cmd, t_shell *shell)
+int	parse_cmd(char *line, t_shell *shell)
 {
 	space_skip(line, shell);
 	shell->start = shell->i;
-	if (line[shell->i] == '\'' || line[shell->i] == '\"' || line[shell->i] == '\\'
-			|| line[shell->i] == '$')
+	if (ft_strchr("$\'\"><", line[shell->i]))
 	{
 		(shell->i)--;
 		return (1);
-	}	
-	//printf("%s\n", line);
-	//printf("[%c]\n", line[shell->start]);
+	}
 	while (line[shell->i] != '\0')
 	{
-		if (line[shell->i] == ' ' || line[shell->i + 1] == '\0' || line[shell->i] == '\'' 
-				|| line[shell->i] == '\"' || line[shell->i] == '\\')
+		if (ft_strchr(" \'\"", line[shell->i + 1]) || !line[shell->i + 1])
 		{
-			space_skip(line, shell);
 			shell->end = shell->i;
-			if (line[shell->i + 1] == '\0')
-				shell->end++;
-			//ft_putshell->endl("YA TYT", 1);
-			//printf("[%c-%c]\n", line[shell->start], line[shell->end]);
-			ft_lstadd(cmd, line, shell);
-			if (line[shell->i] == '\'' || line[shell->i] == '\"' || line[shell->i] == '\\'
-					|| line[shell->i] == '$')
-			{
+			shell->_arg = ft_strjoin(shell->_arg, 
+					ft_substr(line, shell->start, shell->end - shell->start + 1));
+			if (ft_strchr("$\'\"><", line[shell->i]))
 				(shell->i)--;
-				return (1);
-			}
-			shell->start = shell->end++;
-		}
-		(shell->i)++;
-	}
-	return (1);
-}
-
-int	parse_double_quotes(char *line, t_list **cmd, t_shell *shell)
-{
-	(shell->i)++;
-	shell->start = shell->i;
-/* 	check_for_env(shell, line, shell->start);
-	while (shell->env_sign)
-		add_env_to_str(&line, shell, shell->start); */
-	while (line[shell->i] != '\0')
-	{
-		if (line[shell->i] == '\"')
-		{
-			shell->end = (shell->i)++;
-			if (line[shell->i] == '\"' || line[shell->i] == '\'')
-				(shell->i) = shell->end;
-			//ft_putshell->endl("\"", 1);
-			//printf("[%c - %c]\n", line[shell->start], line[shell->end]);
-			ft_lstadd(cmd, line, shell);
 			return (1);
 		}
 		(shell->i)++;
@@ -61,20 +25,22 @@ int	parse_double_quotes(char *line, t_list **cmd, t_shell *shell)
 	return (1);
 }
 
-int	parse_single_quotes(char *line, t_list **cmd, t_shell *shell)
+int	parse_double_quotes(char *line, t_shell *shell)
 {
 	(shell->i)++;
+	if (line[shell->i] == '\"')
+		return (1);
 	shell->start = shell->i;
 	while (line[shell->i] != '\0')
 	{
-		if (line[shell->i] == '\'')
+		if (line[shell->i + 1] == '\"')
 		{
-			shell->end = (shell->i)++;
-			if (line[shell->i] == '\"' || line[shell->i] == '\'')
-				(shell->i) = shell->end;
-			//ft_putshell->endl("\'", 1);
-			//printf("[%c - %c]\n", line[shell->start], line[shell->end]);
-			ft_lstadd(cmd, line, shell);
+			shell->end = (shell->i);
+			shell->pars.double_q = 1;
+			//ft_lstadd(cmd, line, shell);
+			shell->_arg = ft_strjoin(shell->_arg, 
+					ft_substr(line, shell->start, shell->end - shell->start + 1));
+			shell->i++;
 			return (1);
 		}
 		(shell->i)++;
@@ -82,13 +48,41 @@ int	parse_single_quotes(char *line, t_list **cmd, t_shell *shell)
 	return (1);
 }
 
-int	parse_env_sign(char *line, t_list **cmd, t_shell *shell)
+int	parse_single_quotes(char *line, t_shell *shell)
+{
+	(shell->i)++;
+	if (line[shell->i] == '\'')
+		return (1);
+	shell->start = shell->i;
+	while (line[shell->i] != '\0')
+	{
+		if (line[shell->i + 1] == '\'')
+		{
+			shell->end = (shell->i);
+			//ft_lstadd(cmd, line, shell);
+			shell->_arg = ft_strjoin(shell->_arg, 
+					ft_substr(line, shell->start, shell->end - shell->start + 1));
+			shell->i++;
+			return (1);
+		}
+		(shell->i)++;
+	}
+	return (1);
+}
+
+void	free_env_shell(t_shell *shell)
+{
+	shell->env_len = 0;
+	if (shell->env_value)
+		free(shell->env_value);
+	shell->env_value = NULL;
+}
+
+int	parse_env_sign(char *line, t_shell *shell)
 {
 	if (line[(shell->i) + 1] == ' ' || line[(shell->i) + 1] == '\0')
 	{
-		shell->start = shell->i;
-		shell->end = shell->i + 1;
-		ft_lstadd(cmd, line, shell);
+		shell->_arg = ft_strdup("$");
 		return (1);
 	}
 	(shell->i)++;
@@ -97,22 +91,48 @@ int	parse_env_sign(char *line, t_list **cmd, t_shell *shell)
 		return (-1); */
 	while (line[shell->i] != '\0')
 	{
-		if (line[shell->i + 1] == ' ' || line[shell->i + 1] == '\0' || line[shell->i + 1] == '\'' 
-				|| line[shell->i + 1] == '\"' || line[shell->i + 1] == '\\' || line[shell->i + 1] == '$')
+		if (ft_strchr(" \'\"\\$><", line[shell->i + 1]) || !line[shell->i + 1])
 		{
-			shell->end = shell->i;
+			shell->end = shell->i; // " \'\"\\$\0"
 			get_env(shell, line, shell->start, shell->end);
 			shell->start = 0;
 			shell->end = shell->env_len;
-			ft_lstadd(cmd, shell->env_value, shell);
-			free(shell->env_value);
+			//ft_lstadd(cmd, shell->env_value, shell);
+			shell->_arg = ft_strjoin(shell->_arg, shell->env_value);
+			free_env_shell(shell);
 			(shell->i)++;
-			if (line[shell->i] == '\'' || line[shell->i] == '\"' || line[shell->i] == '\\'
-					|| line[shell->i] == '$')
+			if (ft_strchr("\'\"\\$><", line[shell->i]))
 				(shell->i)--;
 			return (1);
 		}
 		(shell->i)++;
 	}
 	return (1);
+}
+
+int	parse_redirect(char *line, t_list **cmd, t_shell *shell)
+{
+	shell->pars.has_redir = 1;
+	if (line[shell->i + 1] == '>')
+	{
+		shell->pars.double_redir = 1;
+		shell->i += 2;
+	}
+	else if (line[shell->i + 1] == '<')
+	{
+		shell->pars.double_out = 1;
+		shell->i += 2;
+	}
+	else if (line[shell->i] == '<')
+	{
+		shell->pars.out = 1;
+		shell->i++;
+	}
+	else
+	{
+		shell->pars.red = 1;
+		shell->i++;
+	}
+	(*cmd)->redir = 1;
+	return (0);
 }

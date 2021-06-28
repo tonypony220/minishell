@@ -125,7 +125,7 @@ void	ft_env(t_shell *shell)
 	return (NULL);
 } */
 
-char	*get_env(t_shell *shell, char *line, int i, int end)
+int	get_env(t_shell *shell, char *line, int i, int end)
 {
 	char *tmp;
 	t_env *env_tmp;
@@ -138,20 +138,17 @@ char	*get_env(t_shell *shell, char *line, int i, int end)
 		if ((ft_strncmp(tmp, env_tmp->key, ft_strlen(tmp)) == 0)
 				&& (ft_strlen(tmp) == ft_strlen(env_tmp->key)))
 		{
-			//printf("%s : %d == %d\n", env_tmp->key, ft_strlen(tmp), ft_strlen(env_tmp->key));
 			free(tmp);
-			//ft_putendl(shell->env->key, 0);
-			//ft_putendl("=", 0);
-			//ft_putendl(shell->env->value, 1);
 			shell->env_len = ft_strlen(env_tmp->value);
 			shell->env_value = ft_strdup(env_tmp->value);
 			//ft_env_clear(&env_tmp);
-			return (env_tmp->value);
+			return (1);
 		}
 		env_tmp = env_tmp->next;
 	}
 	free(tmp);
-	return (NULL);
+	//ft_env_clear(&env_tmp);
+	return (0);
 }
 
 int		ifkey(char c)

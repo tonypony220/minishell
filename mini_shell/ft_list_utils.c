@@ -45,8 +45,10 @@ t_list	*ft_lstadd(t_list **lst, char *line, t_shell *shell)
 		return (NULL);
 	if (!(new = (t_list*)malloc(sizeof(*new))))
 		return (0);
-	new->cmd = ft_substr(line, shell->start, shell->end - shell->start);
+	//new->cmd = ft_substr(line, shell->start, shell->end - shell->start + 1);
+	new->cmd = ft_strdup(line);
 	check_for_env(&new->cmd, shell);
+	shell->pars.double_q = 0;
 	new->next = NULL;
 	if (!*lst)
 		*lst = new;

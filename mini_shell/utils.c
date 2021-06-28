@@ -92,3 +92,25 @@ int		ft_isalnum(int c)
 	else
 		return (0);
 }
+
+int	ft_strchr(const char *s, int c)
+{
+	size_t i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == (unsigned char)c)
+			return (1); // + i
+		i++;
+	}
+	if ((unsigned char)c == '\0')
+		return (1); // + i
+	return (0);
+}
+
+void	ft_putchar(char c)
+{
+	write(1, &c, 1);
+	write(1, "\n", 1);
+}
