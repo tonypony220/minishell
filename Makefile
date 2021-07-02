@@ -1,6 +1,6 @@
 dir		=   .
 
-SRCS	=	fork.c multalloc.c find_path.c builtins.c dict_func.c environ.c
+SRCS	=	fork.c multalloc.c find_path.c builtins.c dict_func.c environ.c exiting.c term.c
 
 #LIB_EXTENSIONS	= ft_str_in_strs.c
 
@@ -31,7 +31,7 @@ $(SUBDIRS):
 #		$(CC) -Imlx -Ignl -Ilibft ${CFLAGS} -c $< -o ${<:.c=.o}
 
 ${NAME}: ${OBJS} ${HEAD}
-		$(CC) ${OBJS} -Llibft -lft -o ${NAME}
+		$(CC) ${OBJS} -Llibft -lft -ltermcap -o ${NAME}
 
 all:	${NAME}
 

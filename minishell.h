@@ -11,11 +11,16 @@
 # include <sysexits.h>
 # include <sys/errno.h>
 # include <sys/param.h>  /* MAXPATHLEN value */
+# include <termcap.h>
 
-# define RED 	"\033[1;31m"
-# define GREEN  	"\033[0;32m"
-# define RESET  	"\033[0;0m"
-# define BOLD   	"\033[;1m"
+# define RED 	 "\033[1;31m"
+# define GREEN   "\033[0;32m"
+# define YELLOW	 "\033[1;33m"
+# define BLUE	 "\033[1;34m"
+# define PURPLE  "\033[1;35m"
+# define CYAN    "\033[1;36m"
+# define RESET   "\033[0;0m"
+# define BOLD    "\033[;1m"
 # define REVERSE "\033[;7m"
 
 # define CMD_NOT_FOUND_CODE 127
@@ -57,10 +62,10 @@ struct		process
 };
 
 
-struct				dict
+struct		dict
 {
-	char			*key;
-	char			*value;
+	char	*key;
+	char	*value;
 };
 
 
@@ -72,37 +77,35 @@ void		tst_find_path(void);
 int			freemultalloc(void **p);
 void		**multalloc(int rows, int columns, unsigned long size);
 int			printmultalloc(void **p);
-
 int			wait_process(struct process *ps);
 
-			/* dict functions */
-t_list					*get_dict_by_key(t_list *lst, void* (*f)(void *), char* key);
-void					del_dict(void* content);
-char					*dict_key(void* content);
-int						dict_set_default(t_list *lst, char* key, char* value);
-struct dict				*new_dict(char *key, char *value);
-int						cmp_dict_keys(void* content, void* ref);
-void					dict_print(void* content);
+			/* dict and env functions */
+t_list		*get_dict_by_key(t_list *lst, void* (*f)(void *), char* key);
+void		del_dict(void* content);
+char		*dict_key(void* content);
+int			dict_set_default(t_list *lst, char* key, char* value);
+struct dict	*new_dict(char *key, char *value);
+int			cmp_dict_keys(void* content, void* ref);
+void		dict_print(void* content);
 
-int						dict_add_back(t_list **env, struct dict *content);
-int						upload_env_to_dict(char **envp, t_list **env);
-void					env_dict_print(struct dict* content);
-char					*env_pull_to_str(struct dict* content);
-//t_list	*ft_lst_find(t_list *lst, void *data_ref, int (*cmp)());
-//void	ft_lst_rm(t_list **lst, void *data_ref,
-//					int (*cmp)(), void (*del)(void *));
+int display_err(struct process *ps);
 
-//void	ft_list_remove_if(t_list **lst,
-//							void *data_ref,
-//							int (*cmp)(),
-//							void (*free_fct)(void *));
+int			dict_add_back(t_list **env, struct dict *content);
+int			upload_env_to_dict(char **envp, t_list **env);
+void		env_dict_print(struct dict* content);
+char		*env_pull_to_str(struct dict* content);
 
 /* builtins */
-int					msh_echo(struct process *ps);
-int					msh_export(struct process *ps);
-void				msh_unset(struct process *ps);
-int					msh_env(struct process *ps);
-int					msh_pwd(struct process *ps);
-int					msh_cd(struct process *ps);
+int			msh_echo(struct process *ps);
+int			msh_export(struct process *ps);
+int			msh_unset(struct process *ps);
+int			msh_env(struct process *ps);
+int			msh_pwd(struct process *ps);
+int			msh_cd(struct process *ps);
+int			msh_exit(struct process *ps);
+
+void	free_processes(struct process **ps);
+void	free_process(struct process *ps, int child);
+
 
 #endif

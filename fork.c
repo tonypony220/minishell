@@ -49,12 +49,7 @@ char *make_err_msg(struct process *ps)
 int display_err(struct process *ps)
 {
 	// todo redirect STD_ERR that errors printed right : )
-	//int fd;
-	//
-	//fd = dup(OUT);
-	//dup2(1, 2);
 	printf(RED"yosh: %s: %s"RESET"\n", *(ps->args), make_err_msg(ps));
-	//dup2();
 	return (1);
 }
 
@@ -123,14 +118,15 @@ void			dispatching_process(struct process *ps)
 int			execute_builtin(struct process *ps)
 {
 	// unset errors with leading numbers or equality sign
-	printf("\texecuting command builit %s %s\n",
+	printf(">>executing command builit %s %s\n",
 		   ps->args[0], ps->args[1]);
-	ft_strcmp(ps->args[0], "echo") || msh_echo(ps);
+	ft_strcmp(ps->args[0], "echo")	 || msh_echo(ps);
 	ft_strcmp(ps->args[0], "export") || msh_export(ps);
-	/// ft_strcmp(ps->args[0], "pwd") 	 || msh_pwd(ps);
-	/// ft_strcmp(ps->args[0], "env") 	 || msh_env(ps);
-	/// ft_strcmp(ps->args[0], "exit")   || msh_exit(ps);
-	/// ft_strcmp(ps->args[0], "unset")  || msh_unset(ps);
+	ft_strcmp(ps->args[0], "pwd") 	 || msh_pwd(ps);
+	ft_strcmp(ps->args[0], "env") 	 || msh_env(ps);
+	ft_strcmp(ps->args[0], "exit")   || msh_exit(ps);
+	ft_strcmp(ps->args[0], "cd")	 || msh_cd(ps);
+	ft_strcmp(ps->args[0], "unset")  || msh_unset(ps);
 	if (!(ps->status & DIRECT))
 		exit(ps->exit_code);
 	return (0);
@@ -144,7 +140,7 @@ int			create_new_process(struct process *ps)
 {
 	int		pid;
 
-	printf("forking process %s %s %s\n", GREEN, ps->args[0], RESET);
+	printf(">>forking process %s %s %s\n", GREEN, ps->args[0], RESET);
 
 	if ((pid = fork()) == -1) // todo why fork creates several leaks ????
 		err("fork failed"); // todo not exit
@@ -257,6 +253,7 @@ int handle_processes(struct process **ps, t_list *env)
 	}
 	ps = tmp;
 	close_fds(fds);
+	freemultalloc((void**)fds);
 	while (*ps)
 	{
 		wait_process(*ps);
@@ -295,12 +292,15 @@ int wait_process(struct process *ps)
 	last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
 	printf("\t\tExit code: %d (%s)\n", last_exit_code , *ps->args);
-	/*  free_ps(ps); */
+	free_process(ps, 0);
 	return (0);
 }
+int main()	
+{
+	init_terminal_data ();
+}
 
-
-int main(int ac, char **av, char **envp)
+int _main(int ac, char **av, char **envp)
 {
 	write(1, "start\n\n", 7);
 
@@ -320,28 +320,28 @@ int main(int ac, char **av, char **envp)
 	env_lst = 0;
 	//write(1, "HERE\n", 5);
 	upload_env_to_dict(envp, &env_lst);
-	ft_lstiter(env_lst, dict_print);
+	//ft_lstiter(env_lst, dict_print);
 	//ft_lstdelone(ft_lstlast(env_lst), del_dict);
 	dict_set_default(env_lst, ft_strdup("ONE"), ft_strdup("1234"));
 	write(1, "HERE\n", 5);
 	dict_set_default(env_lst, ft_strdup("ONE"), ft_strdup("2222"));
 	//ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
 	//ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
-	ft_lstiter(env_lst, dict_print);
+	//ft_lstiter(env_lst, dict_print);
 	write(1, "\n\n", 2);
 	//dict_print(get_dict_by_key(env_lst, get_key_from_dict, "ONE")->content);
 //del_dict_by_key(env_lst, del_dict, dict_key, "PATH");
 	//one = get_dict_by_key(env_lst, dict_key, "ONE");
 	//one = ft_lst_find(env_lst, (d = new_dict("BO", 0)), cmp_dict_keys);
-	free(d);
-	ft_lst_rm(&env_lst, (d = new_dict("ONE", 0)), cmp_dict_keys, del_dict);
-	free(d);
-	ft_lst_rm(&env_lst, (d = new_dict("TERM_PROGRAM", 0)), cmp_dict_keys, del_dict);
-	free(d);
-	ft_lstiter(env_lst, dict_print);
+	
+	//// free(d);
+	//// ft_lst_rm(&env_lst, (d = new_dict("ONE", 0)), cmp_dict_keys, del_dict);
+	//// free(d);
+	//// ft_lst_rm(&env_lst, (d = new_dict("TERM_PROGRAM", 0)), cmp_dict_keys, del_dict);
+	//// free(d);
+	//// ft_lstiter(env_lst, dict_print);
 	//ft_list_remove_if(env_lst, (d = new_dict("ONE", 0)), cmp_dict_keys, del_dict);
 	write(1, "HERE\n", 5);
-	free(d);
 	//if (one)
 	//	dict_print(one->content);
 	//else printf(GREEN"nothing"RESET);
@@ -353,7 +353,7 @@ int main(int ac, char **av, char **envp)
 	ps = (struct process**)multalloc(2, 1, sizeof(struct process));
 	if (!ps)
 		err("SHIT");
-	printf("process number %d\n", arr_len((void**)ps));
+	//printf("process number %d\n", arr_len((void**)ps));
 //	free(ps[2]);
 //	ps[2] = 0;
 
@@ -363,17 +363,23 @@ int main(int ac, char **av, char **envp)
 	//char *args2[3] = {"/usr/bin/less", 0, 0};
 	redirs_nbr = 2;
 
-	ps[0]->args = ft_split("echo HELLOLLLLLLL! $?", ' ');
+	ps[0]->args = ft_split("cd ..", ' ');
 	ps[0]->pipe[0] = -1;
 	ps[0]->pipe[1] = 0;
-	ps[1]->args = ft_split("CAT -e", ' ');
+	ps[1]->args = ft_split("pwd", ' ');
 	//ps[1]->args = ft_split("../sub", ' ');
 	ps[1]->pipe[0] = 0;
 	ps[1]->pipe[1] = -1;
+
 //	ps[1]->file = "text";
 //	ps[1]->status |= A_FILE;
 	//printf("process number %d\n", arr_len((void**)ps));
 	handle_processes(ps, env_lst);
+
+	free(ps);
+	printf(CYAN"\n");
+	system("leaks a.out | tail -5");
+	printf(RESET"\n");
 #endif
 
 #if 0

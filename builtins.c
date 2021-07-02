@@ -36,19 +36,20 @@ int					msh_export(struct process *ps)
 	}
 	else
 	{
-		ft_lst_sort_bubble(ps->env, cmp_dict_keys);
+		ft_lst_sort_bubble(&ps->env, cmp_dict_keys);
 		ft_lstiter(ps->env, env_dict_print);
 	}
 	return (1);
 }
 
-void				msh_unset(struct process *ps)
+int					msh_unset(struct process *ps)
 {
 	struct dict *d;
 
 	ft_lst_rm(&ps->env, (d = new_dict(ps->args[1], 0)),
 			  cmp_dict_keys, del_dict);
 	free(d);
+	return (1);
 }
 
 int					msh_env(struct process *ps)
@@ -61,8 +62,10 @@ int					msh_env(struct process *ps)
 int					msh_pwd(struct process *ps)
 {
 	char buf[MAXPATHLEN];
+	//char *buf;
 
-	getcwd(buf, 0) && printf("%s\n", sizeof(buf)) || display_err(ps);
+	(getcwd(buf, sizeof(buf)) && printf("%s\n", buf)) || display_err(ps);
+	//getcwd(buf, sizeof(buf)) && printf("%s\n", sizeof(buf)) || display_err(ps);
 	return (1);
 }
 
@@ -92,6 +95,10 @@ int					msh_cd(struct process *ps)
 }
 
 
+int					msh_exit(struct process *ps)
+{
+	return (1);
+}
 
 
 
