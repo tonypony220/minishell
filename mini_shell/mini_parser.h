@@ -7,6 +7,9 @@
 # include <string.h>
 # include <fcntl.h>
 # include <errno.h>
+# include <signal.h>
+//# include <readline/readline.h>
+//# include <readline/history.h>
 //# include <sys/types.h>
 //# include <sys/wait.h>
 
@@ -30,7 +33,10 @@ typedef	struct s_par
 	int	back_slash;
 	int	has_redir;
 	int	double_redir;
+	int	double_out;
 	int	semi_colon;
+	int	out;
+	int	red;
 }	t_par;
 
 typedef	struct s_list
@@ -38,6 +44,7 @@ typedef	struct s_list
 	char			*cmd;
 	int				i;
 	int				c_type;
+	int				redir;
 	struct s_list	*next;
 }	t_list;
 
@@ -56,6 +63,7 @@ typedef struct s_shell
 	t_env	*env;
 	t_par	pars;
 	char	**args;
+	char	*_arg;
 	char	*env_value;
 	int		fd_i;
 	int		fd_o;
@@ -91,33 +99,31 @@ int	mini_exec(char **line, t_shell *shell);
 int		mini_cmd(t_shell *shell);
 
 //PARSER
-int		mini_parser(char *line, t_shell *shell);
+int		pre_parser(char *line, t_shell *shell);
+void	main_parser(char *line, t_shell *shell, t_list **cmd);
 int		check_cmd(char *line, t_shell *shell);
-//void	parse_cmd(char *line, int *i, t_shell *shell);
-int		parse_cmd(char *line, t_list **cmd, t_shell *shell);
-int		parse_single_quotes(char *line, t_list **cmd, t_shell *shell);
-int		parse_double_quotes(char *line, t_list **cmd, t_shell *shell);
-int	parse_env_sign(char *line, t_list **cmd, t_shell *shell);
+int		parse_cmd(char *line, t_shell *shell);
+int		parse_single_quotes(char *line, t_shell *shell);
+int		parse_double_quotes(char *line, t_shell *shell);
+int	parse_env_sign(char *line, t_shell *shell);
+int	parse_redirect(char *line, t_list **cmd, t_shell *shell);
 
 char	*add_env_to_str(char *line, t_shell *shell);
 int	check_for_env(char **line, t_shell *shell);
+
+void	free_env_shell(t_shell *shell);
 
 //ENV
 void	init_env(char **envp, t_shell *shell);
 void	env_parser(char **envp, t_env **env);
 t_env	*ft_env_list(t_env **lst, char *line, int j, int end);
 void	ft_env(t_shell *shell);
-char	*get_env(t_shell *shell, char *line, int i, int end);
+int		get_env(t_shell *shell, char *line, int i, int end);
 void	ft_env_clear(t_env **list);
-
 int		check_env_syntax(char *line, int i);
 int		ifkey(char c);
 
-
-
-char	**make_map(t_list *head, int size, t_shell *shell);
-void	clear_map(char **map, int size);
-
+//ERRORS
 int	error_out(t_shell *shell, char *error);
 
 //UTILS
@@ -127,11 +133,15 @@ int		space_skip(const char *nptr, t_shell *shell);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_strdup(const char *s);
 int		ft_isalnum(int c);
+int		ft_strchr(const char *s, int c);
+void	ft_putchar(char c);
 
 //LIST STUFF
 t_list	*ft_lstlast(t_list *lst);
 t_list	*ft_lstadd(t_list **lst, char *line, t_shell *shell);
 int		ft_lstsize(t_list *lst);
 void	ft_lstclear(t_list **list);
+
+//HISTORY
 
 #endif

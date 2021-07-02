@@ -31,7 +31,7 @@ void	double_quote(char *line, int i, t_shell *shell)
 {
 	int j;
 
-	while(line[i] != '\0') //kkkk'kkkekekekeke
+	while(line[i] != '\0')
 	{
 		if (line[i] == '\"')
 		{
@@ -40,13 +40,6 @@ void	double_quote(char *line, int i, t_shell *shell)
 			j = i;
 			while (line[i] != '\0')
 			{
-/* 				if (line[i] == '$')
-					shell->env_sign = 1; */
-/* 				if (line[i] == '$')
-				{
-					ft_putendl("???", 1);
-					add_env_to_str(&line, shell, j);
-				} */
 				if (line[i] == '\"')
 				{
 					shell->dq_err = 0;
@@ -57,7 +50,7 @@ void	double_quote(char *line, int i, t_shell *shell)
 		}
 		i++;
 	}
-	if (shell->dq_err == 1)
+	if (shell->dq_err == 1 && shell->sq_err == 0)
 		error_out(shell, "syntax error double quotes");
 }
 
@@ -86,17 +79,50 @@ void	print_cmd(t_shell *shell)
 	}
 }
 
+int	pre_env_check(char *line, t_shell *shell)
+{
+	int i;
+	int end;
+
+	i = 0;
+	while (line[i] != '\0')
+	{
+		if (line[i] == '$')
+		{
+			end = i;
+			i++;
+			while (line[i] != ' ' && line[i] != '\'' && line[i] != '\"'
+					&& line[i] != '\\' && line[i] != '$')
+					i++;
+			if (get_env(shell, line, end + 1, i - 1) == 0)
+			{
+				shell->env_sign = 0;
+				free_env_shell(shell);
+				return (0);
+			}
+			else
+				return (1);
+		}
+		(i)++;
+	}
+	return (0);
+}
+
 int	check_for_env(char **line, t_shell *shell)
 {
 	int i;
 
 	i = 0;
 	shell->env_sign = 0;
+	if (line[0][i + 1] == '\0' || shell->pars.double_q == 0) // SegFault with single $
+		return (0);
 	while (line[0][i] != '\0')
 	{
 		if (line[0][i] == '$')
 		{
 			shell->env_sign = 1;
+/* 			if (pre_env_check(line[0], shell) == 0)
+				return (0); */
 			*line = add_env_to_str(line[0], shell);
 		}
 		i++;
@@ -115,32 +141,23 @@ char	*add_env_to_str(char *line, t_shell *shell)
 	int end;
 
 	i = 0;
-	//ft_putendl(line, 1);
-	//printf("%c\n", line[i]);
+	env = NULL;
 	while (line[i] != '\0')
 	{
 		if (line[i] == '$')
 		{
-			end = i;
+			end = i++;
 			tmp = ft_substr(line, 0, end);
-			i++;
-			while (line[i] != ' ' && line[i] != '\'' && line[i] != '\"'
-					&& line[i] != '\\' && line[i] != '$')
+			while (ft_strchr(" \'\"\\$;:", line[i]) == 0)
 					i++;
-			//printf("[%c] & [%c]\n", line[end], line[i]);
 			tmp2 = ft_substr(line, i, ft_strlen(line) - i);
-			env = ft_strdup(get_env(shell, line, end + 1, i - 1));
-			//printf("tmp - [%s]\nenv - [%s]\ntmp2 - [%s]\n", tmp, env, tmp2);
+			if (get_env(shell, line, end + 1, i - 1) == 1)
+				env = ft_strdup(shell->env_value);
+			free_env_shell(shell);
 			tmp = ft_strjoin(tmp, env);
-			//ft_putendl("new tmp2 - ", 0);
-			//ft_putendl(tmp2, 1);
 			tmp = ft_strjoin(tmp, tmp2);
-			//printf("new1 - [%s]\n", str);
-			//ft_putendl(line, 1);
 			free(env);
-			//free(tmp);
 			free(tmp2);
-			//free(str);
 			return (tmp);
 		}
 		(i)++;
@@ -148,81 +165,50 @@ char	*add_env_to_str(char *line, t_shell *shell)
 	return (line);
 }
 
-/* char	*env_in_quotes(char *line, t_shell *shell)
-{
-	int i;
-	char *tmp;
-	char *str;
-	char *end;
-	int j;
-
-	i = 0;
-	while (line[i] != '\0')
-	{
-		if (line[i] == '\"')
-		{
-			str = ft_substr(line, 0, i);
-			j = i;
-			while (line[++i] != '\"')
-			{
-				if (line[i] == '$')
-					shell->env_sign = 1;
-			}
-			tmp = ft_substr(str, j, i - j + 1);
-		}
-		i++;
-	}
-	ft_putendl(tmp, 1);
-	free(tmp);
-	return (NULL);
-} */
-
 void	exec_check(t_shell *shell)
 {
 	if (ft_strncmp(shell->cmd->cmd, "env", 3) == 0)
 		ft_env(shell);
 }
 
-int			mini_parser(char *line, t_shell *shell)
+void	main_parser(char *line, t_shell *shell, t_list **cmd)
+{
+	while(line[shell->i] != '\0')
+	{
+		if (line[shell->i] == '\'')
+			parse_single_quotes(line, shell);
+		else if (line[shell->i] == '\"')
+			parse_double_quotes(line, shell);
+		else if (line[shell->i] == '$')
+			parse_env_sign(line, shell);
+/* 		else if (line[i] == '>' || line[i] == '>>' || line[i] == '<')
+			parse_redirect(line, &cmd, shell);
+		else if (line[i] == '|' || line[i] == ';')
+			parse_pipe_and_semicolon(line, &cmd, shell); */
+		else
+			parse_cmd(line, shell);
+		if (line[shell->i + 1] == ' ' || line[shell->i + 1] == '\0')
+		{
+			ft_lstadd(cmd, shell->_arg, shell);
+			free(shell->_arg);
+			shell->_arg = NULL;
+		}
+		shell->i++;
+	}
+}
+
+int			pre_parser(char *line, t_shell *shell)
 {
 	t_list	*cmd;
 
 	shell->i = 0;
 	cmd = NULL;
 	space_skip(line, shell);
-	if (line[shell->i] == ';' || line[shell->i] == '|')
-		return (error_out(shell, "syntax error near unexpected token")); // ';' or '|'
+	if (line[shell->i] == '|')
+		return (error_out(shell, "syntax error near unexpected token"));
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
-	while(line[shell->i] != '\0')
-	{
-		if (line[shell->i] == '\'')
-			parse_single_quotes(line, &cmd, shell);
-		if (line[shell->i] == '\"')
-			parse_double_quotes(line, &cmd, shell);
-		if (line[shell->i] == '$')
-			parse_env_sign(line, &cmd, shell);
-/* 		if (line[i] == '\\')
-			parse_back_slash(line, &cmd, shell);
-		if (line[i] == '>' || line[i] == '>>' || line[i] == '<')
-			parse_redirect(line, &cmd, shell);
-		if (line[i] == '|' || line[i] == ';')
-			parse_pipe_and_semicolon(line, &cmd, shell); */
-		//ft_putendl("YA TYT", 1);
-		//printf("%c\n", line[i]);
-/* 		if (line[i] == '\'')
-		{
-			ft_putendl("LOL", 1);
-			break ;
-		} */
-/* 		if (line[i] == ' ')
-			space_skip(line, &i); */
-		else
-			parse_cmd(line, &cmd, shell);
-		if (line[shell->i] == '\0')
-			break ;
-		shell->i++;
-	}
+	main_parser(line, shell, &cmd);
 	if (cmd == NULL)
 		return (0);
 	shell->cmd = cmd;
@@ -232,43 +218,6 @@ int			mini_parser(char *line, t_shell *shell)
 	return (1);
 }
 
-/* int	mini_exec(char **line, t_shell *shell)
-{
-	pid_t pid, wpid;
-	int status;
-
-	if (line == NULL)
-		return (1);
-	pid = fork();
-	if (pid == 0) // Child process
-	{
-		printf("input->[%s | %s]\n", line, line);
-		if (execvp(line, line) == -1) // change to execve
-			perror("MINISHELL");
-		exit(0);
-	}
-	else if (pid < 0) // error
-		ft_putendl("Error forking\n", 0);
-	else // Parent process
-	{
-		wpid = waitpid(pid, &status, WUNTRACED);
-		while (!WIFEXITED(status) && !WIFSIGNALED(status))
-    		wpid = waitpid(pid, &status, WUNTRACED);
-	}
-	return (1);
-} */
-
-/* int		mini_cmd(t_shell *shell)
-{
-	if (shell->pars.has_pipe)
-		do_pipe_stuff(shell); // PIPE FUNC HERE ??
-	while (shell->pars.semi_colon > 0)
-	{
-		do_cmd_stuff(shell); // default stuff
-		shell->pars.semi_colon--;
-	}
-} */
-
 int		start_shell(t_shell *shell)
 {
 	char *line;
@@ -277,23 +226,17 @@ int		start_shell(t_shell *shell)
 	while (shell->status)
 	{
 		//find_pwd(); to find and store pwd in string to display in prompt
-		ft_putendl("[minishell(%%s)]# ", 0); // %s for pwd path
+		ft_putendl("[minishell]# ", 0);
 		get_next_line(0, &line);
 		shell->err = 0;
-		//printf("%s\n", line);
-		//ft_putendl(line, 1);
 		if (ft_strncmp(line, "vihod", 5) == 0)
 			shell->status = 0;
-		mini_parser(line, shell);
+		pre_parser(line, shell);
 		//mini_cmd(shell);
-		//ft_putendl(shell->cmd.cmd, 1);
 		//mini_exec(&line, shell);
-		//print_cmd(shell);
 		//if (ft_strncmp(shell->cmd->cmd, "exit", 4) == 0)
 		//		shell->status = 0;
 		free(line);
-		//free(shell->cmd.cmd);
-		//ft_lstclear(&shell->cmd);
 	}
 	ft_env_clear(&shell->env);
 	return (1);
@@ -311,7 +254,10 @@ t_par	init_pars(void)
 	pars.has_pipe = 0;
 	pars.has_redir = 0;
 	pars.double_redir = 0;
+	pars.double_out = 0;
 	pars.pipe_count = 0;
+	pars.out = 0;
+	pars.red = 0;
 	return (pars);
 }
 
@@ -319,11 +265,7 @@ int	main(int ac, char **av, char **envp)
 {
 	t_shell	shell;
 	t_par	pars;
-	//t_list	*cmd;
 
-	//cmd->cmd = NULL;
-	//cmd = NULL;
-	//cmd->i = 0;
 	shell.pars = init_pars();
 	shell.err = 0;
 	shell.sq_err = 0;
@@ -331,6 +273,7 @@ int	main(int ac, char **av, char **envp)
 	shell.env_len = 0;
 	shell.env_value = NULL;
 	shell.env_sign = 0;
+	shell._arg = NULL;
 	init_env(envp, &shell);
 	system("clear");
 	start_shell(&shell);
