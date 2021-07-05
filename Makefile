@@ -31,7 +31,7 @@ $(SUBDIRS):
 #		$(CC) -Imlx -Ignl -Ilibft ${CFLAGS} -c $< -o ${<:.c=.o}
 
 ${NAME}: ${OBJS} ${HEAD}
-		$(CC) ${OBJS} -Llibft -lft -ltermcap -o ${NAME}
+		$(CC) ${OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
 
 all:	${NAME}
 

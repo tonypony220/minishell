@@ -12,6 +12,8 @@
 # include <sys/errno.h>
 # include <sys/param.h>  /* MAXPATHLEN value */
 # include <termcap.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 
 # define RED 	 "\033[1;31m"
 # define GREEN   "\033[0;32m"
@@ -106,6 +108,5 @@ int			msh_exit(struct process *ps);
 
 void	free_processes(struct process **ps);
 void	free_process(struct process *ps, int child);
-
 
 #endif

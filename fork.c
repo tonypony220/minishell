@@ -295,12 +295,8 @@ int wait_process(struct process *ps)
 	free_process(ps, 0);
 	return (0);
 }
-int main()	
-{
-	init_terminal_data ();
-}
 
-int _main(int ac, char **av, char **envp)
+int main(int ac, char **av, char **envp)
 {
 	write(1, "start\n\n", 7);
 
@@ -364,9 +360,36 @@ int _main(int ac, char **av, char **envp)
 	redirs_nbr = 2;
 
 	ps[0]->args = ft_split("cd ..", ' ');
-	ps[0]->pipe[0] = -1;
+	ps[0]->pipe[0] = 0;
 	ps[0]->pipe[1] = 0;
 	ps[1]->args = ft_split("pwd", ' ');
+	//ps[1]->args = ft_split("../sub", ' ');
+	ps[1]->pipe[0] = 0;
+	ps[1]->pipe[1] = 0;
+
+//	ps[1]->file = "text";
+//	ps[1]->status |= A_FILE;
+	//printf("process number %d\n", arr_len((void**)ps));
+	handle_processes(ps, env_lst);
+#endif
+#if 0
+	ps = (struct process**)multalloc(2, 1, sizeof(struct process));
+	if (!ps)
+		err("SHIT");
+	//printf("process number %d\n", arr_len((void**)ps));
+//	free(ps[2]);
+//	ps[2] = 0;
+
+	//char *args[3] = {"cat", 0, 0};
+	//char *args2[3] = {"/bin/cat", "-e", 0};
+	//char *args2[3] = {"ls", 0, 0};
+	//char *args2[3] = {"/usr/bin/less", 0, 0};
+	redirs_nbr = 2;
+
+	ps[0]->args = ft_split("export", ' ');
+	ps[0]->pipe[0] = -1;
+	ps[0]->pipe[1] = 0;
+	ps[1]->args = ft_split("cat -e", ' ');
 	//ps[1]->args = ft_split("../sub", ' ');
 	ps[1]->pipe[0] = 0;
 	ps[1]->pipe[1] = -1;
