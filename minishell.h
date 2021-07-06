@@ -27,6 +27,7 @@
 
 # define CMD_NOT_FOUND_CODE 127
 
+# define NO_PIPE -1
 # define OUT 1
 # define IN 0
 # define CHILD_PID 0
@@ -37,8 +38,8 @@
 //# define R_FILE   1 << 4
 # define A_FILE 	   1 << 5  /* append to dile */
 # define SEQ 	   1 << 6	/* process terminates ';'. and not concurent executing */
-# define BUILTIN    1 << 7
-# define DIRECT 	   1 << 8  /*  */
+# define BUILTIN   1 << 7
+# define DIRECT    1 << 8  /*  */
 
 # define BUILTINS "env echo pwd export unset exit cd"
 # define WR_BUILTINS "env echo pwd"  			/* which write */

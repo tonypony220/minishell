@@ -64,6 +64,7 @@ int					msh_pwd(struct process *ps)
 	char buf[MAXPATHLEN];
 	//char *buf;
 
+	//printf(GREEN"%s getcwd <<\n"RESET, getcwd(buf, sizeof(buf)));
 	(getcwd(buf, sizeof(buf)) && printf("%s\n", buf)) || display_err(ps);
 	//getcwd(buf, sizeof(buf)) && printf("%s\n", sizeof(buf)) || display_err(ps);
 	return (1);
@@ -91,6 +92,7 @@ int					msh_cd(struct process *ps)
 		return (-1);
 	getcwd(buf, sizeof(buf));
 	r = dict_set_default(ps->env, ft_strdup("PWD"), ft_strdup(buf));
+//	printf("%d << r\n", r);
 	return (r);
 }
 

@@ -29,7 +29,7 @@ int			freemultalloc(void **p)
 	void **tmp;
 
 	tmp = p;
-	while (*p)
+	while (p && *p)
 	{
 		free(*p);
 		p++;

@@ -42,21 +42,23 @@ int	err(char* err_str)
 char *make_err_msg(struct process *ps)
 {
 	if (ps->exit_code)
-		return ("command not found");
+		//return ("command not found :)");
+		return (strerror(ps->exit_code));
+	//printf("%d EXIT CODE\n", errno);
 	return (strerror(errno));
 }
 
 int display_err(struct process *ps)
 {
 	// todo redirect STD_ERR that errors printed right : )
-	printf(RED"yosh: %s: %s"RESET"\n", *(ps->args), make_err_msg(ps));
+	printf(RED"msh: %s: %s"RESET"\n", *(ps->args), make_err_msg(ps));
 	return (1);
 }
 
 
 void		close_fds(int **fds)
 {
-	while (*fds)
+	while (fds && *fds)
 	{
 //		printf("closing fds\n");
 		**fds > 2 && close(**fds);
@@ -101,6 +103,7 @@ void			dispatching_process(struct process *ps)
 	// todo BUILTINS
 	if (path[0] == '/' || path[0] == '.')
 		return ;
+	printf("searching path for %s...", ps->args[0]);
 	if ((name = find_path(ps->args[0])) && (ps->args[0] = name))
 		free(path);
 	else
@@ -118,7 +121,7 @@ void			dispatching_process(struct process *ps)
 int			execute_builtin(struct process *ps)
 {
 	// unset errors with leading numbers or equality sign
-	printf(">>executing command builit %s %s\n",
+	printf(CYAN">>executing command builit %s %s\n"RESET,
 		   ps->args[0], ps->args[1]);
 	ft_strcmp(ps->args[0], "echo")	 || msh_echo(ps);
 	ft_strcmp(ps->args[0], "export") || msh_export(ps);
@@ -140,7 +143,7 @@ int			create_new_process(struct process *ps)
 {
 	int		pid;
 
-	printf(">>forking process %s %s %s\n", GREEN, ps->args[0], RESET);
+	printf(CYAN">>forking process %s %s %s\n"RESET, GREEN, ps->args[0], RESET);
 
 	if ((pid = fork()) == -1) // todo why fork creates several leaks ????
 		err("fork failed"); // todo not exit
@@ -156,7 +159,12 @@ int			create_new_process(struct process *ps)
 		/* old version */
 		//	ps->pipe[OUT] != -1 && ((dup2(ps->fd[OUT], OUT) >= 0) || err("dup2")); // && close(fd[OUT]);
 		//	ps->pipe[IN] != -1 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2"));// && close(fd[IN]);
+		//write(1, "WTF<<\n", 6);
+		//printf("%p fds\n", ps->fds);
+
 		close_fds(ps->fds);
+		if (ps->file) /* auxillary close */
+			close((*ps)->fd[OUT])
 		if (ps->status & BUILTIN)
 			execute_builtin(ps);
 		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env, dict_key));
@@ -164,6 +172,7 @@ int			create_new_process(struct process *ps)
 		if (errno == 2)
 			exit(127);  //CMD_NOT_FOUND_CODE);
 		exit(EXIT_FAILURE);
+
 //			(*ps).status &= ~WAIT; will not affect parent process :(
 		//printf(RED"FAILED %s"RESET"\n", ps->args[0]);
 		//err(RED"Could not execve"RESET); // todo how memory clears;
@@ -195,7 +204,9 @@ int handle_processes(struct process **ps, t_list *env)
 	int pipe_number;
 	int flag;
 
-	fds = (int**)multalloc(redirs_nbr, 2, sizeof(int));
+	fds = 0;
+	if (redirs_nbr)
+		fds = (int**)multalloc(redirs_nbr, 0, sizeof(int));
 
 	tmp = ps;
 	while (*ps)
@@ -206,9 +217,8 @@ int handle_processes(struct process **ps, t_list *env)
 		 * 	   [0] [ 0][1] [1][2]  1 pipe, 2 file
 		 */
 		(*ps)->env = env;
-		if ((**ps).pipe[OUT] != -1 && !((**ps).file)) //(**ps).status &(W_FILE | A_FILE)))
+		if ((**ps).pipe[OUT] != NO_PIPE && !((**ps).file)) //(**ps).status &(W_FILE | A_FILE)))
 		{
-//			write(1, "pipe ps\n", 8);
 			pipe_number = (**ps).pipe[OUT];
 			/* pipe() return 0 if success */
 			(pipe(fds[pipe_number]) == -1) && err("pipe creation failed");
@@ -232,7 +242,7 @@ int handle_processes(struct process **ps, t_list *env)
 		/* cases to execute directly: exit export unset */
 		dispatching_process(*ps);
 
-		printf("PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d)\n",
+		printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d)\n"RESET,
 			   (*ps)->args[0],
 			   (*ps)->args[1],
 			   (*ps)->pipe[0],
@@ -240,7 +250,9 @@ int handle_processes(struct process **ps, t_list *env)
 			   (*ps)->fd[0],
 			   (*ps)->fd[1],
 			   (*ps)->file,
-			   (*ps)->status & BUILTIN && 1);
+			   (*ps)->status & BUILTIN && 1,
+			   (*ps)->status & DIRECT && 1)
+			;
 
 		if (((*ps)->exit_code) == 0)
 		{
@@ -256,7 +268,10 @@ int handle_processes(struct process **ps, t_list *env)
 	freemultalloc((void**)fds);
 	while (*ps)
 	{
+		if ((*ps)->file) /* auxillaty close */
+			close((*ps)->fd[OUT])
 		wait_process(*ps);
+		free_process(*ps, 0);
 		ps++;
 	}
 	return (1);
@@ -268,7 +283,7 @@ int wait_process(struct process *ps)
 	int exit_code;
 
 	status = 0;
-	ps->exit_code || wait(&status);
+	ps->exit_code || (ps->status & DIRECT) || wait(&status);
 	//(*ps).status & WAIT &&
 	if (WIFEXITED(status))
 		/* WIFEXITED True if the process terminated
@@ -281,18 +296,21 @@ int wait_process(struct process *ps)
 	else if (WIFSIGNALED(status))
 	{
 		//	printf(GREEN"%d"RESET"\n", WIFSIGNALED(status));
+		
 		/* WIFSIGNALED True if the process terminated
 		 * due to receipt of a signal. */
 		//psignal(WTERMSIG(status), "Exit signal");
 		exit_code = WTERMSIG(status);
 	}
+
+	//printf("\t\texit code: %d (%s)\n", exit_code , *ps->args);
 	/* status should exist even if */
 	// todo catch status from signaled and put it to last_exit_code
+	exit_code && (ps->exit_code = exit_code);
 	ps->exit_code && (exit_code = ps->exit_code) && display_err(ps);
 	last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
-	printf("\t\tExit code: %d (%s)\n", last_exit_code , *ps->args);
-	free_process(ps, 0);
+	printf(CYAN"\t\tExit code: %d (%s)\n", last_exit_code , *ps->args);
 	return (0);
 }
 
@@ -346,7 +364,7 @@ int main(int ac, char **av, char **envp)
 	//printf("found %s %s\n", ((struct env_dict*)found->content)->key, ((struct env_dict*)found->content)->value);
 
 
-	ps = (struct process**)multalloc(2, 1, sizeof(struct process));
+	ps = (struct process**)multalloc(3, 1, sizeof(struct process));
 	if (!ps)
 		err("SHIT");
 	//printf("process number %d\n", arr_len((void**)ps));
@@ -357,22 +375,25 @@ int main(int ac, char **av, char **envp)
 	//char *args2[3] = {"/bin/cat", "-e", 0};
 	//char *args2[3] = {"ls", 0, 0};
 	//char *args2[3] = {"/usr/bin/less", 0, 0};
-	redirs_nbr = 2;
+	redirs_nbr = 0;
 
-	ps[0]->args = ft_split("cd ..", ' ');
-	ps[0]->pipe[0] = 0;
-	ps[0]->pipe[1] = 0;
-	ps[1]->args = ft_split("pwd", ' ');
-	//ps[1]->args = ft_split("../sub", ' ');
-	ps[1]->pipe[0] = 0;
-	ps[1]->pipe[1] = 0;
+	ps[0]->args = ft_split("pwd", ' ');
+	ps[0]->pipe[0] = NO_PIPE;
+	ps[0]->pipe[1] = NO_PIPE;
 
+	ps[1]->args = ft_split("cd ..", ' ');
+	ps[1]->pipe[0] = NO_PIPE;
+	ps[1]->pipe[1] = NO_PIPE;
+
+	ps[2]->args = ft_split("echo $?", ' ');
+	ps[2]->pipe[0] = NO_PIPE;
+	ps[2]->pipe[1] = NO_PIPE;
 //	ps[1]->file = "text";
 //	ps[1]->status |= A_FILE;
 	//printf("process number %d\n", arr_len((void**)ps));
 	handle_processes(ps, env_lst);
 #endif
-#if 0
+#if 1
 	ps = (struct process**)multalloc(2, 1, sizeof(struct process));
 	if (!ps)
 		err("SHIT");
@@ -387,22 +408,22 @@ int main(int ac, char **av, char **envp)
 	redirs_nbr = 2;
 
 	ps[0]->args = ft_split("export", ' ');
-	ps[0]->pipe[0] = -1;
-	ps[0]->pipe[1] = 0;
+	ps[0]->pipe[IN] = NO_PIPE;
+	ps[0]->pipe[OUT] = 0;
 	ps[1]->args = ft_split("cat -e", ' ');
 	//ps[1]->args = ft_split("../sub", ' ');
-	ps[1]->pipe[0] = 0;
-	ps[1]->pipe[1] = -1;
+	ps[1]->pipe[IN] = 0;
+	ps[1]->pipe[OUT] = NO_PIPE;
+	ps[1]->file = "text";
 
-//	ps[1]->file = "text";
+	//ps[2]->args = ft_split("cat -e", ' ');
+	//ps[1]->pipe[IN] = 1;
+	//ps[1]->pipe[OUT] = -1;
 //	ps[1]->status |= A_FILE;
 	//printf("process number %d\n", arr_len((void**)ps));
 	handle_processes(ps, env_lst);
 
 	free(ps);
-	printf(CYAN"\n");
-	system("leaks a.out | tail -5");
-	printf(RESET"\n");
 #endif
 
 #if 0

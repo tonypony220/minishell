@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern char** environ;
+//extern char** environ;
 int	err(char* err_str)
 {
 	perror(err_str);
@@ -15,9 +15,9 @@ int	err(char* err_str)
 int func()
 {
 	int pid;
-	char **args = {"booo", ""};
+	//char **args = {"booo", ""};
 
-	char *str = malloc(200);
+	//char *str = malloc(200);
 	if ((pid = fork()) == -1)
 	{
 		perror("demo");
@@ -25,15 +25,17 @@ int func()
 	}
 	else if (pid == 0)   				/* child:  "cat a"                      */
 	{  
-		execve(args[0], args, environ);
-		str= 0;
-		system("leaks a.out");
-		sleep(100);
+		//execve(args[0], args, environ);
+		sleep(3);
+		printf("%d\n", getppid());
+		system("leaks forks");
+		sleep(1000);
 		exit(1);        				/* no flush                             */
 	}
 	else 
 	{                      				/* parent:  "/usr/bin/wc"               */
-		sleep(100);
+		printf("%d\n", getppid());
+		sleep(1000);
 		exit(1);	        			/* parent flushes                       */
 	}
 }
