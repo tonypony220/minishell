@@ -14,6 +14,7 @@
 # include <termcap.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include "mini_shell/mini_parser.h"
 
 # define RED 	 "\033[1;31m"
 # define GREEN   "\033[0;32m"
@@ -53,7 +54,9 @@
 struct		vars
 {
 	int		last_exit_code;
-	struct process **ps;
+	t_list	*env;
+	struct	process **ps;
+	t_shell *shell;
 };
 
 struct		process
@@ -70,7 +73,6 @@ struct		process
 	char	*file;     /* filename to redirections */
 	t_list	*env;	   /* back link on current shell evniron */
 };
-
 
 struct		dict
 {

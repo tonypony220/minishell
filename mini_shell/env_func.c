@@ -127,27 +127,46 @@ void	ft_env(t_shell *shell)
 
 int	get_env(t_shell *shell, char *line, int i, int end)
 {
-	char *tmp;
-	t_env *env_tmp;
+	/* function stores found values in shell structure */		
+	t_list *one;
+	char *key;
+	int	ret; 
 
-	env_tmp = shell->env;
-	tmp = ft_substr(line, i, end - i + 1);
-	//ft_putendl(tmp, 1);
-	while (env_tmp)
+	ret = 0;
+	key = ft_substr(line, i, end - i + 1); // no check for malloc failure
+	one = ft_lst_find(shell->vars->env, (d = new_dict(key, 0)), cmp_dict_keys); // mo malloc dict check also
+	if (one)
 	{
-		if ((ft_strncmp(tmp, env_tmp->key, ft_strlen(tmp) + 1) == 0))
-		{
-			free(tmp);
-			shell->env_len = ft_strlen(env_tmp->value);
-			shell->env_value = ft_strdup(env_tmp->value);
-			//ft_env_clear(&env_tmp);
-			return (1);
-		}
-		env_tmp = env_tmp->next;
+		shell->env_len = ft_strlen(dict_value(one));
+		shell->env_value = ft_strdup(dict_value(one));  // can't use direct pointer from dict content
+		ret = 1;
 	}
-	free(tmp);
-	//ft_env_clear(&env_tmp);
-	return (0);
+	free(key);
+	free(one);
+	return (ret);
+	
+//// ......SUBSTITUTED CODE	.........
+////	char *tmp;
+////	t_env *env_tmp;
+////
+////	env_tmp = shell->env;
+////	tmp = ft_substr(line, i, end - i + 1);
+////	//ft_putendl(tmp, 1);
+////	while (env_tmp)
+////	{
+////		if ((ft_strncmp(tmp, env_tmp->key, ft_strlen(tmp) + 1) == 0))
+////		{
+////			free(tmp);
+////			shell->env_len = ft_strlen(env_tmp->value);
+////			shell->env_value = ft_strdup(env_tmp->value);
+////			//ft_env_clear(&env_tmp);
+////			return (1);
+////		}
+////		env_tmp = env_tmp->next;
+////	}
+////	free(tmp);
+////	//ft_env_clear(&env_tmp);
+////	return (0);
 }
 
 int		ifkey(char c)

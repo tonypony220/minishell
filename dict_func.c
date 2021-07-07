@@ -41,6 +41,16 @@ char					*dict_key(void* data)
 	return (0);
 }
 
+
+char					*dict_value(void* data)
+{
+	struct dict *content;
+
+	content = (struct dict*)data;
+	if (content)
+		return (content->value);
+	return (0);
+}
 /* like python set default 
  * function expects to recive allocated key and value
  */
