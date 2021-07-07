@@ -53,6 +53,7 @@
 struct		vars
 {
 	int		last_exit_code;
+	struct process **ps;
 };
 
 struct		process
@@ -113,7 +114,7 @@ int			msh_pwd(struct process *ps);
 int			msh_cd(struct process *ps);
 int			msh_exit(struct process *ps);
 
-void	free_processes(struct process **ps);
-void	free_process(struct process *ps, int child);
+void		free_processes(struct process **ps);
+void		free_process(struct process *ps, int child);
 
 #endif
