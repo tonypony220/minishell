@@ -4,7 +4,7 @@ int	parse_cmd(char *line, t_shell *shell)
 {
 	space_skip(line, shell);
 	shell->start = shell->i;
-	if (ft_strchr("$\'\"><", line[shell->i]))
+	if (ft_strchr("$\'\"><|", line[shell->i]))
 	{
 		(shell->i)--;
 		return (1);
@@ -16,8 +16,9 @@ int	parse_cmd(char *line, t_shell *shell)
 			shell->end = shell->i;
 			shell->_arg = ft_strjoin(shell->_arg, 
 					ft_substr(line, shell->start, shell->end - shell->start + 1));
-			if (ft_strchr("$\'\"><", line[shell->i]))
+			if (ft_strchr("$\'\"><|", line[shell->i]))
 				(shell->i)--;
+			//printf("lag\n");
 			return (1);
 		}
 		(shell->i)++;
@@ -36,7 +37,7 @@ int	parse_double_quotes(char *line, t_shell *shell)
 		if (line[shell->i + 1] == '\"')
 		{
 			shell->end = (shell->i);
-			shell->pars.double_q = 1;
+			shell->flags.double_q = 1;
 			//ft_lstadd(cmd, line, shell);
 			shell->_arg = ft_strjoin(shell->_arg, 
 					ft_substr(line, shell->start, shell->end - shell->start + 1));
@@ -112,27 +113,35 @@ int	parse_env_sign(char *line, t_shell *shell)
 
 int	parse_redirect(char *line, t_list **cmd, t_shell *shell)
 {
-	shell->pars.has_redir = 1;
+	shell->flags.has_redir = 1;
 	if (line[shell->i + 1] == '>')
 	{
-		shell->pars.double_redir = 1;
+		shell->flags.double_redir = 1;
 		shell->i += 2;
 	}
 	else if (line[shell->i + 1] == '<')
 	{
-		shell->pars.double_out = 1;
+		shell->flags.double_out = 1;
 		shell->i += 2;
 	}
 	else if (line[shell->i] == '<')
 	{
-		shell->pars.out = 1;
+		shell->flags.out = 1;
 		shell->i++;
 	}
 	else
 	{
-		shell->pars.red = 1;
+		shell->flags.red = 1;
 		shell->i++;
 	}
 	(*cmd)->redir = 1;
 	return (0);
+}
+
+int	parse_pipe(char *line, t_shell *shell)
+{
+	shell->flags.has_pipe = 1;
+	shell->flags.pipe_count++;
+	shell->flags.pipe_in = shell->flags.pipe_out;
+	return (1);
 }

@@ -1,6 +1,16 @@
 #include "mini_parser.h"
 
-/* int	mini_exec(char **line, t_shell *shell)
+void	print_cmd(t_shell *shell)
+{
+	while (shell->token)
+	{
+		//ft_putendl(shell->token->cmd, 1);
+		printf("%s\nPIPE IN [%d] -- PIPE OUT [%d] -- PIPE# [%d]\n", shell->token->token, shell->token->pipe[0], shell->token->pipe[1], shell->token->_pipe);
+		shell->token = shell->token->next;
+	}
+}
+
+int	mini_exec(char **line, t_shell *shell)
 {
 	pid_t pid, wpid;
 	int status;
@@ -10,9 +20,10 @@
 	pid = fork();
 	if (pid == 0) // Child process
 	{
-		printf("input->[%s | %s]\n", line, line);
-		if (execvp(line, line) == -1) // change to execve
-			perror("MINISHELL");
+		//printf("input->[%s | %s]\n", line, line);
+		print_cmd(shell);
+/* 		if (execvp(line[0], line) == -1) // change to execve
+			perror("MINISHELL"); */
 		exit(0);
 	}
 	else if (pid < 0) // error
@@ -24,7 +35,7 @@
     		wpid = waitpid(pid, &status, WUNTRACED);
 	}
 	return (1);
-} */
+}
 
 /* int		mini_cmd(t_shell *shell)
 {

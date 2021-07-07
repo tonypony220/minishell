@@ -54,6 +54,34 @@ void	double_quote(char *line, int i, t_shell *shell)
 		error_out(shell, "syntax error double quotes");
 }
 
+void	pipe_syntax(char *line, int i, t_shell *shell)
+{
+	int j;
+
+	j = shell->i;
+	while(line[shell->i] != '\0')
+	{
+		if (line[shell->i] == '\"')
+		{
+			shell->i++;
+			while (line[shell->i] != '\"')
+				shell->i++;
+		}
+		if (line[shell->i] == '\'')
+		{
+			shell->i++;
+			while (line[shell->i] != '\'')
+				shell->i++;
+		}
+		if (line[shell->i] == '|')
+		{
+			space_skip(line, shell);
+		}
+	}
+	if (shell->dq_err == 1 && shell->sq_err == 0)
+		error_out(shell, "syntax error double quotes");
+}
+
 int		check_cmd(char *line, t_shell *shell)
 {
 	int j;
@@ -62,21 +90,13 @@ int		check_cmd(char *line, t_shell *shell)
 	j = shell->i;
 	single_quote(line, j, shell);
 	double_quote(line, j, shell);
+	//pipe_syntax(line, j, shell);
 	shell->dq_err = 0;
 	shell->sq_err = 0;
 	shell->i = j;
 	if (shell->err == -1)
 		return (-1);
 	return (1);
-}
-
-void	print_cmd(t_shell *shell)
-{
-	while (shell->cmd)
-	{
-		ft_putendl(shell->cmd->cmd, 1);
-		shell->cmd = shell->cmd->next;
-	}
 }
 
 int	pre_env_check(char *line, t_shell *shell)
@@ -114,7 +134,7 @@ int	check_for_env(char **line, t_shell *shell)
 
 	i = 0;
 	shell->env_sign = 0;
-	if (line[0][i + 1] == '\0' || shell->pars.double_q == 0) // SegFault with single $
+	if (line[0][i + 1] == '\0' || shell->flags.double_q == 0) // SegFault with single $
 		return (0);
 	while (line[0][i] != '\0')
 	{
@@ -167,8 +187,22 @@ char	*add_env_to_str(char *line, t_shell *shell)
 
 void	exec_check(t_shell *shell)
 {
-	if (ft_strncmp(shell->cmd->cmd, "env", 3) == 0)
+	if (ft_strncmp(shell->token->token, "env", 3) == 0)
 		ft_env(shell);
+}
+
+void	check_for_pipe(char *line, t_shell *shell)
+{
+	int i;
+
+	i = shell->i;
+	shell->i++;
+	space_skip(line, shell);
+	if (line[shell->i] == '\0')
+		shell->flags.pipe_out = -1;
+	if (line[shell->i] == '|')
+		shell->flags.pipe_out++;
+	shell->i = i;
 }
 
 void	main_parser(char *line, t_shell *shell, t_list **cmd)
@@ -181,14 +215,15 @@ void	main_parser(char *line, t_shell *shell, t_list **cmd)
 			parse_double_quotes(line, shell);
 		else if (line[shell->i] == '$')
 			parse_env_sign(line, shell);
-/* 		else if (line[i] == '>' || line[i] == '>>' || line[i] == '<')
-			parse_redirect(line, &cmd, shell);
-		else if (line[i] == '|' || line[i] == ';')
-			parse_pipe_and_semicolon(line, &cmd, shell); */
+/* 		else if (line[shell->i] == '>' || line[shell->i] == '<')
+			parse_redirect(line, shell); */
+		else if (line[shell->i] == '|')
+			parse_pipe(line, shell);
 		else
 			parse_cmd(line, shell);
 		if (line[shell->i + 1] == ' ' || line[shell->i + 1] == '\0')
 		{
+			check_for_pipe(line, shell);
 			ft_lstadd(cmd, shell->_arg, shell);
 			free(shell->_arg);
 			shell->_arg = NULL;
@@ -211,10 +246,10 @@ int			pre_parser(char *line, t_shell *shell)
 	main_parser(line, shell, &cmd);
 	if (cmd == NULL)
 		return (0);
-	shell->cmd = cmd;
+	shell->token = cmd;
 	//exec_check(shell);
-	print_cmd(shell);
-	ft_lstclear(&shell->cmd);
+	//print_cmd(shell);
+	//ft_lstclear(&shell->token);
 	return (1);
 }
 
@@ -225,48 +260,49 @@ int		start_shell(t_shell *shell)
 	shell->status = 1;
 	while (shell->status)
 	{
-		//find_pwd(); to find and store pwd in string to display in prompt
-		ft_putendl("[minishell]# ", 0);
-		get_next_line(0, &line);
+		line = readline("[minishell]#");
 		shell->err = 0;
-		if (ft_strncmp(line, "vihod", 5) == 0)
+		if (ft_strncmp(line, "vihod", ft_strlen(line) + 1) == 0)
 			shell->status = 0;
-		pre_parser(line, shell);
-		//mini_cmd(shell);
-		//mini_exec(&line, shell);
-		//if (ft_strncmp(shell->cmd->cmd, "exit", 4) == 0)
-		//		shell->status = 0;
+		shell->flags = init_flags();
+		if (pre_parser(line, shell))
+		{
+			add_history(line);
+			mini_exec(&line, shell);
+		}
+		ft_lstclear(&shell->token);
 		free(line);
 	}
 	ft_env_clear(&shell->env);
 	return (1);
 }
 
-t_par	init_pars(void)
+t_flags	init_flags(void)
 {
-	t_par	pars;
+	t_flags	flags;
 
-	pars.semi_colon = 1;
-	pars.back_slash = 0;
-	pars.single_q = 0;
-	pars.double_q = 0;
-	pars.has_env = 0;
-	pars.has_pipe = 0;
-	pars.has_redir = 0;
-	pars.double_redir = 0;
-	pars.double_out = 0;
-	pars.pipe_count = 0;
-	pars.out = 0;
-	pars.red = 0;
-	return (pars);
+	flags.semi_colon = 1;
+	flags.back_slash = 0;
+	flags.single_q = 0;
+	flags.double_q = 0;
+	flags.has_env = 0;
+	flags.has_pipe = 0;
+	flags.has_redir = 0;
+	flags.double_redir = 0;
+	flags.double_out = 0;
+	flags.pipe_count = 0;
+	flags.pipe_in = -1;
+	flags.pipe_out = -1;
+	flags.out = 0;
+	flags.red = 0;
+	return (flags);
 }
 
 int	main(int ac, char **av, char **envp)
 {
 	t_shell	shell;
-	t_par	pars;
 
-	shell.pars = init_pars();
+	//shell.flags = init_flags();
 	shell.err = 0;
 	shell.sq_err = 0;
 	shell.dq_err = 0;
