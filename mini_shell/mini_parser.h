@@ -8,10 +8,10 @@
 # include <fcntl.h>
 # include <errno.h>
 # include <signal.h>
-//# include <readline/readline.h>
-//# include <readline/history.h>
-//# include <sys/types.h>
-//# include <sys/wait.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 
 # define BUFFER_SIZE 42
 # define DQ	50 // ""
@@ -23,11 +23,13 @@
 # define EN 56 // $
 # define BS 57 // '\\'
 
-typedef	struct s_par
+typedef	struct s_flags
 {
 	int	single_q;
 	int	double_q;
 	int	has_pipe;
+	int	pipe_in;
+	int pipe_out;
 	int	pipe_count;
 	int	has_env;
 	int	back_slash;
@@ -37,12 +39,21 @@ typedef	struct s_par
 	int	semi_colon;
 	int	out;
 	int	red;
-}	t_par;
+}	t_flags;
+
+typedef	struct s_cmd
+{
+	char **cmd;
+	int				_pipe; // pipe number
+	int				pipe[2];
+	struct s_list	*next;
+}	t_cmd;
 
 typedef	struct s_list
 {
-	char			*cmd;
-	int				i;
+	char			*token;
+	int				_pipe; // pipe number
+	int				pipe[2];
 	int				c_type;
 	int				redir;
 	struct s_list	*next;
@@ -59,9 +70,9 @@ typedef	struct s_env
 
 typedef struct s_shell
 {
-	t_list	*cmd;
+	t_list	*token;
 	t_env	*env;
-	t_par	pars;
+	t_flags	flags;
 	char	**args;
 	char	*_arg;
 	char	*env_value;
@@ -97,6 +108,7 @@ char	*ft_rewrite_rmd(char *rmd);
 int		start_shell(t_shell *shell);
 int	mini_exec(char **line, t_shell *shell);
 int		mini_cmd(t_shell *shell);
+t_flags	init_flags(void);
 
 //PARSER
 int		pre_parser(char *line, t_shell *shell);
@@ -107,6 +119,9 @@ int		parse_single_quotes(char *line, t_shell *shell);
 int		parse_double_quotes(char *line, t_shell *shell);
 int	parse_env_sign(char *line, t_shell *shell);
 int	parse_redirect(char *line, t_list **cmd, t_shell *shell);
+int	parse_pipe(char *line, t_shell *shell);
+
+void	print_cmd(t_shell *shell);
 
 char	*add_env_to_str(char *line, t_shell *shell);
 int	check_for_env(char **line, t_shell *shell);

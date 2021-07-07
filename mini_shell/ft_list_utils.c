@@ -1,31 +1,5 @@
 #include "mini_parser.h"
 
-/* int		ft_atoi(t_cub *cub, const char *nptr)
-{
-	int d;
-	int k;
-
-	k = 0;
-	d = 1;
-	while ((nptr[cub->index] == ' ') || (nptr[cub->index] == '\n') || (nptr[cub->index] == '\f')
-	|| (nptr[cub->index] == '\v') || (nptr[cub->index] == '\r') || (nptr[cub->index] == '\t'))
-		cub->index++;
-	if ((nptr[cub->index] == '+') || (nptr[cub->index] == '-'))
-	{
-		if (nptr[cub->index] == '-')
-			d *= -1;
-		cub->index++;
-	}
-	while (nptr[cub->index] >= '0' && nptr[cub->index] <= '9')
-	{
-		k = k * 10 + (nptr[cub->index] - '0');
-		cub->index++;
-	}
-	if (nptr)
-		cub->index++;
-	return (k * d);
-} */
-
 t_list	*ft_lstlast(t_list *lst)
 {
 	if (lst)
@@ -34,6 +8,15 @@ t_list	*ft_lstlast(t_list *lst)
 			lst = lst->next;
 	}
 	return (lst);
+}
+
+void	set_flags(t_list **new, t_shell *shell)
+{
+	//printf("=%d=%d\n", shell->flags.pipe_in, shell->flags.pipe_out);
+	(*new)->_pipe = shell->flags.pipe_count;
+	(*new)->pipe[0] = shell->flags.pipe_in;
+	(*new)->pipe[1] = shell->flags.pipe_out;
+	shell->flags.double_q = 0;
 }
 
 t_list	*ft_lstadd(t_list **lst, char *line, t_shell *shell)
@@ -45,10 +28,9 @@ t_list	*ft_lstadd(t_list **lst, char *line, t_shell *shell)
 		return (NULL);
 	if (!(new = (t_list*)malloc(sizeof(*new))))
 		return (0);
-	//new->cmd = ft_substr(line, shell->start, shell->end - shell->start + 1);
-	new->cmd = ft_strdup(line);
-	check_for_env(&new->cmd, shell);
-	shell->pars.double_q = 0;
+	new->token = ft_strdup(line);
+	check_for_env(&new->token, shell);
+	set_flags(&new, shell);
 	new->next = NULL;
 	if (!*lst)
 		*lst = new;
@@ -83,8 +65,8 @@ void	ft_lstclear(t_list **list)
 	while (*list)
 	{
 		tmp = (*list)->next;
-		free((*list)->cmd);
-		(*list)->cmd = NULL;
+		free((*list)->token);
+		(*list)->token = NULL;
 		free(*list);
 		*list = NULL;
 		(*list) = tmp;

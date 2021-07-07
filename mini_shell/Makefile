@@ -23,7 +23,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS)
 	${CC} $(CFLAGS) -c $< -o $@
 
 ${NAME}: 	${OBJS}
-	${CC} -o ${NAME} ${OBJS}
+	${CC} -o ${NAME} -lreadline ${OBJS}
 
 #${TEST}: 	${OBJS}
 #	${CC} -o ${TEST} ${OBJS}

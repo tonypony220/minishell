@@ -135,8 +135,7 @@ int	get_env(t_shell *shell, char *line, int i, int end)
 	//ft_putendl(tmp, 1);
 	while (env_tmp)
 	{
-		if ((ft_strncmp(tmp, env_tmp->key, ft_strlen(tmp)) == 0)
-				&& (ft_strlen(tmp) == ft_strlen(env_tmp->key)))
+		if ((ft_strncmp(tmp, env_tmp->key, ft_strlen(tmp) + 1) == 0))
 		{
 			free(tmp);
 			shell->env_len = ft_strlen(env_tmp->value);
