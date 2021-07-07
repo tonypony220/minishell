@@ -36,7 +36,7 @@
 //# define REDIRECT 1 << 2
 //# define W_FILE   1 << 3
 //# define R_FILE   1 << 4
-# define A_FILE 	   1 << 5  /* append to dile */
+# define A_FILE    1 << 5  /* append to dile */
 # define SEQ 	   1 << 6	/* process terminates ';'. and not concurent executing */
 # define BUILTIN   1 << 7
 # define DIRECT    1 << 8  /*  */
@@ -46,8 +46,14 @@
 # define SELF_BUILTINS "unset exit cd"  	/* which execute */
 # define UPPER_BUILTINS "ENV ECHO PWD CD"  		/* which has upper aliases */
 # define UPPER_EXCLUDED_BUILTINS "EXPORT UNSET EXIT"  /* which has not upper aliases */
+# define SHELL_NAME
 
-int last_exit_code;
+//int last_exit_code;
+
+struct		vars
+{
+	int		last_exit_code;
+};
 
 struct		process
 {

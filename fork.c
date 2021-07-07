@@ -24,9 +24,9 @@
 	139
  */
 
-extern char** environ;
-
-int redirs_nbr;
+//extern char** environ;
+//
+//int redirs_nbr;
 
 int	err(char* err_str)
 
@@ -51,7 +51,7 @@ char *make_err_msg(struct process *ps)
 int display_err(struct process *ps)
 {
 	// todo redirect STD_ERR that errors printed right : )
-	printf(RED"msh: %s: %s"RESET"\n", *(ps->args), make_err_msg(ps));
+	printf(RED""SHELL_NAME": %s: %s"RESET"\n", *(ps->args), make_err_msg(ps));
 	return (1);
 }
 
