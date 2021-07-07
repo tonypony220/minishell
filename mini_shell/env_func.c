@@ -99,32 +99,6 @@ void	ft_env(t_shell *shell)
 	print_env(shell);
 }
 
-/* char	*get_env(t_shell *shell, char *line, int i, int end)
-{
-	char *tmp;
-	t_env *env_tmp;
-
-	env_tmp = shell->env;
-	tmp = ft_substr(line, i, end - i + 1);
-	//ft_putendl(tmp, 1);
-	while (shell->env)
-	{
-		if ((ft_strncmp(tmp, shell->env->key, ft_strlen(tmp)) == 0)
-				&& (ft_strlen(tmp) == ft_strlen(env_tmp->key)))
-		{
-			free(tmp);
-			//ft_putendl(shell->env->key, 0);
-			//ft_putendl("=", 0);
-			//ft_putendl(shell->env->value, 1);
-			shell->env->len = ft_strlen(shell->env->value);
-			return (shell->env->value);
-		}
-		shell->env = shell->env->next;
-	}
-	free(tmp);
-	return (NULL);
-} */
-
 int	get_env(t_shell *shell, char *line, int i, int end)
 {
 /////	/* function stores found values in shell structure */		

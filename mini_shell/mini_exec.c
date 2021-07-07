@@ -4,8 +4,8 @@ void	print_cmd(t_shell *shell)
 {
 	while (shell->token)
 	{
-		//ft_putendl(shell->token->cmd, 1);
-		printf("%s\nPIPE IN [%d] -- PIPE OUT [%d] -- PIPE# [%d]\n", shell->token->token, shell->token->pipe[0], shell->token->pipe[1], shell->token->_pipe);
+		ft_putendl(shell->token->token, 1);
+		//printf("%s\nPIPE IN [%d] -- PIPE OUT [%d] -- PIPE# [%d]\n", shell->token->token, shell->token->pipe[0], shell->token->pipe[1], shell->token->_pipe);
 		shell->token = shell->token->next;
 	}
 }
@@ -20,8 +20,7 @@ int	mini_exec(char **line, t_shell *shell)
 	pid = fork();
 	if (pid == 0) // Child process
 	{
-		//printf("input->[%s | %s]\n", line, line);
-		print_cmd(shell);
+		print_command(shell);
 /* 		if (execvp(line[0], line) == -1) // change to execve
 			perror("MINISHELL"); */
 		exit(0);

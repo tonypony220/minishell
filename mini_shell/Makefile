@@ -9,7 +9,7 @@ HEADERS		=	./mini_parser.h
 #LINK		=	-I$(INC_DIR)
 SRCS		=	./mini_parser.c \
 				./get_next_line.c ./get_next_line_utils.c ./utils.c ./error_out.c \
-				./ft_list_utils.c ./env_func.c ./parsers.c ./mini_exec.c
+				./ft_list_utils.c ./env_func.c ./parsers.c ./mini_exec.c ./command.c
 
 CFLAGS	= #-Wall -Wextra -Werror
 RM		= rm -f

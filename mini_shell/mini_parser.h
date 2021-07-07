@@ -13,6 +13,8 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 
+//# include "../minishell.h"
+
 # define BUFFER_SIZE 42
 # define DQ	50 // ""
 # define SQ	51 // ''
@@ -46,7 +48,8 @@ typedef	struct s_cmd
 	char **cmd;
 	int				_pipe; // pipe number
 	int				pipe[2];
-	struct s_list	*next;
+	int				size;
+	struct s_cmd	*next;
 }	t_cmd;
 
 typedef	struct s_list
@@ -72,10 +75,12 @@ typedef struct s_shell
 {
 	t_list	*token;
 	t_env	*env;
+	t_cmd	*cmd;
 	t_flags	flags;
 	char	**args;
 	char	*_arg;
 	char	*env_value;
+	int		cmd_size;
 	int		fd_i;
 	int		fd_o;
 	int		*fd;
@@ -118,7 +123,7 @@ int		parse_cmd(char *line, t_shell *shell);
 int		parse_single_quotes(char *line, t_shell *shell);
 int		parse_double_quotes(char *line, t_shell *shell);
 int	parse_env_sign(char *line, t_shell *shell);
-int	parse_redirect(char *line, t_list **cmd, t_shell *shell);
+int	parse_redirect(char *line, t_list **token, t_shell *shell);
 int	parse_pipe(char *line, t_shell *shell);
 
 void	print_cmd(t_shell *shell);
@@ -127,6 +132,16 @@ char	*add_env_to_str(char *line, t_shell *shell);
 int	check_for_env(char **line, t_shell *shell);
 
 void	free_env_shell(t_shell *shell);
+
+//COMMAND
+int		init_command(t_shell *shell);
+int		compose_command(t_cmd **lst, t_list *token, t_shell *shell, int size);
+void	free_command(t_cmd **list);
+
+void	print_command(t_shell *shell);
+
+//PIPE
+void	set_flags(t_cmd **new, t_shell *shell);
 
 //ENV
 void	init_env(char **envp, t_shell *shell);

@@ -10,7 +10,7 @@ t_list	*ft_lstlast(t_list *lst)
 	return (lst);
 }
 
-void	set_flags(t_list **new, t_shell *shell)
+void	set_flags(t_cmd **new, t_shell *shell)
 {
 	//printf("=%d=%d\n", shell->flags.pipe_in, shell->flags.pipe_out);
 	(*new)->_pipe = shell->flags.pipe_count;
@@ -30,7 +30,7 @@ t_list	*ft_lstadd(t_list **lst, char *line, t_shell *shell)
 		return (0);
 	new->token = ft_strdup(line);
 	check_for_env(&new->token, shell);
-	set_flags(&new, shell);
+	shell->flags.double_q = 0;
 	new->next = NULL;
 	if (!*lst)
 		*lst = new;

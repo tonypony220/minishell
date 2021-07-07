@@ -2,6 +2,9 @@
 
 int	parse_cmd(char *line, t_shell *shell)
 {
+	char *substr;
+
+	substr = NULL;
 	space_skip(line, shell);
 	shell->start = shell->i;
 	if (ft_strchr("$\'\"><|", line[shell->i]))
@@ -14,11 +17,11 @@ int	parse_cmd(char *line, t_shell *shell)
 		if (ft_strchr(" \'\"", line[shell->i + 1]) || !line[shell->i + 1])
 		{
 			shell->end = shell->i;
-			shell->_arg = ft_strjoin(shell->_arg, 
-					ft_substr(line, shell->start, shell->end - shell->start + 1));
+			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
+			shell->_arg = ft_strjoin(shell->_arg, substr);
+			free(substr);
 			if (ft_strchr("$\'\"><|", line[shell->i]))
 				(shell->i)--;
-			//printf("lag\n");
 			return (1);
 		}
 		(shell->i)++;
@@ -28,6 +31,8 @@ int	parse_cmd(char *line, t_shell *shell)
 
 int	parse_double_quotes(char *line, t_shell *shell)
 {
+	char *substr;
+
 	(shell->i)++;
 	if (line[shell->i] == '\"')
 		return (1);
@@ -38,9 +43,9 @@ int	parse_double_quotes(char *line, t_shell *shell)
 		{
 			shell->end = (shell->i);
 			shell->flags.double_q = 1;
-			//ft_lstadd(cmd, line, shell);
-			shell->_arg = ft_strjoin(shell->_arg, 
-					ft_substr(line, shell->start, shell->end - shell->start + 1));
+			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
+			shell->_arg = ft_strjoin(shell->_arg, substr);
+			free(substr);
 			shell->i++;
 			return (1);
 		}
@@ -51,6 +56,8 @@ int	parse_double_quotes(char *line, t_shell *shell)
 
 int	parse_single_quotes(char *line, t_shell *shell)
 {
+	char *substr;
+
 	(shell->i)++;
 	if (line[shell->i] == '\'')
 		return (1);
@@ -60,9 +67,9 @@ int	parse_single_quotes(char *line, t_shell *shell)
 		if (line[shell->i + 1] == '\'')
 		{
 			shell->end = (shell->i);
-			//ft_lstadd(cmd, line, shell);
-			shell->_arg = ft_strjoin(shell->_arg, 
-					ft_substr(line, shell->start, shell->end - shell->start + 1));
+			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
+			shell->_arg = ft_strjoin(shell->_arg, substr);
+			free(substr);
 			shell->i++;
 			return (1);
 		}
@@ -92,17 +99,15 @@ int	parse_env_sign(char *line, t_shell *shell)
 		return (-1); */
 	while (line[shell->i] != '\0')
 	{
-		if (ft_strchr(" \'\"\\$><", line[shell->i + 1]) || !line[shell->i + 1])
+		if (ft_strchr(" \'\"\\$><|", line[shell->i + 1]) || !line[shell->i + 1])
 		{
 			shell->end = shell->i; // " \'\"\\$\0"
 			get_env(shell, line, shell->start, shell->end);
 			shell->start = 0;
 			shell->end = shell->env_len;
-			//ft_lstadd(cmd, shell->env_value, shell);
 			shell->_arg = ft_strjoin(shell->_arg, shell->env_value);
 			free_env_shell(shell);
-			(shell->i)++;
-			if (ft_strchr("\'\"\\$><", line[shell->i]))
+			if (ft_strchr("\'\"\\$><|", line[shell->i]))
 				(shell->i)--;
 			return (1);
 		}
@@ -111,7 +116,7 @@ int	parse_env_sign(char *line, t_shell *shell)
 	return (1);
 }
 
-int	parse_redirect(char *line, t_list **cmd, t_shell *shell)
+int	parse_redirect(char *line, t_list **token, t_shell *shell)
 {
 	shell->flags.has_redir = 1;
 	if (line[shell->i + 1] == '>')
@@ -134,7 +139,7 @@ int	parse_redirect(char *line, t_list **cmd, t_shell *shell)
 		shell->flags.red = 1;
 		shell->i++;
 	}
-	(*cmd)->redir = 1;
+	(*token)->redir = 1;
 	return (0);
 }
 

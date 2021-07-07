@@ -168,7 +168,7 @@ char	*add_env_to_str(char *line, t_shell *shell)
 		{
 			end = i++;
 			tmp = ft_substr(line, 0, end);
-			while (ft_strchr(" \'\"\\$;:", line[i]) == 0)
+			while (ft_strchr(" \'\"\\$;:|", line[i]) == 0)
 					i++;
 			tmp2 = ft_substr(line, i, ft_strlen(line) - i);
 			if (get_env(shell, line, end + 1, i - 1) == 1)
@@ -178,6 +178,7 @@ char	*add_env_to_str(char *line, t_shell *shell)
 			tmp = ft_strjoin(tmp, tmp2);
 			free(env);
 			free(tmp2);
+			free(line);
 			return (tmp);
 		}
 		(i)++;
@@ -191,7 +192,7 @@ void	exec_check(t_shell *shell)
 		ft_env(shell);
 }
 
-void	check_for_pipe(char *line, t_shell *shell)
+void	check_for_pipe(char *line, t_shell *shell, t_list *token)
 {
 	int i;
 
@@ -201,11 +202,14 @@ void	check_for_pipe(char *line, t_shell *shell)
 	if (line[shell->i] == '\0')
 		shell->flags.pipe_out = -1;
 	if (line[shell->i] == '|')
+	{
 		shell->flags.pipe_out++;
+		compose_command(&shell->cmd, token, shell, ft_lstsize(token));
+	}
 	shell->i = i;
 }
 
-void	main_parser(char *line, t_shell *shell, t_list **cmd)
+void	main_parser(char *line, t_shell *shell, t_list **token)
 {
 	while(line[shell->i] != '\0')
 	{
@@ -223,30 +227,34 @@ void	main_parser(char *line, t_shell *shell, t_list **cmd)
 			parse_cmd(line, shell);
 		if (line[shell->i + 1] == ' ' || line[shell->i + 1] == '\0')
 		{
-			check_for_pipe(line, shell);
-			ft_lstadd(cmd, shell->_arg, shell);
+			ft_lstadd(token, shell->_arg, shell);
+			check_for_pipe(line, shell, *token);
 			free(shell->_arg);
 			shell->_arg = NULL;
 		}
 		shell->i++;
 	}
+	compose_command(&shell->cmd, *token, shell, ft_lstsize(*token));
 }
 
 int			pre_parser(char *line, t_shell *shell)
 {
-	t_list	*cmd;
+	t_list	*token;
 
+	shell->cmd = NULL;
 	shell->i = 0;
-	cmd = NULL;
+	token = NULL;
 	space_skip(line, shell);
 	if (line[shell->i] == '|')
 		return (error_out(shell, "syntax error near unexpected token"));
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
-	main_parser(line, shell, &cmd);
-	if (cmd == NULL)
+	main_parser(line, shell, &token);
+	ft_lstclear(&token);
+	if (shell->cmd == NULL)
 		return (0);
-	shell->token = cmd;
+	//shell->token = token;
+	//init_command(shell);
 	//exec_check(shell);
 	//print_cmd(shell);
 	//ft_lstclear(&shell->token);
@@ -268,10 +276,13 @@ int		start_shell(t_shell *shell)
 		if (pre_parser(line, shell))
 		{
 			add_history(line);
+			//print_command(shell);
 			mini_exec(&line, shell);
 		}
-		ft_lstclear(&shell->token);
-		free(line);
+		if (shell->cmd)
+			free_command(&shell->cmd);
+		if (line)
+			free(line);
 	}
 	ft_env_clear(&shell->env);
 	return (1);
@@ -302,7 +313,6 @@ int	main(int ac, char **av, char **envp)
 {
 	t_shell	shell;
 
-	//shell.flags = init_flags();
 	shell.err = 0;
 	shell.sq_err = 0;
 	shell.dq_err = 0;
@@ -310,6 +320,7 @@ int	main(int ac, char **av, char **envp)
 	shell.env_value = NULL;
 	shell.env_sign = 0;
 	shell._arg = NULL;
+	shell.cmd_size = 0;
 	init_env(envp, &shell);
 	system("clear");
 	start_shell(&shell);
