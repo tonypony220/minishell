@@ -26,7 +26,7 @@
 
 //extern char** environ;
 //
-//int redirs_nbr;
+int redirs_nbr;
 
 int	err(char* err_str)
 
@@ -164,7 +164,7 @@ int			create_new_process(struct process *ps)
 
 		close_fds(ps->fds);
 		if (ps->file) /* auxillary close */
-			close((*ps)->fd[OUT])
+			close(ps->fd[OUT]);
 		if (ps->status & BUILTIN)
 			execute_builtin(ps);
 		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env, dict_key));
@@ -181,99 +181,120 @@ int			create_new_process(struct process *ps)
 	return (1);
 }
 
-struct process *find_ps_pipe_to(struct process **ps, int pipe_number)
-{
-	while (*ps)
-	{
-		if ((**ps).pipe[IN] == pipe_number)
-			return (*ps);
-		ps++;
-	}
-	err("fatal");
-}
+//struct process *find_ps_pipe_to(struct process **ps, int pipe_number)
+//{
+//	while (*ps)
+//	{
+//		if ((**ps).pipe[IN] == pipe_number)
+//			return (*ps);
+//		ps++;
+//	}
+//	err("fatal");
+//}
 
 ///int set_process_fd(struct process *ps, int **fds)
 ///{
 ///	return (1);
 ///}
-
-int handle_processes(struct process **ps, t_list *env)
+//
+void start_process(void *proc)
 {
-	struct process **tmp;
-	int **fds;
+	struct process *ps;
 	int pipe_number;
 	int flag;
 
-	fds = 0;
-	if (redirs_nbr)
-		fds = (int**)multalloc(redirs_nbr, 0, sizeof(int));
-
-	tmp = ps;
-	while (*ps)
+	ps = (struct process*)proc;
+	/* 	 seems that REDIRECT flag not having reason 
+	 * 	 seems there is no case when auto read to file 
+	 * 	 cases [-1][0] [0][1]
+	 * 	   [0] [ 0][1] [1][2]  1 pipe, 2 file
+	 */
+	//(*ps).env = env;
+	if (ps->pipe[IN] != NO_PIPE)
 	{
-		/* 	 seems that REDIRECT flag not having reason 
-		 * 	 seems there is no case when auto read to file 
-		 * 	 cases [-1][0] [0][1]
-		 * 	   [0] [ 0][1] [1][2]  1 pipe, 2 file
-		 */
-		(*ps)->env = env;
-		if ((**ps).pipe[OUT] != NO_PIPE && !((**ps).file)) //(**ps).status &(W_FILE | A_FILE)))
-		{
-			pipe_number = (**ps).pipe[OUT];
-			/* pipe() return 0 if success */
-			(pipe(fds[pipe_number]) == -1) && err("pipe creation failed");
-			(**ps).fd[OUT] = fds[pipe_number][OUT];
-			(**ps).fds = fds;
-			(*find_ps_pipe_to(tmp, pipe_number)).fd[IN] = fds[pipe_number][IN];
-			(*find_ps_pipe_to(tmp, pipe_number)).fds = fds;
-		}
-
-		if ((**ps).file)
-		{
-			//((**ps).status & W_FILE) && (flag = O_WRONLY);
-			(flag = O_WRONLY) && ((**ps).status & A_FILE) && (flag |= O_APPEND);
-			//((**ps).status & R_FILE) && (flag |= O_RDONLY);
-			printf("%d FLAG\n", flag);
-			((**ps).fd[OUT] = open((**ps).file, flag));
-		}
-
-		//(**ps) & SEQ && ((**ps).status |= WAIT);
-
-		/* cases to execute directly: exit export unset */
-		dispatching_process(*ps);
-
-		printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d)\n"RESET,
-			   (*ps)->args[0],
-			   (*ps)->args[1],
-			   (*ps)->pipe[0],
-			   (*ps)->pipe[1],
-			   (*ps)->fd[0],
-			   (*ps)->fd[1],
-			   (*ps)->file,
-			   (*ps)->status & BUILTIN && 1,
-			   (*ps)->status & DIRECT && 1)
-			;
-
-		if (((*ps)->exit_code) == 0)
-		{
-			!((*ps)->status & DIRECT) && create_new_process(*ps);
-			((*ps)->status & DIRECT) && execute_builtin(*ps);
-		}
-		//((**ps).status & SEQ) && wait_process(*ps);
-		//wait_process(*ps);
-		ps++;
+		pipe_number = (*ps).pipe[IN];
+		ps->fd[IN] = ps->fds[pipe_number][IN];
 	}
-	ps = tmp;
+	if ((*ps).pipe[OUT] != NO_PIPE && !((*ps).file)) //(**ps).status &(W_FILE | A_FILE)))
+	{
+		pipe_number = (*ps).pipe[OUT];
+		/* pipe() return 0 if success */
+		(pipe(ps->fds[pipe_number]) == -1) && err("pipe creation failed");
+		ps->fd[OUT] = ps->fds[pipe_number][OUT];
+		//(*ps).fds = fds;
+	//	(*find_ps_pipe_to(tmp, pipe_number)).fd[IN] = fds[pipe_number][IN];
+	//	(*find_ps_pipe_to(tmp, pipe_number)).fds = fds;
+	}
+
+	if ((*ps).file)
+	{
+		//((**ps).status & W_FILE) && (flag = O_WRONLY);
+		(flag = O_WRONLY) && ((*ps).status & A_FILE) && (flag |= O_APPEND);
+																			/* O_TRUNC for > to file to clear it */
+		//((**ps).status & R_FILE) && (flag |= O_RDONLY);
+		printf("%d FLAG\n", flag);
+																			/* cheking errors of opening file */
+		((*ps).fd[OUT] = open((*ps).file, flag));
+		
+	}
+
+	//(**ps) & SEQ && ((**ps).status |= WAIT);
+
+	/* cases to execute directly: exit export unset */
+	dispatching_process(ps);
+
+	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d)\n"RESET,
+		   ps->args[0],
+		   ps->args[1],
+		   ps->pipe[0],
+		   ps->pipe[1],
+		   ps->fd[0],
+		   ps->fd[1],
+		   ps->file,
+		   ps->status & BUILTIN && 1,
+		   ps->status & DIRECT && 1)
+		;
+
+	if (((*ps).exit_code) == 0)
+	{
+		!((*ps).status & DIRECT) && create_new_process(ps);
+		((*ps).status & DIRECT) && execute_builtin(ps);
+	}
+	//((**ps).status & SEQ) && wait_process(*ps);
+	//wait_process(*ps);
+	//ps++;
+}
+
+void end_process(void *proc)
+{
+	struct process *ps;
+
+	ps = (struct process*)proc;
+	if ((*ps).file) /* auxillaty close */
+		close((*ps).fd[OUT]);
+	wait_process(ps);
+	free_process(ps, 0);
+	//ps++;
+}
+
+void set_fds_to_ps(void *proc, void *fds)
+{
+	struct process *ps;
+
+	ps = (struct process*)proc;
+	ps->fds = fds;
+}
+
+int handle_processes(t_list *cmd, t_list *env)
+{
+	int **fds;
+
+	fds = 0;
+	redirs_nbr && (fds = (int**)multalloc(redirs_nbr, 0, sizeof(int)));
+	ft_lstiter(cmd, start_process);
 	close_fds(fds);
 	freemultalloc((void**)fds);
-	while (*ps)
-	{
-		if ((*ps)->file) /* auxillaty close */
-			close((*ps)->fd[OUT])
-		wait_process(*ps);
-		free_process(*ps, 0);
-		ps++;
-	}
+	ft_lstiter(cmd, end_process);
 	return (1);
 }
 
@@ -304,17 +325,18 @@ int wait_process(struct process *ps)
 	}
 
 	//printf("\t\texit code: %d (%s)\n", exit_code , *ps->args);
+
 	/* status should exist even if */
 	// todo catch status from signaled and put it to last_exit_code
 	exit_code && (ps->exit_code = exit_code);
 	ps->exit_code && (exit_code = ps->exit_code) && display_err(ps);
 	last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
-	printf(CYAN"\t\tExit code: %d (%s)\n", last_exit_code , *ps->args);
+	printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", last_exit_code , *ps->args);
 	return (0);
 }
 
-int execute(struct *vars)
+int execute(struct vars *vars)
 {
 	
 }
@@ -329,17 +351,21 @@ int main(int ac, char **av, char **envp)
 	//printf("\n%s<<\n", str);
 	//free(str);
 
-#if 1
-	struct process **ps;
+	//struct process **ps;
+	t_list *cmd;
 	t_list *env_lst;
 	t_list *one;
 	struct dict *d = 0;
+	struct process *ps;
 
 
+	ps = 0;
+	cmd = 0;
 	env_lst = 0;
 	//write(1, "HERE\n", 5);
 	upload_env_to_dict(envp, &env_lst);
 	//ft_lstiter(env_lst, dict_print);
+#if 0
 	//ft_lstdelone(ft_lstlast(env_lst), del_dict);
 	dict_set_default(env_lst, ft_strdup("ONE"), ft_strdup("1234"));
 	write(1, "HERE\n", 5);
@@ -399,9 +425,9 @@ int main(int ac, char **av, char **envp)
 	handle_processes(ps, env_lst);
 #endif
 #if 1
-	ps = (struct process**)multalloc(2, 1, sizeof(struct process));
-	if (!ps)
-		err("SHIT");
+//	ps = (struct process**)multalloc(1, 1, sizeof(struct process));
+//	if (!ps)
+//		err("SHIT");
 	//printf("process number %d\n", arr_len((void**)ps));
 //	free(ps[2]);
 //	ps[2] = 0;
@@ -410,25 +436,32 @@ int main(int ac, char **av, char **envp)
 	//char *args2[3] = {"/bin/cat", "-e", 0};
 	//char *args2[3] = {"ls", 0, 0};
 	//char *args2[3] = {"/usr/bin/less", 0, 0};
-	redirs_nbr = 2;
+	redirs_nbr = 0;
 
-	ps[0]->args = ft_split("export", ' ');
-	ps[0]->pipe[IN] = NO_PIPE;
-	ps[0]->pipe[OUT] = 0;
-	ps[1]->args = ft_split("cat -e", ' ');
+	ps = ft_calloc(1, sizeof(struct process));
+	ps->args = ft_split("cat ttt", ' ');
+	ps->pipe[IN] = NO_PIPE;
+	ps->pipe[OUT] = NO_PIPE;
+	ps->file = "text";
+	ps->env = env_lst;
+	ft_lstadd_front(&cmd, ft_lstnew(ps));
+
+	//ft_lstadd_front(&env_lst, ft_lstnew(new_dict(ft_strdup("ONE"), ft_strdup("5555"))));
+	//
+//	ps[1]->args = ft_split("cat", ' ');
 	//ps[1]->args = ft_split("../sub", ' ');
-	ps[1]->pipe[IN] = 0;
-	ps[1]->pipe[OUT] = NO_PIPE;
-	ps[1]->file = "text";
+//	ps[1]->pipe[IN] = NO_PIPE;
+//	ps[1]->pipe[OUT] = NO_PIPE;
+//	ps[1]->file = "text";
 
 	//ps[2]->args = ft_split("cat -e", ' ');
 	//ps[1]->pipe[IN] = 1;
 	//ps[1]->pipe[OUT] = -1;
 //	ps[1]->status |= A_FILE;
 	//printf("process number %d\n", arr_len((void**)ps));
-	handle_processes(ps, env_lst);
+	handle_processes(cmd, env_lst);
 
-	free(ps);
+	//free(ps);
 #endif
 
 #if 0

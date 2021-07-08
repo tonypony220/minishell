@@ -14,7 +14,7 @@
 # include <termcap.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-# include "mini_shell/mini_parser.h"
+//# include "mini_shell/mini_parser.h"
 
 # define RED 	 "\033[1;31m"
 # define GREEN   "\033[0;32m"
@@ -47,16 +47,16 @@
 # define SELF_BUILTINS "unset exit cd"  	/* which execute */
 # define UPPER_BUILTINS "ENV ECHO PWD CD"  		/* which has upper aliases */
 # define UPPER_EXCLUDED_BUILTINS "EXPORT UNSET EXIT"  /* which has not upper aliases */
-# define SHELL_NAME
+# define SHELL_NAME "minishell"
 
-//int last_exit_code;
+int last_exit_code;
 
 struct		vars
 {
 	int		last_exit_code;
 	t_list	*env;
 	struct	process **ps;
-	t_shell *shell;
+//	t_shell *shell;
 };
 
 struct		process

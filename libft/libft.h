@@ -70,6 +70,7 @@ void				ft_lstiter(t_list *lst, void (*f)(void *));
 char				**ft_lst_to_strs(t_list *lst, char* (*pull_str)());
 t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
 					void (*del)(void *));
+void				ft_lstiter_arg(t_list *lst, void (*f)(), void *data);
 
 void				ft_lst_sort_bubble(t_list **lst, int (*cmp)());
 t_list				*ft_lst_find(t_list *lst, void *data_ref, int (*cmp)());
