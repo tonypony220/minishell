@@ -1,4 +1,5 @@
 #include "mini_parser.h"
+#include "minishell.h"
 
 void	single_quote(char *line, int i, t_shell *shell)
 {
@@ -204,7 +205,7 @@ void	check_for_pipe(char *line, t_shell *shell, t_list *token)
 	if (line[shell->i] == '|')
 	{
 		shell->flags.pipe_out++;
-		compose_command(&shell->cmd, token, shell, ft_lstsize(token));
+		compose_command(shell->cmd, token, shell);
 	}
 	shell->i = i;
 }
@@ -234,7 +235,7 @@ void	main_parser(char *line, t_shell *shell, t_list **token)
 		}
 		shell->i++;
 	}
-	compose_command(&shell->cmd, *token, shell, ft_lstsize(*token));
+	compose_command(shell->cmd, *token, shell);
 }
 
 int			pre_parser(char *line, t_shell *shell)
@@ -250,7 +251,7 @@ int			pre_parser(char *line, t_shell *shell)
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
 	main_parser(line, shell, &token);
-	ft_lstclear(&token);
+	/*ft_lstclear(&token); */ //>>>>> redefinition
 	if (shell->cmd == NULL)
 		return (0);
 	//shell->token = token;
@@ -280,7 +281,7 @@ int		start_shell(t_shell *shell)
 			mini_exec(&line, shell);
 		}
 		if (shell->cmd)
-			free_command(&shell->cmd);
+			//free_command(&shell->cmd);
 		if (line)
 			free(line);
 	}
@@ -309,7 +310,7 @@ t_flags	init_flags(void)
 	return (flags);
 }
 
-int	main(int ac, char **av, char **envp)
+int	_main(int ac, char **av, char **envp)
 {
 	t_shell	shell;
 

@@ -16,13 +16,15 @@ int		start_shell(t_shell *shell)
 		if (pre_parser(line, shell))
 		{
 			add_history(line);
-			execute(shell->vars);
+			execute(shell);
 			//mini_exec(&line, shell);
 		}
-		ft_lstclear(&shell->token);
-		free(line);
+		if (shell->cmd);
+			//free_command(&shell->cmd);
+		if (line)
+			free(line);
 	}
-	ft_lstclear(shell->vars->env, del_dict);
+	ft_lstclear(shell->env, del_dict);
 	//ft_env_clear(&shell->env);
 	return (1);
 }
@@ -40,13 +42,13 @@ t_flags	init_flags(void)
 
 int _main(int ac, char **av, char **envp)
 {
-	struct vars;
+	//struct vars;
 	t_shell	shell;
 
-	ft_memset(vars, 0, sizeof(vars));
-	ft_memset(vars.shell, 0, sizeof(vars.shell));
-	vars.shell->vars = &vars;
-	upload_env_to_dict(envp, vars.env);
+	//ft_memset(vars, 0, sizeof(vars));
+	ft_memset(vars.shell, 0, sizeof(t_shell*));
+	//vars.shell->vars = &vars;
+	upload_env_to_dict(envp, shell.env);
 	//init_env(envp, &shell);
 	start_shell(&shell);
 }

@@ -336,12 +336,12 @@ int wait_process(struct process *ps)
 	return (0);
 }
 
-int execute(struct vars *vars)
+int execute(t_shell *shell)
 {
-	
+	handle_processes(shell->cmd, shell->env);
 }
 
-int main(int ac, char **av, char **envp)
+int __main(int ac, char **av, char **envp)
 {
 	write(1, "start\n\n", 7);
 

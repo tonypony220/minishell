@@ -74,8 +74,10 @@ typedef	struct s_env
 typedef struct s_shell
 {
 	t_list	*token;
-	t_env	*env;
-	t_cmd	*cmd;
+	t_list	*env;
+	//t_env	*env;
+	t_list  *cmd;
+	//t_cmd	*cmd;
 	t_flags	flags;
 	char	**args;
 	char	*_arg;

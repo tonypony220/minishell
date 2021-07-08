@@ -52,44 +52,45 @@ void	print_command(t_shell *shell)
 		printf("cmd #%d >>> ", d);
 		while (tmp->cmd[i] != NULL)
 			printf("%s ", tmp->cmd[i++]);
-		printf("\n\tPIPE IN [%d] -- PIPE OUT [%d] -- PIPE NUMBER [%d]\n", tmp->pipe[0], tmp->pipe[1], tmp->_pipe);
+		printf("\n\tPIPE IN [%d] -- PIPE OUT [%d] -- PIPE NUMBER []\n", tmp->pipe[0], tmp->pipe[1]); //, tmp->_pipe);
 		tmp = tmp->next;
 		d++;
 	}
 }
 
-int		compose_command(t_cmd **lst, t_list *token, t_shell *shell, int size)
+void	set_flags(struct process *new, t_shell *shell)
 {
-	t_cmd	*first;
-	t_cmd	*new;
+	//printf("=%d=%d\n", shell->flags.pipe_in, shell->flags.pipe_out);
+//	new->_pipe = shell->flags.pipe_count;
+	new->pipe[0] = shell->flags.pipe_in;
+	new->pipe[1] = shell->flags.pipe_out;
+	shell->flags.double_q = 0;
+}
+
+int		compose_command(t_list *cmds, t_list *token, t_shell *shell)
+{
+	struct	process	*new;
 	int		i;
+	int		size;
 
 	i = 0;
+	size = ft_lstsize(token);
 	if (token == NULL)
 		return (0);
-	if (!(new = (t_cmd*)malloc(sizeof(*new))))
+	if (!(new = (struct process*)ft_calloc(1, sizeof(*new))))
 		return (0);
-	new->cmd = (char **)malloc((size + 1)  * sizeof(char *));
-	if (new->cmd == NULL)
+	new->args = (char **)ft_calloc((size + 1), sizeof(char *));
+	if (new->args == NULL)
 		return (-1);
+	//new->args[size] = 0;
 	while (token)
 	{
-		new->cmd[i] = ft_strdup(token->token);
+		new->args[i] = ft_strdup(token->token);
 		i++;
 		token = token->next;
 	}
 	set_flags(&new, shell);
-	new->cmd[i] = NULL;
-	new->next = NULL;
-	if (!*lst)
-		*lst = new;
-	else
-	{
-		first = *lst;
-		while ((*lst)->next)
-			*lst = (*lst)->next;
-		(*lst)->next = new;
-		*lst = first;
-	}
+	ft_lstadd_back(cmds, new);	
+
 	return (1);
 }

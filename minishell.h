@@ -14,7 +14,7 @@
 # include <termcap.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-//# include "mini_shell/mini_parser.h"
+# include "mini_shell/mini_parser.h"
 
 # define RED 	 "\033[1;31m"
 # define GREEN   "\033[0;32m"
