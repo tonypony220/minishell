@@ -12,11 +12,11 @@ int		_start_shell(t_shell *shell)
 		if (ft_strncmp(line, "exit", ft_strlen(line) + 1) == 0)
 			shell->status = 0;
 		shell->flags = _init_flags();
-		if (pre_parser(line, shell))
+		if (pre_parser(line, shell) == 1)
 		{
 			add_history(line);
 			print_command(shell); // Print for testing
-			execute(shell);
+			//execute(shell);
 		}
 		if (shell->cmd);
 			//free_command(&shell->cmd);
@@ -32,7 +32,6 @@ t_flags	_init_flags(void)
 	t_flags	flags;
 
 	ft_memset((void*)&flags, 0, sizeof(flags));
-	flags.semi_colon = 1;
 	flags.pipe_in = -1;
 	flags.pipe_out = -1;
 	return (flags);

@@ -71,6 +71,16 @@ void	set_flags(struct process *new, t_shell *shell)
 	shell->flags.double_q = 0;
 }
 
+void	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
+{
+	if (token->redir)
+	{
+		(*new)->redir = index;
+		(*new)->redir_type = shell->flags.redir_type;
+		token->redir = 0;
+	}
+}
+
 int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 {
 	struct	process	*new;
@@ -80,23 +90,23 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	i = 0;
 	size = token_lstsize(token);
 	if (token == NULL)
-		return (0);
-	if (!(new = (struct process*)ft_calloc(1, sizeof(*new))))
-		return (0);
+		return (-1);
+	new = (struct process*)ft_calloc(1, sizeof(*new));
+	if (new == NULL)
+		return (-1);
 	new->args = (char **)ft_calloc((size + 1), sizeof(char *));
 	if (new->args == NULL)
 		return (-1);
-	//new->args[size] = 0;
 	new->shell = shell;
 	new->env = shell->env;
 	while (token)
 	{
-		new->args[i] = ft_strdup(token->token);
-		i++;
+		check_redir(token, i, &new, shell);
+		new->args[i++] = ft_strdup(token->token);
 		token = token->next;
 	}
+	//new->args[i] = NULL;
 	set_flags(new, shell);
 	ft_lstadd_back(cmds, ft_lstnew(new));
-
 	return (1);
 }

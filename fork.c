@@ -204,7 +204,7 @@ void	print_process(void *proc)
 	struct process *ps;
 
 	ps = (struct process*)proc;
-	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d)\n"RESET,
+	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d) REDIRECT: (%d type=%d)\n"RESET,
 		   ps->args[0],
 		   ps->args[1],
 		   ps->pipe[0],
@@ -213,7 +213,9 @@ void	print_process(void *proc)
 		   ps->fd[1],
 		   ps->file,
 		   ps->status & BUILTIN && 1,
-		   ps->status & DIRECT && 1);
+		   ps->status & DIRECT && 1,
+		   ps->redir,
+		   ps->redir_type);
 }
 
 void start_process(void *proc)

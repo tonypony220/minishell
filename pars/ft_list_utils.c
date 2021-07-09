@@ -11,6 +11,17 @@ t_token	*token_lstlast(t_token *lst)
 	return (lst);
 }
 
+void	flag_check(t_token **token, t_shell *shell)
+{
+	shell->flags.double_q = 0;
+	if (shell->flags.has_redir == 1)
+	{
+		(*token)->redir = 1;
+		(*token)->redir_type = shell->flags.redir_type;
+		shell->flags.has_redir = 0;
+	}
+}
+
 t_token	*token_lstadd(t_token **lst, char *line, t_shell *shell)
 {
 	t_token	*first;
@@ -23,7 +34,7 @@ t_token	*token_lstadd(t_token **lst, char *line, t_shell *shell)
 		return (0);
 	new->token = ft_strdup(line);
 	check_for_env(&new->token, shell);
-	shell->flags.double_q = 0;
+	flag_check(&new, shell);
 	new->next = NULL;
 	if (!*lst)
 		*lst = new;
@@ -62,6 +73,6 @@ void	token_lstclear(t_token **list)
 		(*list)->token = NULL;
 		free(*list);
 		*list = NULL;
-		(*list) = tmp;
+		*list = tmp;
 	}
 }

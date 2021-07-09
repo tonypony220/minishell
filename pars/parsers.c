@@ -6,7 +6,7 @@ int	parse_cmd(char *line, t_shell *shell)
 
 	shell->_arg = NULL;
 	substr = NULL;
-	space_skip(line, shell);
+	shell->i = space_skip(line, shell->i);
 	shell->start = shell->i;
 	if (ft_strchr("$\'\"><|", line[shell->i]))
 	{
@@ -15,7 +15,7 @@ int	parse_cmd(char *line, t_shell *shell)
 	}
 	while (line[shell->i] != '\0')
 	{
-		if (ft_strchr(" \'\"", line[shell->i + 1]) || !line[shell->i + 1])
+		if (ft_strchr(" \'\"><|", line[shell->i + 1]) || !line[shell->i + 1])
 		{
 			shell->end = shell->i;
 			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
@@ -117,30 +117,31 @@ int	parse_env_sign(char *line, t_shell *shell)
 	return (1);
 }
 
-int	parse_redirect(char *line, t_token **token, t_shell *shell)
+int	parse_redirect(char *line, t_shell *shell)
 {
 	shell->flags.has_redir = 1;
 	if (line[shell->i + 1] == '>')
 	{
-		shell->flags.double_redir = 1;
+		shell->flags.redir_type = 1; // >>
 		shell->i += 2;
 	}
 	else if (line[shell->i + 1] == '<')
 	{
-		shell->flags.double_out = 1;
+		shell->flags.redir_type = 2; // <<
 		shell->i += 2;
 	}
 	else if (line[shell->i] == '<')
 	{
-		shell->flags.out = 1;
+		shell->flags.redir_type = 3; // <
 		shell->i++;
 	}
 	else
 	{
-		shell->flags.red = 1;
+		shell->flags.redir_type = 4; // >
 		shell->i++;
 	}
-	(*token)->redir = 1;
+	if (line[shell->i] != ' ')
+		shell->i--;
 	return (0);
 }
 

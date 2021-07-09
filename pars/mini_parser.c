@@ -1,87 +1,5 @@
 #include "../minishell.h"
 
-void	single_quote(char *line, int i, t_shell *shell)
-{
-	int j;
-
-	j = i;
-	while(line[i] != '\0')
-	{
-		if (line[i] == '\'')
-		{
-			shell->sq_err = 1;
-			i++;
-			while (line[i] != '\0')
-			{
-				if (line[i] == '\'')
-				{
-					shell->sq_err = 0;
-					break ;
-				}
-				i++;
-			}
-		}
-		i++;
-	}
-	if (shell->sq_err == 1)
-		error_out(shell, "syntax error single quotes");
-}
-
-void	double_quote(char *line, int i, t_shell *shell)
-{
-	int j;
-
-	while(line[i] != '\0')
-	{
-		if (line[i] == '\"')
-		{
-			shell->dq_err = 1;
-			i++;
-			j = i;
-			while (line[i] != '\0')
-			{
-				if (line[i] == '\"')
-				{
-					shell->dq_err = 0;
-					break ;
-				}
-				i++;
-			}
-		}
-		i++;
-	}
-	if (shell->dq_err == 1 && shell->sq_err == 0)
-		error_out(shell, "syntax error double quotes");
-}
-
-void	pipe_syntax(char *line, int i, t_shell *shell)
-{
-	int j;
-
-	j = shell->i;
-	while(line[shell->i] != '\0')
-	{
-		if (line[shell->i] == '\"')
-		{
-			shell->i++;
-			while (line[shell->i] != '\"')
-				shell->i++;
-		}
-		if (line[shell->i] == '\'')
-		{
-			shell->i++;
-			while (line[shell->i] != '\'')
-				shell->i++;
-		}
-		if (line[shell->i] == '|')
-		{
-			space_skip(line, shell);
-		}
-	}
-	if (shell->dq_err == 1 && shell->sq_err == 0)
-		error_out(shell, "syntax error double quotes");
-}
-
 int		check_cmd(char *line, t_shell *shell)
 {
 	int j;
@@ -90,10 +8,12 @@ int		check_cmd(char *line, t_shell *shell)
 	j = shell->i;
 	single_quote(line, j, shell);
 	double_quote(line, j, shell);
-	//pipe_syntax(line, j, shell);
+	pipe_syntax(line, j, shell);
+	redir_syntax(line, j, shell);
 	shell->dq_err = 0;
 	shell->sq_err = 0;
-	shell->i = j;
+	shell->pipe_err = 0;
+	shell->redir_err = 0;
 	if (shell->err == -1)
 		return (-1);
 	return (1);
@@ -186,21 +106,36 @@ char	*add_env_to_str(char *line, t_shell *shell)
 	return (line);
 }
 
-void	check_for_pipe(char *line, t_shell *shell, t_token *token)
+void	check_for_pipe(char *line, t_shell *shell, t_token **token)
 {
 	int i;
 
 	i = shell->i;
+	if (line[shell->i] == ' ')
+		return ;
 	shell->i++;
-	space_skip(line, shell);
+	shell->i = space_skip(line, shell->i);
 	if (line[shell->i] == '\0')
 		shell->flags.pipe_out = -1;
 	if (line[shell->i] == '|')
 	{
 		shell->flags.pipe_out++;
-		compose_command(&shell->cmd, token, shell);
+		compose_command(&shell->cmd, *token, shell);
+		token_lstclear(token);
 	}
 	shell->i = i;
+}
+
+void	print_token(t_token *token)
+{
+	t_token *tmp;
+
+	tmp = token;
+	while (tmp)
+	{
+		printf("TOKEN=[%s]\n", tmp->token);
+		tmp = tmp->next;
+	}
 }
 
 void	main_parser(char *line, t_shell *shell, t_token **token)
@@ -213,31 +148,22 @@ void	main_parser(char *line, t_shell *shell, t_token **token)
 			parse_double_quotes(line, shell);
 		else if (line[shell->i] == '$')
 			parse_env_sign(line, shell);
-/* 		else if (line[shell->i] == '>' || line[shell->i] == '<')
-			parse_redirect(line, shell); */
+		else if (line[shell->i] == '>' || line[shell->i] == '<')
+			parse_redirect(line, shell);
 		else if (line[shell->i] == '|')
 			parse_pipe(line, shell);
 		else
 			parse_cmd(line, shell);
-		if (line[shell->i + 1] == ' ' || line[shell->i + 1] == '\0')
+		if (ft_strchr(" ><|", line[shell->i + 1]) || !line[shell->i + 1])
 		{
 			token_lstadd(token, shell->_arg, shell);
-			check_for_pipe(line, shell, *token);
+			check_for_pipe(line, shell, token);
 			free(shell->_arg);
 			shell->_arg = NULL;
 		}
 		shell->i++;
 	}
 	compose_command(&shell->cmd, *token, shell);
-}
-
-void	print_token(t_token *token)
-{
-	while (token)
-	{
-		ft_putendl(token->token, 1);
-		token = token->next;
-	}
 }
 
 /* main enters here */
@@ -248,14 +174,14 @@ int			pre_parser(char *line, t_shell *shell)
 	shell->cmd = NULL;
 	shell->i = 0;
 	token = NULL;
-	space_skip(line, shell);
+	shell->i = space_skip(line, shell->i);
 	if (line[shell->i] == '|')
-		return (error_out(shell, "syntax error near unexpected token"));
+		return (error_out(shell, "syntax error near unexpected token '|'"));
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
 	main_parser(line, shell, &token);
-	print_command(shell); // :(
-	print_token(token); // print token for tests
+	//print_command(shell); // :(
+	//print_token(token); // print token for tests
 	token_lstclear(&token);
 	if (shell->cmd == NULL)
 		return (0);

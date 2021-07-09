@@ -1,13 +1,13 @@
 
 #include "../minishell.h"
 
-int		space_skip(const char *nptr, t_shell *shell)
+int		space_skip(const char *nptr, int index)
 {
-	while ((nptr[shell->i] == ' ') || (nptr[shell->i] == '\n')
-		|| (nptr[shell->i] == '\f') || (nptr[shell->i] == '\v')
-		|| (nptr[shell->i] == '\r') || (nptr[shell->i] == '\t'))
-		(shell->i)++;
-	return (1);
+	while ((nptr[index] == ' ') || (nptr[index] == '\n')
+		|| (nptr[index] == '\f') || (nptr[index] == '\v')
+		|| (nptr[index] == '\r') || (nptr[index] == '\t'))
+		index++;
+	return (index);
 }
 
 void	ft_putendl(char *s, int endl)
