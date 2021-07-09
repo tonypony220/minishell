@@ -40,23 +40,26 @@ void	free_command(t_cmd **list)
 	}
 }
 
+
 void	print_command(t_shell *shell)
 {
 	/* rewrite for list */
-	int i = 0;
-	int d = 0;
-	t_cmd *tmp;
+	ft_lstiter(shell->cmd, print_process);
 
-	tmp = shell->cmd;
-	while (tmp)
-	{
-		printf("cmd #%d >>> ", d);
-		while (tmp->cmd[i] != NULL)
-			printf("%s ", tmp->cmd[i++]);
-		printf("\n\tPIPE IN [%d] -- PIPE OUT [%d] -- PIPE NUMBER []\n", tmp->pipe[0], tmp->pipe[1]); //, tmp->_pipe);
-		tmp = tmp->next;
-		d++;
-	}
+//	int i = 0;
+//	int d = 0;
+//	t_cmd *tmp;
+//
+//	tmp = shell->cmd;
+//	while (tmp)
+//	{
+//		printf("cmd #%d >>> ", d);
+//		while (tmp->cmd[i] != NULL)
+//			printf("%s ", tmp->cmd[i++]);
+//		printf("\n\tPIPE IN [%d] -- PIPE OUT [%d] -- PIPE NUMBER []\n", tmp->pipe[0], tmp->pipe[1]); //, tmp->_pipe);
+//		tmp = tmp->next;
+//		d++;
+
 }
 
 void	set_flags(struct process *new, t_shell *shell)
@@ -84,6 +87,8 @@ int		compose_command(t_list *cmds, t_token *token, t_shell *shell)
 	if (new->args == NULL)
 		return (-1);
 	//new->args[size] = 0;
+	new->shell = shell;
+	new->env = shell->env;
 	while (token)
 	{
 		new->args[i] = ft_strdup(token->token);
@@ -91,7 +96,7 @@ int		compose_command(t_list *cmds, t_token *token, t_shell *shell)
 		token = token->next;
 	}
 	set_flags(new, shell);
-	ft_lstadd_back(&cmds, new);
+	ft_lstadd_back(&cmds, ft_lstnew(new));
 
 	return (1);
 }

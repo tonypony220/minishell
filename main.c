@@ -50,10 +50,10 @@ int _main(int ac, char **av, char **envp)
 	upload_env_to_dict(envp, &shell.env);
 	//init_env(envp, &shell);
 	_start_shell(&shell);
+	return (0);
 }
 
 int	main(int ac, char **av, char **envp)
 {
-	_main(ac, av, envp);
-	return (0);
+	return(_main(ac, av, envp));
 }

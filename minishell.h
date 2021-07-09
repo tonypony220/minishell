@@ -48,30 +48,15 @@
 # define UPPER_EXCLUDED_BUILTINS "EXPORT UNSET EXIT"  /* which has not upper aliases */
 # define SHELL_NAME "minishell"
 
-//int last_exit_code;
 
-struct		vars
-{
-	int		last_exit_code;
-	t_list	*env;
-	struct	process **ps;
-//	t_shell *shell;
-};
+//struct		vars
+//{
+//	int		last_exit_code;
+//	t_list	*env;
+//	struct	process **ps;
+////	t_shell *shell;
+//};
 
-struct		process
-{
-	char	**args;
-	int		pipe[2];   /* pipe number ex.: 1 pipe in, 2 pipe out */
-				       /* when pipe not used it will be -1 */
-	int		fd[2];
-	int		**fds; 	   /* all fds inherited from parent process pipe() */
-				  	   /* mapping would be pipe number = fds index + 1 */
-	int		status;
-	int		exit_code; /* reserved unix exit code
-	                    * https://tldp.org/LDP/abs/html/exitcodes.html   */
-	char	*file;     /* filename to redirections */
-	t_list	*env;	   /* back link on current shell evniron */
-};
 
 struct		dict
 {
@@ -140,7 +125,24 @@ typedef struct s_shell
 	int				i;
 	int				start;
 	int				end;
+	int				last_exit_code;
 }	t_shell;
+
+struct		process
+{
+	char	**args;
+	int		pipe[2];   /* pipe number ex.: 1 pipe in, 2 pipe out */
+				       /* when pipe not used it will be -1 */
+	int		fd[2];
+	int		**fds; 	   /* all fds inherited from parent process pipe() */
+				  	   /* mapping would be pipe number = fds index + 1 */
+	int		status;
+	int		exit_code; /* reserved unix exit code
+	                    * https://tldp.org/LDP/abs/html/exitcodes.html   */
+	char	*file;     /* filename to redirections */
+	t_list	*env;	   /* back link on current shell evniron */
+	t_shell *shell;	   /* back link on current shell obj */
+};
 
 void		ft_str_to_lower(char *str);
 int			arr_len(void **p);
@@ -151,6 +153,7 @@ int			freemultalloc(void **p);
 void		**multalloc(int rows, int columns, unsigned long size);
 int			printmultalloc(void **p);
 int			wait_process(struct process *ps);
+void		print_process(void *ps);
 
 /* execute */
 int execute(t_shell *shell);

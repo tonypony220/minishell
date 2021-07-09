@@ -254,6 +254,7 @@ int			pre_parser(char *line, t_shell *shell)
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
 	main_parser(line, shell, &token);
+	print_command(shell); // :(
 	print_token(token); // print token for tests
 	token_lstclear(&token);
 	if (shell->cmd == NULL)

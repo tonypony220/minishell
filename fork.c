@@ -197,6 +197,25 @@ int			create_new_process(struct process *ps)
 ///	return (1);
 ///}
 //
+//
+
+void	print_process(void *proc)
+{
+	struct process *ps;
+
+	ps = (struct process*)proc;
+	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d)\n"RESET,
+		   ps->args[0],
+		   ps->args[1],
+		   ps->pipe[0],
+		   ps->pipe[1],
+		   ps->fd[0],
+		   ps->fd[1],
+		   ps->file,
+		   ps->status & BUILTIN && 1,
+		   ps->status & DIRECT && 1);
+}
+
 void start_process(void *proc)
 {
 	struct process *ps;
@@ -243,17 +262,7 @@ void start_process(void *proc)
 	/* cases to execute directly: exit export unset */
 	dispatching_process(ps);
 
-	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d)\n"RESET,
-		   ps->args[0],
-		   ps->args[1],
-		   ps->pipe[0],
-		   ps->pipe[1],
-		   ps->fd[0],
-		   ps->fd[1],
-		   ps->file,
-		   ps->status & BUILTIN && 1,
-		   ps->status & DIRECT && 1)
-		;
+	print_process(ps);
 
 	if (((*ps).exit_code) == 0)
 	{
@@ -329,9 +338,9 @@ int wait_process(struct process *ps)
 	// todo catch status from signaled and put it to last_exit_code
 	exit_code && (ps->exit_code = exit_code);
 	ps->exit_code && (exit_code = ps->exit_code) && display_err(ps);
-	//last_exit_code = exit_code;
+	ps->shell->last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
-	printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", exit_code , *ps->args);
+	printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", ps->shell->last_exit_code , *ps->args);
 	return (0);
 }
 
