@@ -211,7 +211,7 @@ int			get_env(t_shell *shell, char *line, int i, int end);
 
 /* command */
 int			init_command(t_shell *shell);
-int			compose_command(t_list *cmds, t_token *token, t_shell *shell);
+int			compose_command(t_list **cmds, t_token *token, t_shell *shell);
 void		free_command(t_cmd **list);
 void		print_command(t_shell *shell);
 

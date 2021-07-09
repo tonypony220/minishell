@@ -71,7 +71,7 @@ void	set_flags(struct process *new, t_shell *shell)
 	shell->flags.double_q = 0;
 }
 
-int		compose_command(t_list *cmds, t_token *token, t_shell *shell)
+int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 {
 	struct	process	*new;
 	int		i;
@@ -96,7 +96,7 @@ int		compose_command(t_list *cmds, t_token *token, t_shell *shell)
 		token = token->next;
 	}
 	set_flags(new, shell);
-	ft_lstadd_back(&cmds, ft_lstnew(new));
+	ft_lstadd_back(cmds, ft_lstnew(new));
 
 	return (1);
 }

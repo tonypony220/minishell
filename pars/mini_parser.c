@@ -198,7 +198,7 @@ void	check_for_pipe(char *line, t_shell *shell, t_token *token)
 	if (line[shell->i] == '|')
 	{
 		shell->flags.pipe_out++;
-		compose_command(shell->cmd, token, shell);
+		compose_command(&shell->cmd, token, shell);
 	}
 	shell->i = i;
 }
@@ -228,7 +228,7 @@ void	main_parser(char *line, t_shell *shell, t_token **token)
 		}
 		shell->i++;
 	}
-	compose_command(shell->cmd, *token, shell);
+	compose_command(&shell->cmd, *token, shell);
 }
 
 void	print_token(t_token *token)
