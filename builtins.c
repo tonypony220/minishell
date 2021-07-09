@@ -54,7 +54,7 @@ int					msh_unset(struct process *ps)
 
 int					msh_env(struct process *ps)
 {
-	ft_lstiter(ps->env, dict_print);	
+	ft_lstiter(ps->env, dict_print);
 	return (1);
 }
 

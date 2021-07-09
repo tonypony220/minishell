@@ -231,6 +231,15 @@ void	main_parser(char *line, t_shell *shell, t_token **token)
 	compose_command(shell->cmd, *token, shell);
 }
 
+void	print_token(t_token *token)
+{
+	while (token)
+	{
+		ft_putendl(token->token, 1);
+		token = token->next;
+	}
+}
+
 /* main enters here */
 int			pre_parser(char *line, t_shell *shell)
 {
@@ -245,6 +254,7 @@ int			pre_parser(char *line, t_shell *shell)
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
 	main_parser(line, shell, &token);
+	print_token(token); // print token for tests
 	token_lstclear(&token);
 	if (shell->cmd == NULL)
 		return (0);

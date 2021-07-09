@@ -163,6 +163,7 @@ int			dict_set_default(t_list *lst, char* key, char* value);
 struct dict	*new_dict(char *key, char *value);
 int			cmp_dict_keys(void* content, void* ref);
 void		dict_print(void* content);
+char		*dict_value(void* data);
 
 int display_err(struct process *ps);
 
