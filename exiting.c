@@ -2,11 +2,11 @@
 
 void	free_processes(struct process **ps)
 {
-	freemultalloc(ps[0]->fds);
-	ft_lstclear(ps[0]->env, del_dict);
-	ps--;
-	while (++ps)
-		free_process(ps, 1);
+//	freemultalloc(ps[0]->fds);
+//	ft_lstclear(ps[0]->env, del_dict);
+//	ps--;
+//	while (++ps)
+//		free_process(ps, 1);
 }
 
 /* 

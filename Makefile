@@ -1,21 +1,26 @@
 dir		=   .
 
-SRCS	=	fork.c multalloc.c find_path.c builtins.c dict_func.c environ.c exiting.c term.c main.c
+SRCS	=	fork.c multalloc.c find_path.c builtins.c dict_func.c environ.c exiting.c main.c #term.c 
 
-PARSER_DIR = mini_shell
-PARSER		=	PARSER_DIR/mini_parser.c \
-				PARSER_DIR/get_next_line.c PARSER_DIR/get_next_line_utils.c \
-				PARSER_DIR/utils.c PARSER_DIR/error_out.c \
-				PARSER_DIR/ft_list_utils.c PARSER_DIR/env_func.c \
-				PARSER_DIR/parsers.c PARSER_DIR/mini_exec.c PARSER_DIR/command.c
+P_DIR	= 	pars/
 
-#LIB_EXTENSIONS	= ft_str_in_strs.c
+PARSERS	=	${P_DIR}mini_parser.c \
+			${P_DIR}error_out.c \
+			${P_DIR}ft_list_utils.c \
+			${P_DIR}env_func.c \
+			${P_DIR}parsers.c \
+			${P_DIR}mini_exec.c \
+			${P_DIR}command.c \
+			${P_DIR}util.c 
 
 OBJS	=	${SRCS:.c=.o}
 
+P_OBJS  =   ${PARSERS:.c=.o}
+
+
 CFLAGS	=   -O0 -g # -Wall -Wextra -Werror #-g #-fsanitize=address
 
-HEAD	=	minishell.h
+HEAD	=	minishell.h ${P_DIR}mini_parser.h
 
 CC		=	gcc
 
@@ -23,7 +28,7 @@ RM		=	-rm	-f
 
 NAME	=	a.out
 
-SUBDIRS := libft 
+SUBDIRS := libft
 #
 TOPTARGETS := all clean fclean
 
@@ -37,8 +42,8 @@ $(SUBDIRS):
 #%.o: %.c $(HEAD)
 #		$(CC) -Imlx -Ignl -Ilibft ${CFLAGS} -c $< -o ${<:.c=.o}
 
-${NAME}: ${OBJS} ${HEAD}
-		$(CC) ${OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
+${NAME}: ${OBJS} ${P_OBJS} ${HEAD}
+		$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
 
 all:	${NAME}
 

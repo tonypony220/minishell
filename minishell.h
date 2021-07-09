@@ -14,7 +14,7 @@
 # include <termcap.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-# include "mini_shell/mini_parser.h"
+# include "pars/mini_parser.h"
 
 # define RED 	 "\033[1;31m"
 # define GREEN   "\033[0;32m"
@@ -118,5 +118,9 @@ int			msh_exit(struct process *ps);
 
 void		free_processes(struct process **ps);
 void		free_process(struct process *ps, int child);
+
+
+t_flags	_init_flags(void);
+int		_start_shell(t_shell *shell);
 
 #endif

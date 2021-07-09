@@ -1,7 +1,7 @@
 #include "minishell.h"
-#include "mini_shell/mini_parser.h"
+#include "pars/mini_parser.h"
 
-int		start_shell(t_shell *shell)
+int		_start_shell(t_shell *shell)
 {
 	char *line;
 
@@ -24,16 +24,16 @@ int		start_shell(t_shell *shell)
 		if (line)
 			free(line);
 	}
-	ft_lstclear(shell->env, del_dict);
+	ft_lstclear(&shell->env, del_dict);
 	//ft_env_clear(&shell->env);
 	return (1);
 }
 
-t_flags	init_flags(void)
+t_flags	_init_flags(void)
 {
 	t_flags	flags;
 
-	ft_memset(flags, 0, sizeof(flags));
+	ft_memset((void*)&flags, 0, sizeof(flags));
 	flags.semi_colon = 1;
 	flags.pipe_in = -1;
 	flags.pipe_out = -1;
@@ -46,9 +46,9 @@ int _main(int ac, char **av, char **envp)
 	t_shell	shell;
 
 	//ft_memset(vars, 0, sizeof(vars));
-	ft_memset(vars.shell, 0, sizeof(t_shell*));
+	ft_memset((void *)&shell, 0, sizeof(t_shell*));
 	//vars.shell->vars = &vars;
-	upload_env_to_dict(envp, shell.env);
+	upload_env_to_dict(envp, &shell.env);
 	//init_env(envp, &shell);
 	start_shell(&shell);
 }

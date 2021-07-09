@@ -273,8 +273,7 @@ void end_process(void *proc)
 	if ((*ps).file) /* auxillaty close */
 		close((*ps).fd[OUT]);
 	wait_process(ps);
-	free_process(ps, 0);
-	//ps++;
+	///free_process(ps, 0); /* todo */
 }
 
 void set_fds_to_ps(void *proc, void *fds)
