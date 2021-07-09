@@ -1,109 +1,14 @@
-#include "mini_parser.h"
-
-t_env	*ft_env_list(t_env **lst, char *line, int j, int end)
-{
-	t_env	*first;
-	t_env	*new;
-	int i;
-
-	if (!line)
-		return (NULL);
-	if (!(new = (t_env*)malloc(sizeof(*new))))
-		return (0);
-	i = j;
-	new->key = ft_substr(line, 0, j);
-	new->value = ft_substr(line, j + 1, end - j);
-	new->next = NULL;
-	if (!*lst)
-		*lst = new;
-	else
-	{
-		first = *lst;
-		while ((*lst)->next)
-			*lst = (*lst)->next;
-		(*lst)->next = new;
-		*lst = first;
-	}
-	return (new);
-}
-
-int		value_and_key(char *value, char *key, t_shell *shell)
-{
-	return (1);
-}
-
-void	ft_env_clear(t_env **list)
-{
-	t_env	*tmp;
-
-	while (*list)
-	{
-		tmp = (*list)->next;
-		free((*list)->key);
-		(*list)->key = NULL;
-		free((*list)->value);
-		(*list)->value = NULL;
-		free(*list);
-		*list = NULL;
-		(*list) = tmp;
-	}
-}
-
-void	print_env(t_shell *shell)
-{
-	ft_lstiter(shell->env, dict_print);	
-	//while (shell->env)
-	//{
-	//	//printf("%s=%s\n", shell->env->key, shell->env->value);
-	//	ft_putendl(shell->env->key, 0);
-	//	ft_putendl("=", 0);
-	//	ft_putendl(shell->env->value, 1);
-	//	shell->env = shell->env->next;
-	//}
-}
-
-void	env_parser(char **envp, t_env **env)
-{
-	int		i = 0, j = 0, len;
-
-	while(envp[i] != '\0')
-	{
-		while(envp[i][j] != '\0')
-		{
-			if (envp[i][j] == '=')
-			{
-				//env->len = ft_strlen(envp[i]);
-				//printf("LOL\n");
-				ft_env_list(env, envp[i], j, ft_strlen(envp[i]));
-				j = 0;
-				break ;
-			}
-			j++;
-		}
-		i++;
-	}
-}
-
-void	init_env(char **envp, t_shell *shell)
-{
-	t_env	*env;
-
-	env = NULL;
-	env_parser(envp, &env);
-	shell->env = env;
-	//ft_env(shell);
-	//ft_env_clear(&shell->env);
-}
+#include "../minishell.h"
 
 void	ft_env(t_shell *shell)
 {
-	print_env(shell);
+	ft_lstiter(shell->env, dict_print);	
 }
 
 int	get_env(t_shell *shell, char *line, int i, int end)
 {
 	/* function stores found values in shell structure */		
-	t_shlist *one;
+	t_list *one;
 	struct dict *d;
 	char *key;
 	int	ret; 

@@ -1,4 +1,4 @@
-#include "mini_parser.h"
+#include "../minishell.h"
 
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {

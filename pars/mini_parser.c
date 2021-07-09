@@ -1,4 +1,4 @@
-#include "mini_parser.h"
+#include "../minishell.h"
 
 void	single_quote(char *line, int i, t_shell *shell)
 {
@@ -186,13 +186,7 @@ char	*add_env_to_str(char *line, t_shell *shell)
 	return (line);
 }
 
-void	exec_check(t_shell *shell)
-{
-	if (ft_strncmp(shell->token->token, "env", 3) == 0)
-		ft_env(shell);
-}
-
-void	check_for_pipe(char *line, t_shell *shell, t_shlist *token)
+void	check_for_pipe(char *line, t_shell *shell, t_token *token)
 {
 	int i;
 
@@ -209,7 +203,7 @@ void	check_for_pipe(char *line, t_shell *shell, t_shlist *token)
 	shell->i = i;
 }
 
-void	main_parser(char *line, t_shell *shell, t_shlist **token)
+void	main_parser(char *line, t_shell *shell, t_token **token)
 {
 	while(line[shell->i] != '\0')
 	{
@@ -227,7 +221,7 @@ void	main_parser(char *line, t_shell *shell, t_shlist **token)
 			parse_cmd(line, shell);
 		if (line[shell->i + 1] == ' ' || line[shell->i + 1] == '\0')
 		{
-			ft_lstadd(token, shell->_arg, shell);
+			token_lstadd(token, shell->_arg, shell);
 			check_for_pipe(line, shell, *token);
 			free(shell->_arg);
 			shell->_arg = NULL;
@@ -240,7 +234,7 @@ void	main_parser(char *line, t_shell *shell, t_shlist **token)
 /* main enters here */
 int			pre_parser(char *line, t_shell *shell)
 {
-	t_shlist	*token;
+	t_token	*token;
 
 	shell->cmd = NULL;
 	shell->i = 0;
@@ -251,79 +245,8 @@ int			pre_parser(char *line, t_shell *shell)
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
 	main_parser(line, shell, &token);
-	ft_sh_lst_clear(&token); 
+	token_lstclear(&token);
 	if (shell->cmd == NULL)
 		return (0);
-	//shell->token = token;
-	//init_command(shell);
-	//exec_check(shell);
-	//print_cmd(shell);
-	//ft_sh_lst_clear(&shell->token);
 	return (1);
-}
-
-int		start_shell(t_shell *shell)
-{
-	char *line;
-
-	shell->status = 1;
-	while (shell->status)
-	{
-		line = readline("[minishell]#");
-		shell->err = 0;
-		if (ft_strncmp(line, "vihod", ft_strlen(line) + 1) == 0)
-			shell->status = 0;
-		shell->flags = init_flags();
-		if (pre_parser(line, shell))
-		{
-			add_history(line);
-			//print_command(shell);
-			mini_exec(&line, shell);
-		}
-		if (shell->cmd)
-			//free_command(&shell->cmd);
-		if (line)
-			free(line);
-	}
-	ft_env_clear(&shell->env);
-	return (1);
-}
-
-t_flags	init_flags(void)
-{
-	t_flags	flags;
-
-	flags.semi_colon = 1;
-	flags.back_slash = 0;
-	flags.single_q = 0;
-	flags.double_q = 0;
-	flags.has_env = 0;
-	flags.has_pipe = 0;
-	flags.has_redir = 0;
-	flags.double_redir = 0;
-	flags.double_out = 0;
-	flags.pipe_count = 0;
-	flags.pipe_in = -1;
-	flags.pipe_out = -1;
-	flags.out = 0;
-	flags.red = 0;
-	return (flags);
-}
-
-int	__main(int ac, char **av, char **envp)
-{
-	t_shell	shell;
-
-	shell.err = 0;
-	shell.sq_err = 0;
-	shell.dq_err = 0;
-	shell.env_len = 0;
-	shell.env_value = NULL;
-	shell.env_sign = 0;
-	shell._arg = NULL;
-	shell.cmd_size = 0;
-	init_env(envp, &shell);
-	system("clear");
-	start_shell(&shell);
-	return (0);
 }

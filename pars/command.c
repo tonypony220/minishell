@@ -1,4 +1,4 @@
-#include "mini_parser.h"
+#include "../minishell.h"
 
 static int		count_size(char **str)
 {
@@ -43,20 +43,20 @@ void	free_command(t_cmd **list)
 void	print_command(t_shell *shell)
 {
 	/* rewrite for list */
-//	int i = 0;
-//	int d = 0;
-//	t_cmd *tmp;
-//
-//	tmp = shell->cmd;
-//	while (tmp)
-//	{
-//		printf("cmd #%d >>> ", d);
-//		while (tmp->cmd[i] != NULL)
-//			printf("%s ", tmp->cmd[i++]);
-//		printf("\n\tPIPE IN [%d] -- PIPE OUT [%d] -- PIPE NUMBER []\n", tmp->pipe[0], tmp->pipe[1]); //, tmp->_pipe);
-//		tmp = tmp->next;
-//		d++;
-//	}
+	int i = 0;
+	int d = 0;
+	t_cmd *tmp;
+
+	tmp = shell->cmd;
+	while (tmp)
+	{
+		printf("cmd #%d >>> ", d);
+		while (tmp->cmd[i] != NULL)
+			printf("%s ", tmp->cmd[i++]);
+		printf("\n\tPIPE IN [%d] -- PIPE OUT [%d] -- PIPE NUMBER []\n", tmp->pipe[0], tmp->pipe[1]); //, tmp->_pipe);
+		tmp = tmp->next;
+		d++;
+	}
 }
 
 void	set_flags(struct process *new, t_shell *shell)
@@ -68,14 +68,14 @@ void	set_flags(struct process *new, t_shell *shell)
 	shell->flags.double_q = 0;
 }
 
-int		compose_command(t_list *cmds, t_shlist *token, t_shell *shell)
+int		compose_command(t_list *cmds, t_token *token, t_shell *shell)
 {
 	struct	process	*new;
 	int		i;
 	int		size;
 
 	i = 0;
-	size = s_sh_lstsize(token);
+	size = token_lstsize(token);
 	if (token == NULL)
 		return (0);
 	if (!(new = (struct process*)ft_calloc(1, sizeof(*new))))
@@ -91,7 +91,7 @@ int		compose_command(t_list *cmds, t_shlist *token, t_shell *shell)
 		token = token->next;
 	}
 	set_flags(new, shell);
-	ft_lstadd_back(&cmds, new);	
+	ft_lstadd_back(&cmds, new);
 
 	return (1);
 }

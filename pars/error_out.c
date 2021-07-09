@@ -1,4 +1,4 @@
-#include "mini_parser.h"
+#include "../minishell.h"
 
 int	error_out(t_shell *shell, char *error)
 {

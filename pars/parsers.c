@@ -1,9 +1,10 @@
-#include "mini_parser.h"
+#include "../minishell.h"
 
 int	parse_cmd(char *line, t_shell *shell)
 {
 	char *substr;
 
+	shell->_arg = NULL;
 	substr = NULL;
 	space_skip(line, shell);
 	shell->start = shell->i;
@@ -18,7 +19,7 @@ int	parse_cmd(char *line, t_shell *shell)
 		{
 			shell->end = shell->i;
 			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
-			shell->_arg = ft_strjoin(shell->_arg, substr);
+			shell->_arg = token_strjoin(shell->_arg, substr);
 			free(substr);
 			if (ft_strchr("$\'\"><|", line[shell->i]))
 				(shell->i)--;
@@ -44,7 +45,7 @@ int	parse_double_quotes(char *line, t_shell *shell)
 			shell->end = (shell->i);
 			shell->flags.double_q = 1;
 			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
-			shell->_arg = ft_strjoin(shell->_arg, substr);
+			shell->_arg = token_strjoin(shell->_arg, substr);
 			free(substr);
 			shell->i++;
 			return (1);
@@ -68,7 +69,7 @@ int	parse_single_quotes(char *line, t_shell *shell)
 		{
 			shell->end = (shell->i);
 			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
-			shell->_arg = ft_strjoin(shell->_arg, substr);
+			shell->_arg = token_strjoin(shell->_arg, substr);
 			free(substr);
 			shell->i++;
 			return (1);
@@ -105,7 +106,7 @@ int	parse_env_sign(char *line, t_shell *shell)
 			get_env(shell, line, shell->start, shell->end);
 			shell->start = 0;
 			shell->end = shell->env_len;
-			shell->_arg = ft_strjoin(shell->_arg, shell->env_value);
+			shell->_arg = token_strjoin(shell->_arg, shell->env_value);
 			free_env_shell(shell);
 			if (ft_strchr("\'\"\\$><|", line[shell->i]))
 				(shell->i)--;
@@ -116,7 +117,7 @@ int	parse_env_sign(char *line, t_shell *shell)
 	return (1);
 }
 
-int	parse_redirect(char *line, t_shlist **token, t_shell *shell)
+int	parse_redirect(char *line, t_token **token, t_shell *shell)
 {
 	shell->flags.has_redir = 1;
 	if (line[shell->i + 1] == '>')

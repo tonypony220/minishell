@@ -329,9 +329,9 @@ int wait_process(struct process *ps)
 	// todo catch status from signaled and put it to last_exit_code
 	exit_code && (ps->exit_code = exit_code);
 	ps->exit_code && (exit_code = ps->exit_code) && display_err(ps);
-	last_exit_code = exit_code;
+	//last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
-	printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", last_exit_code , *ps->args);
+	printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", exit_code , *ps->args);
 	return (0);
 }
 

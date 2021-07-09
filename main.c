@@ -1,5 +1,4 @@
 #include "minishell.h"
-#include "pars/mini_parser.h"
 
 int		_start_shell(t_shell *shell)
 {
@@ -12,12 +11,12 @@ int		_start_shell(t_shell *shell)
 		shell->err = 0;
 		if (ft_strncmp(line, "exit", ft_strlen(line) + 1) == 0)
 			shell->status = 0;
-		shell->flags = init_flags();
+		shell->flags = _init_flags();
 		if (pre_parser(line, shell))
 		{
 			add_history(line);
+			print_command(shell); // Print for testing
 			execute(shell);
-			//mini_exec(&line, shell);
 		}
 		if (shell->cmd);
 			//free_command(&shell->cmd);
@@ -25,7 +24,6 @@ int		_start_shell(t_shell *shell)
 			free(line);
 	}
 	ft_lstclear(&shell->env, del_dict);
-	//ft_env_clear(&shell->env);
 	return (1);
 }
 
@@ -46,11 +44,12 @@ int _main(int ac, char **av, char **envp)
 	t_shell	shell;
 
 	//ft_memset(vars, 0, sizeof(vars));
-	ft_memset((void *)&shell, 0, sizeof(t_shell*));
+	//ft_memset((void *)&shell, 0, sizeof(t_shell*));
+	ft_bzero(&shell, sizeof(shell));
 	//vars.shell->vars = &vars;
 	upload_env_to_dict(envp, &shell.env);
 	//init_env(envp, &shell);
-	start_shell(&shell);
+	_start_shell(&shell);
 }
 
 int	main(int ac, char **av, char **envp)

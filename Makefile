@@ -20,7 +20,7 @@ P_OBJS  =   ${PARSERS:.c=.o}
 
 CFLAGS	=   -O0 -g # -Wall -Wextra -Werror #-g #-fsanitize=address
 
-HEAD	=	minishell.h ${P_DIR}mini_parser.h
+HEAD	=	minishell.h
 
 CC		=	gcc
 
@@ -43,12 +43,13 @@ $(SUBDIRS):
 #		$(CC) -Imlx -Ignl -Ilibft ${CFLAGS} -c $< -o ${<:.c=.o}
 
 ${NAME}: ${OBJS} ${P_OBJS} ${HEAD}
-		$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
+		$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -o ${NAME}
+#$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
 
 all:	${NAME}
 
 clean: $(SUBDIRS)
-		${RM} ${OBJS}
+		${RM} ${OBJS} ${P_OBJS}
 
 fclean: clean
 		${RM} ${NAME}

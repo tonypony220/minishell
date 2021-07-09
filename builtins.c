@@ -12,7 +12,7 @@ int					msh_echo(struct process *ps)
 		*ps->args[i] == '$'
 		&& ((ps->args[i][1] != '?' && printf("%s", getenv(ps->args[i] + 1))) // todo this is wrong
 		 	||
-		 	(ps->args[i][1] == '?' && printf("%d", last_exit_code)));
+		 	(ps->args[i][1] == '?' && printf("%d", ps->exit_code)));
 		*ps->args[i] != '$' && printf("%s", ps->args[i]);
 		i++;
 	}

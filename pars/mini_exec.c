@@ -1,4 +1,4 @@
-#include "mini_parser.h"
+#include "../minishell.h"
 
 void	print_cmd(t_shell *shell)
 {

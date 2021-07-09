@@ -14,7 +14,6 @@
 # include <termcap.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-# include "pars/mini_parser.h"
 
 # define RED 	 "\033[1;31m"
 # define GREEN   "\033[0;32m"
@@ -49,7 +48,7 @@
 # define UPPER_EXCLUDED_BUILTINS "EXPORT UNSET EXIT"  /* which has not upper aliases */
 # define SHELL_NAME "minishell"
 
-int last_exit_code;
+//int last_exit_code;
 
 struct		vars
 {
@@ -80,6 +79,68 @@ struct		dict
 	char	*value;
 };
 
+/* command */
+typedef	struct s_cmd
+{
+	char **cmd;
+	int				_pipe; // pipe number
+	int				pipe[2];
+	int				size;
+	struct s_cmd	*next;
+}	t_cmd;
+
+/* token */
+typedef	struct s_token
+{
+	char			*token;
+	int				c_type;
+	int				redir;
+	struct s_token	*next;
+}	t_token;
+
+/* FLAGS */
+typedef	struct s_flags
+{
+	int	single_q;
+	int	double_q;
+	int	has_pipe;
+	int	pipe_in;
+	int pipe_out;
+	int	pipe_count;
+	int	has_env;
+	int	back_slash;
+	int	has_redir;
+	int	double_redir;
+	int	double_out;
+	int	semi_colon;
+	int	out;
+	int	red;
+}	t_flags;
+
+/* T_SHELL */
+typedef struct s_shell
+{
+	t_token		*token;
+	t_list			*env;
+	//t_env			*env;
+	t_list  		*cmd;
+	//t_cmd			*cmd;
+	t_flags			flags;
+	char			**args;
+	char			*_arg;
+	char			*env_value;
+	int				cmd_size;
+	int				status;
+	int				err;
+	int				dq_err;
+	int				sq_err;
+	int				arg_size;
+	int				env_len;
+	int				env_sign;
+	int				i;
+	int				start;
+	int				end;
+}	t_shell;
 
 void		ft_str_to_lower(char *str);
 int			arr_len(void **p);
@@ -90,6 +151,9 @@ int			freemultalloc(void **p);
 void		**multalloc(int rows, int columns, unsigned long size);
 int			printmultalloc(void **p);
 int			wait_process(struct process *ps);
+
+/* execute */
+int execute(t_shell *shell);
 
 			/* dict and env functions */
 t_list		*get_dict_by_key(t_list *lst, void* (*f)(void *), char* key);
@@ -120,7 +184,43 @@ void		free_processes(struct process **ps);
 void		free_process(struct process *ps, int child);
 
 
-t_flags	_init_flags(void);
-int		_start_shell(t_shell *shell);
+t_flags		_init_flags(void);
+int			_start_shell(t_shell *shell);
+
+/* parser */
+int			pre_parser(char *line, t_shell *shell);
+void		main_parser(char *line, t_shell *shell, t_token **cmd);
+int			check_cmd(char *line, t_shell *shell);
+int			parse_cmd(char *line, t_shell *shell);
+int			parse_single_quotes(char *line, t_shell *shell);
+int			parse_double_quotes(char *line, t_shell *shell);
+int			parse_env_sign(char *line, t_shell *shell);
+int			parse_redirect(char *line, t_token **token, t_shell *shell);
+int			parse_pipe(char *line, t_shell *shell);
+
+char		*add_env_to_str(char *line, t_shell *shell);
+int			check_for_env(char **line, t_shell *shell);
+void		free_env_shell(t_shell *shell);
+
+void		set_flags(struct process *new, t_shell *shell);
+int			get_env(t_shell *shell, char *line, int i, int end);
+
+/* command */
+int			init_command(t_shell *shell);
+int			compose_command(t_list *cmds, t_token *token, t_shell *shell);
+void		free_command(t_cmd **list);
+void		print_command(t_shell *shell);
+
+/* token */
+t_token		*token_lstlast(t_token *lst);
+t_token		*token_lstadd(t_token **lst, char *line, t_shell *shell);
+int			token_lstsize(t_token *lst);
+void		token_lstclear(t_token **list);
+char		*token_strjoin(char *rmd, char *buffer);
+
+/* util */
+int			space_skip(const char *nptr, t_shell *shell);
+int			error_out(t_shell *shell, char *error);
+void		ft_putendl(char *s, int endl);
 
 #endif

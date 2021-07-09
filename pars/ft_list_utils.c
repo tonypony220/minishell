@@ -1,6 +1,7 @@
-#include "mini_parser.h"
+#include "../minishell.h"
 
-t_shlist	*s_sh_lstlast(t_list *lst)
+t_token	*token_lstlast(t_token *lst)
+
 {
 	if (lst)
 	{
@@ -10,15 +11,15 @@ t_shlist	*s_sh_lstlast(t_list *lst)
 	return (lst);
 }
 
-
-t_shlist	*ft_lstadd(t_list **lst, char *line, t_shell *shell)
+t_token	*token_lstadd(t_token **lst, char *line, t_shell *shell)
 {
-	t_shlist	*first;
-	t_shlist	*new;
+	t_token	*first;
+	t_token	*new;
 
 	if (!line)
 		return (NULL);
-	if (!(new = (t_shlist*)malloc(sizeof(*new))))
+	new = (t_token*)malloc(sizeof(*new));
+	if (new == NULL)
 		return (0);
 	new->token = ft_strdup(line);
 	check_for_env(&new->token, shell);
@@ -37,7 +38,7 @@ t_shlist	*ft_lstadd(t_list **lst, char *line, t_shell *shell)
 	return (new);
 }
 
-int		s_sh_lstsize(t_shlist *lst)
+int		token_lstsize(t_token *lst)
 {
 	int d;
 
@@ -50,9 +51,9 @@ int		s_sh_lstsize(t_shlist *lst)
 	return (d);
 }
 
-void	ft_sh_lst_clear(t_shlist **list)
+void	token_lstclear(t_token **list)
 {
-	t_shlist	*tmp;
+	t_token	*tmp;
 
 	while (*list)
 	{
