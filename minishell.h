@@ -149,6 +149,9 @@ struct		process
 	t_shell *shell;	   /* back link on current shell obj */
 };
 
+/* global status */
+//extern int	g_status;
+
 void		ft_str_to_lower(char *str);
 int			arr_len(void **p);
 int			path_executable(char *name);
@@ -238,5 +241,13 @@ void		print_token(t_token *token);
 int			space_skip(const char *nptr, int index);
 int			error_out(t_shell *shell, char *error);
 void		ft_putendl(char *s, int endl);
+
+/* signals */
+void		do_signals(int sig);
+
+/* redirects */
+void	redir_in(struct process *ps);
+void	redir_out(struct process *ps);
+int		check_for_redir(struct process *ps);
 
 #endif

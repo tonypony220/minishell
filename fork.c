@@ -165,6 +165,8 @@ int			create_new_process(struct process *ps)
 		close_fds(ps->fds);
 		if (ps->file) /* auxillary close */
 			close(ps->fd[OUT]);
+		if (ps->redir) /* redirection */
+			check_for_redir(ps);
 		if (ps->status & BUILTIN)
 			execute_builtin(ps);
 		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env, dict_key));

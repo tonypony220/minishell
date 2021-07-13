@@ -71,14 +71,16 @@ void	set_flags(struct process *new, t_shell *shell)
 	shell->flags.double_q = 0;
 }
 
-void	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
+int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 {
 	if (token->redir)
 	{
 		(*new)->redir = index;
 		(*new)->redir_type = shell->flags.redir_type;
 		token->redir = 0;
+		return (1);
 	}
+	return (0);
 }
 
 int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
@@ -101,11 +103,12 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	new->env = shell->env;
 	while (token)
 	{
-		check_redir(token, i, &new, shell);
-		new->args[i++] = ft_strdup(token->token);
+		if (check_redir(token, i, &new, shell))
+			new->file = ft_strdup(token->token);
+		else
+			new->args[i++] = ft_strdup(token->token);
 		token = token->next;
 	}
-	//new->args[i] = NULL;
 	set_flags(new, shell);
 	ft_lstadd_back(cmds, ft_lstnew(new));
 	return (1);

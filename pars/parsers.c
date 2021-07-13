@@ -140,7 +140,7 @@ int	parse_redirect(char *line, t_shell *shell)
 		shell->flags.redir_type = 4; // >
 		shell->i++;
 	}
-	if (line[shell->i] != ' ')
+	if (line[shell->i] != ' ' && line[shell->i] != '|')
 		shell->i--;
 	return (0);
 }

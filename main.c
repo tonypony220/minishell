@@ -1,5 +1,16 @@
 #include "minishell.h"
 
+void		do_signals(int sig)
+{
+	if (sig == SIGINT)
+	{
+		write(1, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+}
+
 int		_start_shell(t_shell *shell)
 {
 	char *line;
@@ -7,7 +18,9 @@ int		_start_shell(t_shell *shell)
 	shell->status = 1;
 	while (shell->status)
 	{
-		line = readline("["SHELL_NAME"]#");
+		line = readline("["SHELL_NAME"]# ");
+		if (line == NULL)
+			return (1);
 		shell->err = 0;
 		if (ft_strncmp(line, "exit", ft_strlen(line) + 1) == 0)
 			shell->status = 0;
@@ -16,7 +29,7 @@ int		_start_shell(t_shell *shell)
 		{
 			add_history(line);
 			print_command(shell); // Print for testing
-			//execute(shell);
+			execute(shell);
 		}
 		if (shell->cmd);
 			//free_command(&shell->cmd);
@@ -42,12 +55,10 @@ int _main(int ac, char **av, char **envp)
 	//struct vars;
 	t_shell	shell;
 
-	//ft_memset(vars, 0, sizeof(vars));
-	//ft_memset((void *)&shell, 0, sizeof(t_shell*));
+	signal(SIGQUIT, SIG_IGN);
+	signal(SIGINT, do_signals);
 	ft_bzero(&shell, sizeof(shell));
-	//vars.shell->vars = &vars;
 	upload_env_to_dict(envp, &shell.env);
-	//init_env(envp, &shell);
 	_start_shell(&shell);
 	return (0);
 }
