@@ -41,6 +41,15 @@ char					*dict_key(void* data)
 	return (0);
 }
 
+char					*dict_to_str(void* data)
+{
+	struct dict *content;
+
+	content = (struct dict*)data;
+	if (content)
+		return (ft_strjoind(content->key, content->value, "="));
+	return (0);
+}
 
 char					*dict_value(void* data)
 {

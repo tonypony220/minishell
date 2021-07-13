@@ -175,6 +175,7 @@ struct dict	*new_dict(char *key, char *value);
 int			cmp_dict_keys(void* content, void* ref);
 void		dict_print(void* content);
 char		*dict_value(void* data);
+char					*dict_to_str(void* data);
 
 int display_err(struct process *ps);
 
@@ -249,5 +250,7 @@ void		do_signals(int sig);
 void	redir_in(struct process *ps);
 void	redir_out(struct process *ps);
 int		check_for_redir(struct process *ps);
+
+void rl_replace_line();
 
 #endif

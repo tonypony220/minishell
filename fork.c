@@ -7,6 +7,10 @@
  * echo
  * "echo" "strig"
  * "echo" "-n" "strgin"
+ * < file
+ * < file cat
+ * cat < file
+ * < file cat << EOF
  */
 
 /*
@@ -24,7 +28,7 @@
 	139
  */
 
-//extern char** environ;
+extern char** environ;
 //
 int redirs_nbr;
 
@@ -155,7 +159,7 @@ int			create_new_process(struct process *ps)
 
 		/* maybe enough for redirection todo check it */
 		ps->fd[OUT] > 2 && ((dup2(ps->fd[OUT], OUT) >= 0) || err("dup2")); // && close(fd[OUT]);
-		ps->fd[IN] > 2 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2"));// && close(fd[IN]);
+		ps->fd[IN] > 2 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2")); // && close(fd[IN]);
 		/* old version */
 		//	ps->pipe[OUT] != -1 && ((dup2(ps->fd[OUT], OUT) >= 0) || err("dup2")); // && close(fd[OUT]);
 		//	ps->pipe[IN] != -1 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2"));// && close(fd[IN]);
@@ -169,7 +173,16 @@ int			create_new_process(struct process *ps)
 			check_for_redir(ps);
 		if (ps->status & BUILTIN)
 			execute_builtin(ps);
-		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env, dict_key));
+		//ft_lstiter(ps->env, dict_print);
+	//	char **envv = 0;
+	//	envv = ft_lst_to_strs(ps->env, dict_to_str);
+	//	printmultalloc((void**)environ);	
+	//	printf("\n\n");
+	//	printf("%p<<<\n", *envv);
+		//printmultalloc((void**)envv);	
+		//printf("%p<<<\n", *envv); envv
+		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env, dict_to_str)); // no alloc check
+	//	execve(ps->args[0], ps->args, environ);
 		display_err(ps);
 		if (errno == 2)
 			exit(127);  //CMD_NOT_FOUND_CODE);
@@ -297,12 +310,25 @@ void set_fds_to_ps(void *proc, void *fds)
 	ps->fds = fds;
 }
 
+void count_redirections(void *proc, void *redirs)
+{
+	struct process *ps;
+
+	ps = (struct process*)proc;
+	if ((*ps).pipe[OUT] != NO_PIPE)		
+		*(int*)redirs += 1;
+}
+
 int handle_processes(t_list *cmd, t_list *env)
 {
 	int **fds;
+	int redirs;
 
 	fds = 0;
-	redirs_nbr && (fds = (int**)multalloc(redirs_nbr, 0, sizeof(int)));
+	ft_lstiter_arg(cmd, count_redirections, &redirs);
+	printf("%d redirs <<\n", redirs);
+	redirs && (fds = (int**)multalloc(redirs, 0, sizeof(int)));
+	ft_lstiter_arg(cmd, set_fds_to_ps, fds);
 	ft_lstiter(cmd, start_process);
 	close_fds(fds);
 	freemultalloc((void**)fds);

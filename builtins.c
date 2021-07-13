@@ -9,11 +9,12 @@ int					msh_echo(struct process *ps)
 	while (ps->args[i])
 	{
 		/* assume will not be case with empty commands */
-		*ps->args[i] == '$'
-		&& ((ps->args[i][1] != '?' && printf("%s", getenv(ps->args[i] + 1))) // todo this is wrong
+		if (*ps->args[i] == '$' && *(ps->args[i] + 1) != ' ')
+			((ps->args[i][1] != '?' && printf("%s", getenv(ps->args[i] + 1))) // todo this is wrong
 		 	||
-		 	(ps->args[i][1] == '?' && printf("%d", ps->exit_code)));
-		*ps->args[i] != '$' && printf("%s", ps->args[i]);
+		 	(ps->args[i][1] == '?' && printf("%d", ps->shell->last_exit_code)));
+		else
+			printf("%s", ps->args[i]);
 		i++;
 	}
 	!ft_strcmp(ps->args[1], "-n") && printf("\n");
@@ -27,8 +28,7 @@ int					msh_export(struct process *ps)
 
 	if (ps->args[1])	
 	{	
-			
-		if (!(key_value = ft_split(*ps->args[1], '=')))
+		if (!(key_value = ft_split(ps->args[1], '=')))
 			return (0);
 		ret = dict_set_default(ps->env, key_value[0], key_value[1]);
 		free(key_value);

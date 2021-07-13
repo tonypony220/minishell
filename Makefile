@@ -44,7 +44,10 @@ $(SUBDIRS):
 #		$(CC) -Imlx -Ignl -Ilibft ${CFLAGS} -c $< -o ${<:.c=.o}
 
 ${NAME}: ${OBJS} ${P_OBJS} ${HEAD}
-		$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -o ${NAME}
+		$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline \
+		-L/Users/mehtel/.brew/Cellar/readline/8.1/lib \
+		-L/Users/mehtel/.brew/Cellar/readline/8.1/include \
+		-o ${NAME}
 #$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
 
 all:	${NAME}

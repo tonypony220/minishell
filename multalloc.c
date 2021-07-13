@@ -16,9 +16,12 @@ int			arr_len(void **p)
 int			printmultalloc(void **p)
 {
 //	printf(GREEN"\n\t**arr=(%p)"RESET"\n", (char*)p);
+    int i;
+
+	i = -1;
 	while (*p)
 	{
-//		printf(GREEN"\t*arr=(%s)"RESET"\n", (char*)*p);
+		printf(CYAN"\t*arr[i%d]=(%s)"RESET"\n", ++i, (char*)*p);
 		p++;
 	}
 	return (1);
