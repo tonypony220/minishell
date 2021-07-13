@@ -31,11 +31,10 @@
 # define OUT 1
 # define IN 0
 # define CHILD_PID 0
-# define WAIT 	   1 << 1
+# define WAIT 	    1 << 1
 # define COMMAND    1 << 2
-//# define REDIRECT 1 << 2
-//# define W_FILE   1 << 3
-# define R_FILE     1 << 4
+# define HEREDOC    1 << 3  /* calls when bash executes << redirection. we not call it */ 
+# define R_FILE     1 << 4  /* read from file */
 # define A_FILE     1 << 5  /* append to file */
 # define SEQ 	    1 << 6	/* process terminates ';'. and not concurent executing */
 # define BUILTIN    1 << 7
