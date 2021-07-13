@@ -35,11 +35,11 @@
 # define COMMAND    1 << 2
 //# define REDIRECT 1 << 2
 //# define W_FILE   1 << 3
-//# define R_FILE   1 << 4
-# define A_FILE    1 << 5  /* append to dile */
-# define SEQ 	   1 << 6	/* process terminates ';'. and not concurent executing */
-# define BUILTIN   1 << 7
-# define DIRECT    1 << 8  /*  */
+# define R_FILE     1 << 4
+# define A_FILE     1 << 5  /* append to file */
+# define SEQ 	    1 << 6	/* process terminates ';'. and not concurent executing */
+# define BUILTIN    1 << 7
+# define DIRECT     1 << 8  /*  */
 
 # define BUILTINS "env echo pwd export unset exit cd"
 # define WR_BUILTINS "env echo pwd"  			/* which write */
@@ -142,11 +142,11 @@ struct		process
 	                    * https://tldp.org/LDP/abs/html/exitcodes.html   */
 	char	*file;     /* filename to redirections */
 
-	int		redir;		/* 1=redir_in, 2=redit_out, 0=NONE */
-	int		redir_type;	/* 1=>> 2=<< 3=< 4=> 0=NONE */
-
 	t_list	*env;	   /* back link on current shell evniron */
 	t_shell *shell;	   /* back link on current shell obj */
+
+	//int		redir;		/* 1=redir_in, 2=redit_out, 0=NONE */
+	//int		redir_type;	/* 1=>> 2=<< 3=< 4=> 0=NONE */
 };
 
 /* global status */

@@ -71,12 +71,14 @@ void	set_flags(struct process *new, t_shell *shell)
 	shell->flags.double_q = 0;
 }
 
+
 int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 {
 	if (token->redir)
 	{
-		(*new)->redir = index;
-		(*new)->redir_type = shell->flags.redir_type;
+		/* 1=>> 2=<< 3=< 4=> 0=NONE */
+		shell->flags.redir_type == 1 && ((*new)->status |= A_FILE);
+		shell->flags.redir_type == 3 && ((*new)->status |= R_FILE);
 		token->redir = 0;
 		return (1);
 	}
@@ -103,7 +105,7 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	new->env = shell->env;
 	while (token)
 	{
-		if (check_redir(token, i, &new, shell))
+		if (check_redir(token, i, &new, shell)) /* NO FILE when << redirection */ 
 			new->file = ft_strdup(token->token);
 		else
 			new->args[i++] = ft_strdup(token->token);

@@ -169,8 +169,8 @@ int			create_new_process(struct process *ps)
 		close_fds(ps->fds);
 		if (ps->file) /* auxillary close */
 			close(ps->fd[OUT]);
-		if (ps->redir) /* redirection */
-			check_for_redir(ps);
+//		if (ps->redir) /* redirection */
+//			check_for_redir(ps);
 		if (ps->status & BUILTIN)
 			execute_builtin(ps);
 		//ft_lstiter(ps->env, dict_print);
@@ -219,7 +219,7 @@ void	print_process(void *proc)
 	struct process *ps;
 
 	ps = (struct process*)proc;
-	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d) REDIRECT: (%d type=%d)\n"RESET,
+	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d) REDIRECT: >> %d)\n"RESET,
 		   ps->args[0],
 		   ps->args[1],
 		   ps->pipe[0],
@@ -229,8 +229,18 @@ void	print_process(void *proc)
 		   ps->file,
 		   ps->status & BUILTIN && 1,
 		   ps->status & DIRECT && 1,
-		   ps->redir,
-		   ps->redir_type);
+		   ps->status & A_FILE && 1
+		   );
+}
+
+int get_open_file_flag(struct process *ps, int *flag)
+{
+	if ((*ps).status & R_FILE && (*flag = O_RDONLY))
+		return (IN);
+	*flag = O_WRONLY | O_CREAT;
+	((*ps).status & A_FILE) && (*flag |= O_APPEND);
+	!((*ps).status & A_FILE) && (*flag |= O_TRUNC);
+	return (OUT);
 }
 
 void start_process(void *proc)
@@ -238,6 +248,7 @@ void start_process(void *proc)
 	struct process *ps;
 	int pipe_number;
 	int flag;
+	int std;
 
 	ps = (struct process*)proc;
 	/* 	 seems that REDIRECT flag not having reason 
@@ -261,17 +272,19 @@ void start_process(void *proc)
 	//	(*find_ps_pipe_to(tmp, pipe_number)).fd[IN] = fds[pipe_number][IN];
 	//	(*find_ps_pipe_to(tmp, pipe_number)).fds = fds;
 	}
-
 	if ((*ps).file)
 	{
 		//((**ps).status & W_FILE) && (flag = O_WRONLY);
-		(flag = O_WRONLY) && ((*ps).status & A_FILE) && (flag |= O_APPEND);
-																			/* O_TRUNC for > to file to clear it */
+		//flag = O_WRONLY;
+		//((*ps).status & R_FILE) && (flag = O_RDONLY);
+		//(flag & O_WRONLY) && (flag |= O_CREATE);
+		//(flag & O_WRONLY) && ((*ps).status & A_FILE) && (flag |= O_APPEND);
+														/* O_TRUNC for > to file to clear it */
 		//((**ps).status & R_FILE) && (flag |= O_RDONLY);
-		printf("%d FLAG\n", flag);
+		std = get_open_file_flag(ps, &flag);
+	//	printf("%d FLAG\n", flag);
 																			/* cheking errors of opening file */
-		((*ps).fd[OUT] = open((*ps).file, flag));
-		
+		((*ps).fd[std] = open((*ps).file, flag));
 	}
 
 	//(**ps) & SEQ && ((**ps).status |= WAIT);
