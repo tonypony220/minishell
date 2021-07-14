@@ -77,11 +77,11 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 	if (token->redir)
 	{
 		/* 1=>> 2=<< 3=< 4=> 0=NONE */
-		printf("%d redir type\n",shell->flags.redir_type);
-		shell->flags.redir_type == 1 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
-		shell->flags.redir_type == 2 && ((*new)->status |= HEREDOC);
-		shell->flags.redir_type == 3 && ((*new)->status |= R_FILE) && ((*new)->file[IN] = ft_strdup(token->token));
-		shell->flags.redir_type == 4 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
+		printf("%d redir type\n",token->redir_type);
+		token->redir_type == 1 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
+		token->redir_type == 2 && ((*new)->status |= HEREDOC);
+		token->redir_type == 3 && ((*new)->status |= R_FILE) && ((*new)->file[IN] = ft_strdup(token->token));
+		token->redir_type == 4 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
 		token->redir = 0;
 		return (1);
 	}
