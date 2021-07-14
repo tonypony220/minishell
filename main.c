@@ -66,4 +66,13 @@ int _main(int ac, char **av, char **envp)
 int	main(int ac, char **av, char **envp)
 {
 	return(_main(ac, av, envp));
+//	int i = 1000;
+//
+//	while (i--)
+//	{
+//		struct process *ps = (struct process*)ft_calloc(sizeof(struct process), 1);
+//		printf("%p[%d %d]\n", ps->fd, ps->fd[0], ps->fd[1]);	
+//		if (ps->filed[0] || ps->filed[1])
+//			printf("%p[%p %p]\n", ps->filed, ps->filed[0], ps->filed[1]);	
+//	}
 }

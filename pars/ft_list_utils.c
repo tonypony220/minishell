@@ -29,7 +29,7 @@ t_token	*token_lstadd(t_token **lst, char *line, t_shell *shell)
 
 	if (!line)
 		return (NULL);
-	new = (t_token*)malloc(sizeof(*new));
+	new = (t_token*)ft_calloc(sizeof(*new), 1);
 	if (new == NULL)
 		return (0);
 	new->token = ft_strdup(line);

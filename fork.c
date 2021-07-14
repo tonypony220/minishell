@@ -158,8 +158,8 @@ int			create_new_process(struct process *ps)
 		//	   ps->pipe[OUT], ps->status & BUILTIN);
 
 		/* maybe enough for redirection todo check it */
-		ps->fd[OUT] > 2 && ((dup2(ps->fd[OUT], OUT) >= 0) || err("dup2")); // && close(fd[OUT]);
-		ps->fd[IN] > 2 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2")); // && close(fd[IN]);
+		ps->fd[OUT] > 2 && ((dup2(ps->fd[OUT], OUT) >= 0) || err("dup2")); //&& close(ps->fd[OUT]);
+		ps->fd[IN] > 2 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2")); //&& close(ps->fd[IN]);
 		/* old version */
 		//	ps->pipe[OUT] != -1 && ((dup2(ps->fd[OUT], OUT) >= 0) || err("dup2")); // && close(fd[OUT]);
 		//	ps->pipe[IN] != -1 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2"));// && close(fd[IN]);
@@ -167,8 +167,8 @@ int			create_new_process(struct process *ps)
 		//printf("%p fds\n", ps->fds);
 
 		close_fds(ps->fds);
-		if (ps->file) /* auxillary close */
-			close(ps->fd[OUT]);
+		ps->file[IN]  && close(ps->fd[IN]);
+		ps->file[OUT]  && close(ps->fd[OUT]);
 //		if (ps->redir) /* redirection */
 //			check_for_redir(ps);
 		if (ps->status & BUILTIN)
@@ -219,36 +219,44 @@ void	print_process(void *proc)
 	struct process *ps;
 
 	ps = (struct process*)proc;
-	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE '%s' BUILTIN:(%d) DIRECT: (%d) REDIRECT: >> %d)\n"RESET,
+	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE ('%s' '%s') BUILTIN:(%d) DIRECT: (%d) REDIRECT: >> %d)\n"RESET,
 		   ps->args[0],
 		   ps->args[1],
 		   ps->pipe[0],
 		   ps->pipe[1],
 		   ps->fd[0],
 		   ps->fd[1],
-		   ps->file,
+		   ps->file[0],
+		   ps->file[1],
 		   ps->status & BUILTIN && 1,
 		   ps->status & DIRECT && 1,
 		   ps->status & A_FILE && 1
 		   );
 }
 
-int get_open_file_flag(struct process *ps, int *flag)
-{
-	if ((*ps).status & R_FILE && (*flag = O_RDONLY))
-		return (IN);
-	*flag = O_WRONLY | O_CREAT;
-	((*ps).status & A_FILE) && (*flag |= O_APPEND);
-	!((*ps).status & A_FILE) && (*flag |= O_TRUNC);
-	return (OUT);
-}
+//int get_fileno(struct process *ps)
+//{
+//	if (((*ps).status & R_FILE))
+//		return (IN);
+//	return (OUT);
+//}
+
+//int get_open_file_flag(struct process *ps, int *flag)
+//{
+////	printf("%d RFILE flag %d \n", (*ps).status & R_FILE, O_RDONLY);
+//	if (((*ps).status & R_FILE) && !(*flag = O_RDONLY))
+//		return (IN);
+//	*flag = O_WRONLY | O_CREAT;
+//	((*ps).status & A_FILE) && (*flag |= O_APPEND);
+//	!((*ps).status & A_FILE) && (*flag |= O_TRUNC);
+//	return (OUT);
+//}
 
 void start_process(void *proc)
 {
 	struct process *ps;
 	int pipe_number;
 	int flag;
-	int std;
 
 	ps = (struct process*)proc;
 	/* 	 seems that REDIRECT flag not having reason 
@@ -262,7 +270,7 @@ void start_process(void *proc)
 		pipe_number = (*ps).pipe[IN];
 		ps->fd[IN] = ps->fds[pipe_number][IN];
 	}
-	if ((*ps).pipe[OUT] != NO_PIPE && !((*ps).file)) //(**ps).status &(W_FILE | A_FILE)))
+	if ((*ps).pipe[OUT] != NO_PIPE)// && !((*ps).file)) //(**ps).status &(W_FILE | A_FILE)))
 	{
 		pipe_number = (*ps).pipe[OUT];
 		/* pipe() return 0 if success */
@@ -272,7 +280,7 @@ void start_process(void *proc)
 	//	(*find_ps_pipe_to(tmp, pipe_number)).fd[IN] = fds[pipe_number][IN];
 	//	(*find_ps_pipe_to(tmp, pipe_number)).fds = fds;
 	}
-	if ((*ps).file)
+	if ((*ps).file[IN])
 	{
 		//((**ps).status & W_FILE) && (flag = O_WRONLY);
 		//flag = O_WRONLY;
@@ -281,10 +289,16 @@ void start_process(void *proc)
 		//(flag & O_WRONLY) && ((*ps).status & A_FILE) && (flag |= O_APPEND);
 														/* O_TRUNC for > to file to clear it */
 		//((**ps).status & R_FILE) && (flag |= O_RDONLY);
-		std = get_open_file_flag(ps, &flag);
-	//	printf("%d FLAG\n", flag);
-																			/* cheking errors of opening file */
-		((*ps).fd[std] = open((*ps).file, flag));
+		//get_open_file_flag(ps, &flag);
+		//printf("%d FLAG std %d\n", flag, std);
+		((*ps).fd[IN] = open((*ps).file[IN], O_RDONLY, 0644));
+	}
+	if (ps->file[OUT])
+	{
+		flag = O_WRONLY | O_CREAT;
+		((*ps).status & A_FILE) && (flag |= O_APPEND);
+		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
+		((*ps).fd[OUT] = open((*ps).file[OUT], flag, 0644));
 	}
 
 	//(**ps) & SEQ && ((**ps).status |= WAIT);
@@ -309,8 +323,11 @@ void end_process(void *proc)
 	struct process *ps;
 
 	ps = (struct process*)proc;
-	if ((*ps).file) /* auxillaty close */
-		close((*ps).fd[OUT]);
+//	if ((*ps).file) /* auxillaty close */
+//	{
+	(*ps).file[OUT] && close((*ps).fd[OUT]);
+	(*ps).file[IN] && close((*ps).fd[IN]);
+//	}
 	wait_process(ps);
 	///free_process(ps, 0); /* todo */
 }
@@ -339,7 +356,7 @@ int handle_processes(t_list *cmd, t_list *env)
 
 	fds = 0;
 	ft_lstiter_arg(cmd, count_redirections, &redirs);
-	printf("%d redirs <<\n", redirs);
+	//printf("%d redirs <<\n", redirs);
 	redirs && (fds = (int**)multalloc(redirs, 0, sizeof(int)));
 	ft_lstiter_arg(cmd, set_fds_to_ps, fds);
 	ft_lstiter(cmd, start_process);
@@ -493,7 +510,6 @@ int __main(int ac, char **av, char **envp)
 	ps->args = ft_split("cat ttt", ' ');
 	ps->pipe[IN] = NO_PIPE;
 	ps->pipe[OUT] = NO_PIPE;
-	ps->file = "text";
 	ps->env = env_lst;
 	ft_lstadd_front(&cmd, ft_lstnew(ps));
 

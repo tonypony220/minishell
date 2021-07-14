@@ -77,10 +77,11 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 	if (token->redir)
 	{
 		/* 1=>> 2=<< 3=< 4=> 0=NONE */
-		shell->flags.redir_type == 1 && ((*new)->status |= A_FILE);
+		printf("%d redir type\n",shell->flags.redir_type);
+		shell->flags.redir_type == 1 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
 		shell->flags.redir_type == 2 && ((*new)->status |= HEREDOC);
-		shell->flags.redir_type == 3 && ((*new)->status |= R_FILE);
-		shell->flags.redir_type == 4 && 0;
+		shell->flags.redir_type == 3 && ((*new)->status |= R_FILE) && ((*new)->file[IN] = ft_strdup(token->token));
+		shell->flags.redir_type == 4 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
 		token->redir = 0;
 		return (1);
 	}
@@ -107,8 +108,10 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	new->env = shell->env;
 	while (token)
 	{
-		if (check_redir(token, i, &new, shell)) /* NO FILE when << redirection */ 
-			!(new->status & HEREDOC) && (new->file = ft_strdup(token->token));
+//		printf("'%s' token redir_flag=%d\n", token->token, token->redir);
+		if (check_redir(token, i, &new, shell)) ;
+			// rewrite this 
+			//!(new->status & HEREDOC) && (new->file = ft_strdup(token->token));
 		else
 			new->args[i++] = ft_strdup(token->token);
 		token = token->next;

@@ -131,21 +131,18 @@ typedef struct s_shell
 struct		process
 {
 	char	**args;
-	int		pipe[2];   /* pipe number ex.: 1 pipe in, 2 pipe out */
-				       /* when pipe not used it will be -1 */
+	int		pipe[2];    /* pipe number ex.: 1 pipe in, 2 pipe out */
+				        /* when pipe not used it will be -1 */
 	int		fd[2];
-	int		**fds; 	   /* all fds inherited from parent process pipe() */
-				  	   /* mapping would be pipe number = fds index + 1 */
+	int		**fds; 	    /* all fds inherited from parent process pipe() */
+				  	    /* mapping would be pipe number = fds index + 1 */
 	int		status;
-	int		exit_code; /* reserved unix exit code
-	                    * https://tldp.org/LDP/abs/html/exitcodes.html   */
-	char	*file;     /* filename to redirections */
+	int		exit_code;  /* reserved unix exit code
+	                     * https://tldp.org/LDP/abs/html/exitcodes.html   */
+	char	*file[2];  	/* filename to redirections */
 
-	t_list	*env;	   /* back link on current shell evniron */
-	t_shell *shell;	   /* back link on current shell obj */
-
-	//int		redir;		/* 1=redir_in, 2=redit_out, 0=NONE */
-	//int		redir_type;	/* 1=>> 2=<< 3=< 4=> 0=NONE */
+	t_list	*env;	    /* back link on current shell evniron */
+	t_shell *shell;	    /* back link on current shell obj */
 };
 
 /* global status */
