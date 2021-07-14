@@ -121,6 +121,7 @@ typedef struct s_shell
 	int				arg_size;
 	int				env_len;
 	int				env_sign;
+	int				_env_exit;
 	int				i;
 	int				start;
 	int				end;

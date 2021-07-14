@@ -4,7 +4,6 @@ int	parse_cmd(char *line, t_shell *shell)
 {
 	char *substr;
 
-	shell->_arg = NULL;
 	substr = NULL;
 	shell->i = space_skip(line, shell->i);
 	shell->start = shell->i;
@@ -96,8 +95,8 @@ int	parse_env_sign(char *line, t_shell *shell)
 	}
 	(shell->i)++;
 	shell->start = shell->i;
-/* 	if (check_env_syntax(line, shell->start) < 0)
-		return (-1); */
+	if (line[shell->i] == '?')
+		shell->_env_exit = 1;
 	while (line[shell->i] != '\0')
 	{
 		if (ft_strchr(" \'\"\\$><|", line[shell->i + 1]) || !line[shell->i + 1])

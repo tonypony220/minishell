@@ -61,8 +61,8 @@ int	check_for_env(char **line, t_shell *shell)
 		if (line[0][i] == '$')
 		{
 			shell->env_sign = 1;
-/* 			if (pre_env_check(line[0], shell) == 0)
-				return (0); */
+			if (line[0][i + 1] == '?')
+				shell->_env_exit = 1;
 			*line = add_env_to_str(line[0], shell);
 		}
 		i++;
@@ -175,6 +175,7 @@ int			pre_parser(char *line, t_shell *shell)
 	shell->i = 0;
 	token = NULL;
 	shell->i = space_skip(line, shell->i);
+	shell->_env_exit = 0;
 	if (line[shell->i] == '|')
 		return (error_out(shell, "syntax error near unexpected token '|'"));
 	if (check_cmd(line, shell) < 1) //check for syntax errors

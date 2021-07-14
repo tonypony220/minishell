@@ -25,11 +25,12 @@ int		_start_shell(t_shell *shell)
 		if (ft_strncmp(line, "exit", ft_strlen(line) + 1) == 0)
 			shell->status = 0;
 		shell->flags = _init_flags();
-		if (pre_parser(line, shell) == 1)
+		if (pre_parser(line, shell))
 		{
 			add_history(line);
 			print_command(shell); // Print for testing
-			execute(shell);
+			if (!shell->err)
+				execute(shell);
 		}
 		if (shell->cmd);
 			//free_command(&shell->cmd);

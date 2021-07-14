@@ -96,7 +96,7 @@ void	redir_syntax(char *line, int i, t_shell *shell)
 		if (ft_strchr("><", line[i]))
 		{
 			i++;
-			if (ft_strchr("|><", line[i]))
+			if (ft_strchr("|><", line[i]) && line[i])
 				i++;
 			i = space_skip(line, i);
 			if (line[i] == '\0' || ft_strchr("|><", line[i]))

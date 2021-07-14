@@ -13,6 +13,11 @@ int	get_env(t_shell *shell, char *line, int i, int end)
 	char *key;
 	int	ret; 
 
+	if (shell->_env_exit)
+	{
+		shell->env_value = ft_itoa(shell->last_exit_code);
+		return (1);
+	}
 	ret = 0;
 	key = ft_substr(line, i, end - i + 1); // no check for malloc failure
 	one = ft_lst_find(shell->env, (d = new_dict(key, 0)), cmp_dict_keys); // mo malloc dict check also

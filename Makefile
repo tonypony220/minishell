@@ -9,7 +9,6 @@ PARSERS	=	${P_DIR}mini_parser.c \
 			${P_DIR}ft_list_utils.c \
 			${P_DIR}env_func.c \
 			${P_DIR}parsers.c \
-			${P_DIR}redirects.c \
 			${P_DIR}command.c \
 			${P_DIR}check_cmd.c \
 			${P_DIR}util.c 
