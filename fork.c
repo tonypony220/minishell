@@ -11,6 +11,7 @@
  * < file cat
  * cat < file
  * < file cat << EOF
+ * 
  */
 
 /*

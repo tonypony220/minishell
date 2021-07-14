@@ -3,18 +3,23 @@
 int					msh_echo(struct process *ps)
 {
 	int				i;
+	int				virgin;
 
 	i = 1;
+	virgin = 0;
 	!ft_strcmp(ps->args[1], "-n") && (i = 2);
 	while (ps->args[i])
 	{
-		/* assume will not be case with empty commands */
-		if (*ps->args[i] == '$' && *(ps->args[i] + 1) != ' ')
-			((ps->args[i][1] != '?' && printf("%s", getenv(ps->args[i] + 1))) // todo this is wrong
-		 	||
-		 	(ps->args[i][1] == '?' && printf("%d", ps->shell->last_exit_code)));
-		else
-			printf("%s", ps->args[i]);
+			/* assume will not be case with empty commands */
+
+	//	if (*ps->args[i] == '$' && *(ps->args[i] + 1) != ' ')
+	//		((ps->args[i][1] != '?' && printf("%s", getenv(ps->args[i] + 1))) // todo this is wrong
+	//	 	||
+	//	 	(ps->args[i][1] == '?' && printf("%d", ps->shell->last_exit_code)));
+	//	else
+		virgin && printf(" ");
+		printf("%s", ps->args[i]);
+		virgin++;
 		i++;
 	}
 	!ft_strcmp(ps->args[1], "-n") && printf("\n");
