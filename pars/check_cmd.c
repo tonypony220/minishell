@@ -104,6 +104,7 @@ void	redir_syntax(char *line, int i, t_shell *shell)
 		}
 		i++;
 	}
+	//printf("%d << rerid err %d << pipe err", shell->redir_err,shell->pipe_err);
 	if (shell->redir_err == 1 && shell->pipe_err == 0)
 		error_out(shell, "syntax error near unexpected token 'newline'");
 }

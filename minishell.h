@@ -132,21 +132,29 @@ typedef struct s_shell
 	int				last_exit_code;
 }	t_shell;
 
+//struct		dir
+//{
+//	char	*file;  
+//	int		flags;
+//}
+
 struct		process
 {
 	char	**args;
-	int		pipe[2];    /* pipe number ex.: 1 pipe in, 2 pipe out */
-				        /* when pipe not used it will be -1 */
+	int		pipe[2];     /* pipe number ex.: 1 pipe in, 2 pipe out */
+				         /* when pipe not used it will be -1 */
 	int		fd[2];
-	int		**fds; 	    /* all fds inherited from parent process pipe() */
-				  	    /* mapping would be pipe number = fds index + 1 */
+	int		**fds; 	     /* all fds inherited from parent process pipe() */
+				  	     /* mapping would be pipe number = fds index + 1 */
 	int		status;
-	int		exit_code;  /* reserved unix exit code
-	                     * https://tldp.org/LDP/abs/html/exitcodes.html   */
-	char	*file[2];  	/* filename to redirections */
+	int		exit_code;   /* reserved unix exit code
+	                      * https://tldp.org/LDP/abs/html/exitcodes.html   */
+	char	*file[2];  	 /* filename to redirections */
+//	char	**files_in;  /*  */
+//	char	**files_out; /*  */
 
-	t_list	*env;	    /* back link on current shell evniron */
-	t_shell *shell;	    /* back link on current shell obj */
+	t_list	*env;	     /* back link on current shell evniron */
+	t_shell *shell;	     /* back link on current shell obj */
 };
 
 /* global status */
@@ -192,6 +200,7 @@ int			msh_env(struct process *ps);
 int			msh_pwd(struct process *ps);
 int			msh_cd(struct process *ps);
 int			msh_exit(struct process *ps);
+int			msh_heredoc(struct process *ps);
 
 void		free_processes(struct process **ps);
 void		free_process(struct process *ps, int child);
@@ -251,7 +260,8 @@ void	redir_in(struct process *ps);
 void	redir_out(struct process *ps);
 int		check_for_redir(struct process *ps);
 
-int	heredoc_test(t_shell *shell, char *stop);
+
+int	heredoc_test(t_shell *shell, char *stop, struct process *ps);
 size_t	ft_strlen2(const char *s);
 int		exec_heredoc(struct process *ps);
 

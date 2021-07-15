@@ -1,17 +1,25 @@
 dir		=   .
 
-SRCS	=	fork.c multalloc.c find_path.c builtins.c dict_func.c environ.c exiting.c main.c #term.c 
+SRCS	=	fork.c 			\
+			multalloc.c 	\
+			find_path.c 	\
+			builtins.c  	\
+			builtins_2.c  	\
+			dict_func.c 	\
+			environ.c   	\
+			exiting.c   	\
+			main.c 			
 
 P_DIR	= 	pars/
 
-PARSERS	=	${P_DIR}mini_parser.c \
-			${P_DIR}error_out.c \
-			${P_DIR}ft_list_utils.c \
-			${P_DIR}env_func.c \
-			${P_DIR}parsers.c \
-			${P_DIR}command.c \
-			${P_DIR}check_cmd.c \
-			${P_DIR}heredoc.c \
+PARSERS	=	${P_DIR}mini_parser.c 		\
+			${P_DIR}error_out.c 		\
+			${P_DIR}ft_list_utils.c 	\
+			${P_DIR}env_func.c 			\
+			${P_DIR}parsers.c 			\
+			${P_DIR}command.c 			\
+			${P_DIR}check_cmd.c			\
+			${P_DIR}heredoc.c 			\
 			${P_DIR}util.c 
 
 OBJS	=	${SRCS:.c=.o}

@@ -14,19 +14,20 @@ int		exec_heredoc(struct process *ps)
 	return (1);
 }
 
-int	heredoc_test(t_shell *shell, char *stop)
+int	heredoc_test(t_shell *shell, char *stop, struct process *ps)
 {
 	char	*line;
 
 	line = NULL;
 	shell->flags.heredoc = 1;
 	shell->flags.double_q = 1;
+	ps->status |= (DIRECT | HEREDOC);
 	while (1)
 	{
 		line = readline("> ");
 		if (line == NULL)
 			return (1); // bash warning
-		if (ft_strncmp(line, stop, ft_strlen(line) + 1) == 0)
+		if (ft_strcmp(line, stop) == 0)
 		{
 			free(line);
 			return (1);
@@ -37,5 +38,6 @@ int	heredoc_test(t_shell *shell, char *stop)
 		if (line)
 			free(line);
 	}
+	ps->args[0] = shell->heredoc;
 	return (1);
 }

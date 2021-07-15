@@ -126,8 +126,8 @@ void			dispatching_process(struct process *ps)
 int			execute_builtin(struct process *ps)
 {
 	// unset errors with leading numbers or equality sign
-	printf(CYAN">>executing command builit %s %s\n"RESET,
-		   ps->args[0], ps->args[1]);
+	(ps->status & HEREDOC) && msh_heredoc(ps);
+	printf(CYAN">>executing command builit %s %s\n"RESET, ps->args[0], ps->args[1]);
 	ft_strcmp(ps->args[0], "echo")	 || msh_echo(ps);
 	ft_strcmp(ps->args[0], "export") || msh_export(ps);
 	ft_strcmp(ps->args[0], "pwd") 	 || msh_pwd(ps);
@@ -167,10 +167,10 @@ int			create_new_process(struct process *ps)
 		//write(1, "WTF<<\n", 6);
 		//printf("%p fds\n", ps->fds);
 		close_fds(ps->fds);
-		ps->file[IN]  && close(ps->fd[IN]);
-		ps->file[OUT]  && close(ps->fd[OUT]);
-		if (ps->status & HEREDOC) /* HEREDOC */
-			exec_heredoc(ps);
+		ps->file[IN] && close(ps->fd[IN]);
+		ps->file[OUT] && close(ps->fd[OUT]);
+	//	if (ps->status & HEREDOC) /* HEREDOC */
+	//		exec_heredoc(ps);
 //		if (ps->redir) /* redirection */
 //			check_for_redir(ps);
 		if (ps->status & BUILTIN)
@@ -219,11 +219,17 @@ int			create_new_process(struct process *ps)
 void	print_process(void *proc)
 {
 	struct process *ps;
+	int i;
 
+	i = 0;
 	ps = (struct process*)proc;
-	printf(CYAN"PROCESS (%s,  %s) PIPE(%d  %d) FD (%d %d) FILE ('%s' '%s') BUILTIN:(%d) DIRECT: (%d) REDIRECT: >> %d)\n"RESET,
-		   ps->args[0],
-		   ps->args[1],
+	printf(CYAN"PROCESS args[");
+	while (ps->args[i])	
+	{
+		printf("(%s) ", ps->args[i]);
+		i++;
+	}
+	printf("] PIPE(%d  %d) FD (%d %d) FILE ('%s' '%s') BUILTIN:(%d) DIRECT:(%d) REDIRECT=%d, HEREDOC=%d)\n"RESET,
 		   ps->pipe[0],
 		   ps->pipe[1],
 		   ps->fd[0],
@@ -232,7 +238,8 @@ void	print_process(void *proc)
 		   ps->file[1],
 		   ps->status & BUILTIN && 1,
 		   ps->status & DIRECT && 1,
-		   ps->status & A_FILE && 1
+		   ps->status & A_FILE && 1,
+		   ps->status & HEREDOC && 1
 		   );
 }
 
@@ -258,6 +265,7 @@ void start_process(void *proc)
 {
 	struct process *ps;
 	int pipe_number;
+	int i;
 	int flag;
 
 	ps = (struct process*)proc;
@@ -282,6 +290,12 @@ void start_process(void *proc)
 	//	(*find_ps_pipe_to(tmp, pipe_number)).fd[IN] = fds[pipe_number][IN];
 	//	(*find_ps_pipe_to(tmp, pipe_number)).fds = fds;
 	}
+	i = 0;
+	///while (ps->files_in[i])
+	///{
+	///	(*ps).fd[IN] && close((*ps).fd[IN]);
+	///	((*ps).fd[IN] = open((*ps).files_in[i++], O_RDONLY, 0644));
+	///}
 	if ((*ps).file[IN])
 	{
 		//((**ps).status & W_FILE) && (flag = O_WRONLY);
@@ -295,6 +309,14 @@ void start_process(void *proc)
 		//printf("%d FLAG std %d\n", flag, std);
 		((*ps).fd[IN] = open((*ps).file[IN], O_RDONLY, 0644));
 	}
+	i = 0;
+///	while (ps->files_out[i])
+///	{
+///		flag = O_WRONLY | O_CREAT;
+///		((*ps).status & A_FILE) && (flag |= O_APPEND);
+///		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
+///		((*ps).fd[OUT] = open((*ps).files_out[i], flag, 0644));
+///	}
 	if (ps->file[OUT])
 	{
 		flag = O_WRONLY | O_CREAT;

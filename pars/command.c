@@ -65,7 +65,7 @@ void	print_command(t_shell *shell)
 void	set_flags(struct process *new, t_shell *shell)
 {
 	//printf("=%d=%d\n", shell->flags.pipe_in, shell->flags.pipe_out);
-//	new->_pipe = shell->flags.pipe_count;
+	//	new->_pipe = shell->flags.pipe_count;
 	new->pipe[0] = shell->flags.pipe_in;
 	new->pipe[1] = shell->flags.pipe_out;
 	shell->flags.double_q = 0;
@@ -78,9 +78,9 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 		/* 1=>> 2=<< 3=< 4=> 0=NONE */
 		printf("%d redir type\n",token->redir_type);
 		token->redir_type == 1 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
-		token->redir_type == 2 && ((*new)->status |= HEREDOC) && heredoc_test(shell, token->token);
+		token->redir_type == 2 && heredoc_test(shell, token->token, *new);
 		token->redir_type == 3 && ((*new)->status |= R_FILE) && ((*new)->file[IN] = ft_strdup(token->token));
-		token->redir_type == 4 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
+		token->redir_type == 4 && ((*new)->file[OUT] = ft_strdup(token->token));
 		token->redir = 0;
 		return (1);
 	}
@@ -94,20 +94,18 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	int		size;
 
 	i = 0;
-	size = token_lstsize(token);
-	if (token == NULL)
-		return (-1);
-	new = (struct process*)ft_calloc(1, sizeof(*new));
-	if (new == NULL)
-		return (-1);
-	new->args = (char **)ft_calloc((size + 1), sizeof(char *));
-	if (new->args == NULL)
+	size = token_lstsize(token); //token->redir_type == 2 ||
+	if (token->redir_type == 2)
+		size = 1;
+	if (token == NULL
+	|| !(new = (struct process*)ft_calloc(1, sizeof(*new)))
+	|| !(new->args = (char **)ft_calloc((size + 1), sizeof(char *))))
 		return (-1);
 	new->shell = shell;
 	new->env = shell->env;
 	while (token)
 	{
-//		printf("'%s' token redir_flag=%d\n", token->token, token->redir);
+		//printf("%d '%s' token redir_type=%d\n", size, token->token, token->redir_type);
 // rewrite this 
 			//!(new->status & HEREDOC) && (new->file = ft_strdup(token->token));
 		if (check_redir(token, i, &new, shell)) // == 2
