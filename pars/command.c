@@ -1,65 +1,9 @@
 #include "../minishell.h"
 
-static int		count_size(char **str)
-{
-	int i = 0;
-	int j;
-
-	while (str[i] != NULL)
-	{
-		j = 0;
-		while (str[i][j] != '\0')
-			j++;
-		i++;
-	}
-	return (i);
-}
-
-void	free_command(t_cmd **list)
-{
-	t_cmd	*tmp;
-	int		i;
-	int 	size;
-
-	if (*list == NULL)
-	{
-		printf("??\n");
-		return ;
-	}
-	while (*list)
-	{
-		i = 0;
-		tmp = (*list)->next;
-		size = count_size((*list)->cmd);
-		while (size--)
-			free((*list)->cmd[i++]);
-		free((*list)->cmd);
-		free(*list);
-		*list = NULL;
-		(*list) = tmp;
-	}
-}
-
-
 void	print_command(t_shell *shell)
 {
 	/* rewrite for list */
 	ft_lstiter(shell->cmd, print_process);
-
-//	int i = 0;
-//	int d = 0;
-//	t_cmd *tmp;
-//
-//	tmp = shell->cmd;
-//	while (tmp)
-//	{
-//		printf("cmd #%d >>> ", d);
-//		while (tmp->cmd[i] != NULL)
-//			printf("%s ", tmp->cmd[i++]);
-//		printf("\n\tPIPE IN [%d] -- PIPE OUT [%d] -- PIPE NUMBER []\n", tmp->pipe[0], tmp->pipe[1]); //, tmp->_pipe);
-//		tmp = tmp->next;
-//		d++;
-
 }
 
 void	set_flags(struct process *new, t_shell *shell)
@@ -73,14 +17,27 @@ void	set_flags(struct process *new, t_shell *shell)
 
 int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 {
+	char *name;
+
 	if (token->redir)
 	{
+		shell->in_compose = token->redir_type;
 		/* 1=>> 2=<< 3=< 4=> 0=NONE */
 		printf("%d redir type\n",token->redir_type);
 		token->redir_type == 1 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
 		token->redir_type == 2 && heredoc_test(shell, token->token, *new);
 		token->redir_type == 3 && ((*new)->status |= R_FILE) && ((*new)->file[IN] = ft_strdup(token->token));
 		token->redir_type == 4 && ((*new)->file[OUT] = ft_strdup(token->token));
+		
+		/* FILE NAMES LIST == shell->files */
+/* 		token->redir_type == 1 && ((*new)->status |= A_FILE) && (name = ft_strdup(token->token));
+		token->redir_type == 2 && heredoc_test(shell, token->token, *new);
+		token->redir_type == 3 && ((*new)->status |= R_FILE) && (name = ft_strdup(token->token));
+		token->redir_type == 4 && (name = ft_strdup(token->token));
+		token_lstadd(&shell->files, name, shell);
+		free(name); */
+		
+		shell->in_compose = 0;
 		token->redir = 0;
 		return (1);
 	}
@@ -94,12 +51,13 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	int		size;
 
 	i = 0;
+	if (token == NULL)
+		return (1);
 	size = token_lstsize(token); //token->redir_type == 2 ||
 	if (token->redir_type == 2)
 		size = 1;
-	if (token == NULL
-	|| !(new = (struct process*)ft_calloc(1, sizeof(*new)))
-	|| !(new->args = (char **)ft_calloc((size + 1), sizeof(char *))))
+	if (!(new = (struct process*)ft_calloc(1, sizeof(*new)))
+	|| !(new->args = (char **)ft_calloc((size + 1), sizeof(char *)))) 
 		return (-1);
 	new->shell = shell;
 	new->env = shell->env;

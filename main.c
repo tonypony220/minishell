@@ -32,8 +32,9 @@ int		_start_shell(t_shell *shell)
 			if (!shell->err)
 				execute(shell);
 		}
+		/* < add free for heredoc buffer */
 		if (shell->cmd);
-			//free_command(&shell->cmd);
+			ft_lstclear(&shell->cmd, free); // (write free func. for this)
 		if (line)
 			free(line);
 	}

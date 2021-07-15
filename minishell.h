@@ -109,12 +109,13 @@ typedef struct s_shell
 	t_list  		*cmd;
 	//t_cmd			*cmd;
 	t_flags			flags;
+	t_token			*files;
 	char			**args;
 	char			*_arg;
 	char			*env_value;
 	char			*heredoc;
 	int				hd_fd;
-	int				cmd_size;
+	int				in_compose;
 	int				status;
 	int				err;
 	int				dq_err;
@@ -125,6 +126,7 @@ typedef struct s_shell
 	int				env_len;
 	int				env_sign;
 	int				_env_exit;
+	int				redir_count; // REDIRECT COUNT
 	int				i;
 	int				start;
 	int				end;

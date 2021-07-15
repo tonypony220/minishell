@@ -18,8 +18,11 @@ void	flag_check(t_token **token, t_shell *shell)
 	{
 		(*token)->redir = 1;
 		(*token)->redir_type = shell->flags.redir_type;
+		shell->redir_count++;
 		shell->flags.has_redir = 0;
 	}
+	if (shell->in_compose)
+		(*token)->redir_type = shell->in_compose;
 }
 
 t_token	*token_lstadd(t_token **lst, char *line, t_shell *shell)

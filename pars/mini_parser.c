@@ -133,7 +133,7 @@ void	print_token(t_token *token)
 	tmp = token;
 	while (tmp)
 	{
-		printf("TOKEN=[%s]\n", tmp->token);
+		printf("TOKEN=[%s][%d]\n", tmp->token, tmp->redir_type);
 		tmp = tmp->next;
 	}
 }
@@ -171,19 +171,20 @@ int			pre_parser(char *line, t_shell *shell)
 {
 	t_token	*token;
 
-	shell->cmd = NULL;
 	shell->i = 0;
 	token = NULL;
 	shell->i = space_skip(line, shell->i);
 	shell->_env_exit = 0;
+	shell->redir_count = 0;
 	if (line[shell->i] == '|')
 		return (error_out(shell, "syntax error near unexpected token '|'"));
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
 	main_parser(line, shell, &token);
-	//print_command(shell); // :(
 	//print_token(token); // print token for tests
+	//print_token(shell->files); // files
 	token_lstclear(&token);
+	//token_lstclear(&shell->files);
 	if (shell->cmd == NULL)
 		return (0);
 	return (1);

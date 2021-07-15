@@ -9,8 +9,6 @@ int		exec_heredoc(struct process *ps)
 	close(fd[1]);
 	dup2(fd[0], ps->fd[IN]);
 	close(fd[0]);
-	if (ps->shell->heredoc)
-		free(ps->shell->heredoc);
 	return (1);
 }
 
@@ -19,6 +17,7 @@ int	heredoc_test(t_shell *shell, char *stop, struct process *ps)
 	char	*line;
 
 	line = NULL;
+	/* < add free for heredoc buffer */
 	shell->flags.heredoc = 1;
 	shell->flags.double_q = 1;
 	ps->status |= (DIRECT | HEREDOC);
@@ -26,7 +25,7 @@ int	heredoc_test(t_shell *shell, char *stop, struct process *ps)
 	{
 		line = readline("> ");
 		if (line == NULL)
-			return (1); // bash warning
+			return (printf("bash: warning: here-document delimited by end-of-file (wanted `%s')\n", stop)); // bash warning
 		if (ft_strcmp(line, stop) == 0)
 		{
 			free(line);
