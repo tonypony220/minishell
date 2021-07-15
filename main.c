@@ -21,7 +21,7 @@ int		_start_shell(t_shell *shell)
 		line = readline("["SHELL_NAME"]# ");
 		if (line == NULL)
 			return (1);
-		shell->err = 0;
+		shell->err = 0;	
 		if (ft_strncmp(line, "exit", ft_strlen(line) + 1) == 0)
 			shell->status = 0;
 		shell->flags = _init_flags();

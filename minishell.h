@@ -97,6 +97,7 @@ typedef	struct s_flags
 	int	redir_type;
 	int	redir_in;
 	int	redir_out;
+	int	heredoc;
 }	t_flags;
 
 /* T_SHELL */
@@ -111,6 +112,8 @@ typedef struct s_shell
 	char			**args;
 	char			*_arg;
 	char			*env_value;
+	char			*heredoc;
+	int				hd_fd;
 	int				cmd_size;
 	int				status;
 	int				err;
@@ -247,6 +250,11 @@ void		do_signals(int sig);
 void	redir_in(struct process *ps);
 void	redir_out(struct process *ps);
 int		check_for_redir(struct process *ps);
+
+int	heredoc_test(t_shell *shell, char *stop);
+size_t	ft_strlen2(const char *s);
+int		exec_heredoc(struct process *ps);
+
 
 void rl_replace_line();
 

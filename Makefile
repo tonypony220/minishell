@@ -11,6 +11,7 @@ PARSERS	=	${P_DIR}mini_parser.c \
 			${P_DIR}parsers.c \
 			${P_DIR}command.c \
 			${P_DIR}check_cmd.c \
+			${P_DIR}heredoc.c \
 			${P_DIR}util.c 
 
 OBJS	=	${SRCS:.c=.o}

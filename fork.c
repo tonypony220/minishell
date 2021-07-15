@@ -166,10 +166,11 @@ int			create_new_process(struct process *ps)
 		//	ps->pipe[IN] != -1 && ((dup2(ps->fd[IN], IN) >= 0) || err("dup2"));// && close(fd[IN]);
 		//write(1, "WTF<<\n", 6);
 		//printf("%p fds\n", ps->fds);
-
 		close_fds(ps->fds);
 		ps->file[IN]  && close(ps->fd[IN]);
 		ps->file[OUT]  && close(ps->fd[OUT]);
+		if (ps->status & HEREDOC) /* HEREDOC */
+			exec_heredoc(ps);
 //		if (ps->redir) /* redirection */
 //			check_for_redir(ps);
 		if (ps->status & BUILTIN)
