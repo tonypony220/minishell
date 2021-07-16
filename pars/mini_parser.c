@@ -184,7 +184,7 @@ int			pre_parser(char *line, t_shell *shell)
 	//print_token(token); // print token for tests
 	//print_token(shell->files); // files
 	token_lstclear(&token);
-	//token_lstclear(&shell->files);
+	token_lstclear(&shell->files); // CLEARING FILE LIST
 	if (shell->cmd == NULL)
 		return (0);
 	return (1);
