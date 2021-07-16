@@ -8,9 +8,9 @@ void	print_command(t_shell *shell)
 
 void	set_flags(struct process *new, t_shell *shell)
 {
-	printf("=%d=%d\n", shell->flags.pipe_in, shell->flags.pipe_out);
+	//printf("=%d=%d\n", shell->flags.pipe_in, shell->flags.pipe_out);
 	//	new->_pipe = shell->flags.pipe_count;
-	printf("PIPE COUNT=[%d]\n", shell->flags.pipe_count);
+	//printf("PIPE COUNT=[%d]\n", shell->flags.pipe_count);
 
 	new->pipe[0] = shell->flags.pipe_in;
 	if (shell->flags.pipe_count)

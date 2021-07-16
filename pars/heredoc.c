@@ -21,12 +21,15 @@ int		heredoc_comp(t_shell *shell, char *stop)
 		new = (struct process*)ft_calloc(1, sizeof(*new));
 		if (new == NULL)
 			return (-1);
-		new->args = (char **)ft_calloc(2 , sizeof(char *));
+		new->args = (char **)ft_calloc(shell->hd_cnt + 1, sizeof(char *));
 		if (new->args == NULL)
 			return (-1);
 		new->status |= (DIRECT | HEREDOC);
-		new->args[0] = ft_strdup(shell->heredoc);
-		free(shell->heredoc);
+		if (shell->hd_cnt)
+		{
+			new->args[0] = ft_strdup(shell->heredoc);
+			free(shell->heredoc);
+		}
 		shell->heredoc = NULL;
 		shell->flags.pipe_count++;
 		//printf("PIPE COUNT=[%d]\n", shell->flags.pipe_count);
@@ -37,7 +40,18 @@ int		heredoc_comp(t_shell *shell, char *stop)
 		ft_lstadd_back(&shell->cmd, ft_lstnew(new));
 	}
 	shell->flags.heredoc = 0;
+	shell->hd_cnt = 0;
 	return (1);
+}
+
+void	heredoc_init(t_shell *shell)
+{
+	if (shell->heredoc)
+		free(shell->heredoc);
+	shell->heredoc = NULL;
+	shell->hd_cnt = 0;
+	shell->flags.heredoc = 1;
+	shell->flags.double_q = 1;
 }
 
 int	heredoc_test(t_shell *shell, char *stop)
@@ -45,14 +59,7 @@ int	heredoc_test(t_shell *shell, char *stop)
 	char	*line;
 
 	line = NULL;
-	/* < add free for heredoc buffer */
-	if (shell->heredoc)
-		free(shell->heredoc);
-	shell->heredoc = NULL;
-
-	shell->flags.heredoc = 1;
-	shell->flags.double_q = 1;
-	//ps->status |= (DIRECT | HEREDOC);
+	heredoc_init(shell);
 	while (1)
 	{
 		line = readline("> ");
@@ -62,8 +69,8 @@ int	heredoc_test(t_shell *shell, char *stop)
 		{
 			free(line);
 			if (shell->heredoc)
-				return (1);
-			return (0);
+				shell->hd_cnt++;
+			return (1);
 		}
 		check_for_env(&line, shell);
 		shell->heredoc = token_strjoin(shell->heredoc, line);	// NEED TO BE FREED	
@@ -71,6 +78,5 @@ int	heredoc_test(t_shell *shell, char *stop)
 		if (line)
 			free(line);
 	}
-	//ps->args[0] = shell->heredoc;
 	return (1);
 }

@@ -114,7 +114,7 @@ typedef struct s_shell
 	char			*_arg;
 	char			*env_value;
 	char			*heredoc;
-	int				hd_fd;
+	int				hd_cnt;
 	int				in_compose;
 	int				status;
 	int				err;
@@ -266,6 +266,7 @@ int		check_for_redir(struct process *ps);
 int	heredoc_test(t_shell *shell, char *stop);
 size_t	ft_strlen2(const char *s);
 int		heredoc_comp(t_shell *shell, char *stop);
+void	heredoc_init(t_shell *shell);
 
 int		exec_heredoc(struct process *ps);
 
