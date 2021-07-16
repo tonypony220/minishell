@@ -364,6 +364,22 @@ void set_fds_to_ps(void *proc, void *fds)
 	ps->fds = fds;
 }
 
+//void set_shell_to_ps(void *proc, void *shell)
+//{
+//	struct process *ps;
+//
+//	ps = (struct process*)proc;
+//	ps->shell = shell;
+//}
+//
+//void set_env_to_ps(void *proc, void *env)
+//{
+//	struct process *ps;
+//
+//	ps = (struct process*)proc;
+//	ps->env = env;
+//}
+
 void count_redirections(void *proc, void *redirs)
 {
 	struct process *ps;

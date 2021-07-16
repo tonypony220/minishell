@@ -40,6 +40,8 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 		token->redir_type == 3 && ((*new)->status |= R_FILE) && ((*new)->file[IN] = ft_strdup(token->token));
 		token->redir_type == 4 && ((*new)->file[OUT] = ft_strdup(token->token));
 		
+		printf("%p << files list \n", shell->files);
+		print_token(shell->files);
 		/* FILE NAMES LIST == shell->files */
 /* 		token->redir_type == 1 && ((*new)->status |= A_FILE) && (name = ft_strdup(token->token));
 		token->redir_type == 2 && heredoc_comp(shell, token->token);

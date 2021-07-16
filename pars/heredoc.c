@@ -24,12 +24,14 @@ int		heredoc_comp(t_shell *shell, char *stop)
 		new->args = (char **)ft_calloc(shell->hd_cnt + 1, sizeof(char *));
 		if (new->args == NULL)
 			return (-1);
-		new->status |= (DIRECT | HEREDOC);
+		new->status |= (BUILTIN | HEREDOC);
 		if (shell->hd_cnt)
 		{
 			new->args[0] = ft_strdup(shell->heredoc);
 			free(shell->heredoc);
 		}
+		new->env = shell->env;
+		new->shell = shell;
 		shell->heredoc = NULL;
 		shell->flags.pipe_count++;
 		//printf("PIPE COUNT=[%d]\n", shell->flags.pipe_count);
