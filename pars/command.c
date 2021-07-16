@@ -48,9 +48,10 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 		if (token->redir_type == 2)
 			return (0);
 		token_lstadd(&shell->files, name, shell);
-		free(name);
+		ft_lstadd_back(&(*new)->files_out, ft_lstnew(name));
+		//free(name);
 
-		printf("%p << files list \n", shell->files);
+		//printf("%p << files list \n", shell->files);
 		print_token(shell->files);
 
 		shell->in_compose = 0;
@@ -58,6 +59,10 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 		return (1);
 	}
 	return (0);
+}
+void pr(void*data)
+{
+	printf("filename %s\n",(char*)data);
 }
 
 int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
@@ -86,7 +91,27 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 			new->args[i++] = ft_strdup(token->token);
 		token = token->next;
 	}
+	i = 0;
+	printf("len list %d\n", ft_lstsize(new->files_out));
+	ft_lstiter(new->files_out, pr);
+
+	char* filename = 0;
+	filename = ft_lstgen(new->files_out, get_filename);
+	while (filename && i < 10)
+	{
+		printf("> > > >%p %d\n", filename, i++);
+		filename = ft_lstgen(new->files_out, get_filename);
+	}
+
 	set_flags(new, shell);
 	ft_lstadd_back(cmds, ft_lstnew(new));
 	return (1);
 }
+
+
+
+
+
+
+
+

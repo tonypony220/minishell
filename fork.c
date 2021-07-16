@@ -260,6 +260,11 @@ void	print_process(void *proc)
 //	!((*ps).status & A_FILE) && (*flag |= O_TRUNC);
 //	return (OUT);
 //}
+char					*get_filename(void* data)
+{
+	printf("%p < data\n", data);
+	return (data);
+}
 
 void start_process(void *proc)
 {
@@ -311,13 +316,17 @@ void start_process(void *proc)
 		((*ps).fd[IN] = open((*ps).file[IN], O_RDONLY, 0644));
 	}
 	i = 0;
-///	while (ps->files_out[i])
+
+///	while (filename = (ft_lstgen(ps->files_out, get_filename)))
 ///	{
+///
+///		(*ps).fd[OUT] && close((*ps).fd[OUT]);
 ///		flag = O_WRONLY | O_CREAT;
 ///		((*ps).status & A_FILE) && (flag |= O_APPEND);
 ///		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
-///		((*ps).fd[OUT] = open((*ps).files_out[i], flag, 0644));
+///		((*ps).fd[OUT] = open(filename, flag, 0644));
 ///	}
+
 	if (ps->file[OUT])
 	{
 		flag = O_WRONLY | O_CREAT;

@@ -152,14 +152,16 @@ struct		process
 	int		exit_code;   /* reserved unix exit code
 	                      * https://tldp.org/LDP/abs/html/exitcodes.html   */
 	char	*file[2];  	 /* filename to redirections */
-//	char	**files_in;  /*  */
-//	char	**files_out; /*  */
+
+	t_list	*files_in;   /*  */
+	t_list	*files_out;  /*  */
 
 	t_list	*env;	     /* back link on current shell evniron */
 	t_shell *shell;	     /* back link on current shell obj */
 };
 
 /* global status */
+char					*get_filename(void* data);
 //extern int	g_status;
 
 void		ft_str_to_lower(char *str);
