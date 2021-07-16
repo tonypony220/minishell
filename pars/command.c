@@ -45,6 +45,8 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 		token->redir_type == 2 && heredoc_comp(shell, token->token);
 		token->redir_type == 3 && ((*new)->status |= R_FILE) && (name = ft_strdup(token->token));
 		token->redir_type == 4 && (name = ft_strdup(token->token));
+		if (token->redir_type == 2)
+			return (0);
 		token_lstadd(&shell->files, name, shell);
 		free(name);
 
