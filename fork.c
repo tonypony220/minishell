@@ -268,6 +268,7 @@ void start_process(void *proc)
 	int i;
 	int flag;
 
+	//printf("process starting...\n");
 	ps = (struct process*)proc;
 	/* 	 seems that REDIRECT flag not having reason 
 	 * 	 seems there is no case when auto read to file 
@@ -346,6 +347,7 @@ void end_process(void *proc)
 {
 	struct process *ps;
 
+//	printf("process waiting...\n");
 	ps = (struct process*)proc;
 //	if ((*ps).file) /* auxillaty close */
 //	{
@@ -395,8 +397,9 @@ int handle_processes(t_list *cmd, t_list *env)
 	int redirs;
 
 	fds = 0;
+	redirs = 0;
 	ft_lstiter_arg(cmd, count_redirections, &redirs);
-	//printf("%d redirs <<\n", redirs);
+	printf("start hadnling cmds... %d redirs <<\n", redirs);
 	redirs && (fds = (int**)multalloc(redirs, 0, sizeof(int)));
 	ft_lstiter_arg(cmd, set_fds_to_ps, fds);
 	ft_lstiter(cmd, start_process);
