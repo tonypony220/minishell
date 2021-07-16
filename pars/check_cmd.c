@@ -72,6 +72,7 @@ void	pipe_syntax(char *line, int i, t_shell *shell)
 		}
 		if (line[i] == '|')
 		{
+			shell->flags.pipe_count++;
 			i++;	
 			i = space_skip(line, i);
 			if (line[i] == '\0' || ft_strchr("|><", line[i]))

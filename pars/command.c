@@ -8,10 +8,21 @@ void	print_command(t_shell *shell)
 
 void	set_flags(struct process *new, t_shell *shell)
 {
-	//printf("=%d=%d\n", shell->flags.pipe_in, shell->flags.pipe_out);
+	printf("=%d=%d\n", shell->flags.pipe_in, shell->flags.pipe_out);
 	//	new->_pipe = shell->flags.pipe_count;
+	printf("PIPE COUNT=[%d]\n", shell->flags.pipe_count);
+
 	new->pipe[0] = shell->flags.pipe_in;
-	new->pipe[1] = shell->flags.pipe_out;
+	if (shell->flags.pipe_count)
+		new->pipe[1] = shell->flags.pipe_out;
+	else
+		new->pipe[1] = -1;
+	if (shell->flags.heredoc)
+	{
+		shell->flags.pipe_in = shell->flags.pipe_out;
+		shell->flags.heredoc = 0;
+	}
+	shell->flags.pipe_count--;
 	shell->flags.double_q = 0;
 }
 
@@ -23,15 +34,15 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 	{
 		shell->in_compose = token->redir_type;
 		/* 1=>> 2=<< 3=< 4=> 0=NONE */
-		printf("%d redir type\n",token->redir_type);
+		printf("%d redir type\n", token->redir_type);
 		token->redir_type == 1 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
-		token->redir_type == 2 && heredoc_test(shell, token->token, *new);
+		token->redir_type == 2 && heredoc_comp(shell, token->token);
 		token->redir_type == 3 && ((*new)->status |= R_FILE) && ((*new)->file[IN] = ft_strdup(token->token));
 		token->redir_type == 4 && ((*new)->file[OUT] = ft_strdup(token->token));
 		
 		/* FILE NAMES LIST == shell->files */
 /* 		token->redir_type == 1 && ((*new)->status |= A_FILE) && (name = ft_strdup(token->token));
-		token->redir_type == 2 && heredoc_test(shell, token->token, *new);
+		token->redir_type == 2 && heredoc_comp(shell, token->token);
 		token->redir_type == 3 && ((*new)->status |= R_FILE) && (name = ft_strdup(token->token));
 		token->redir_type == 4 && (name = ft_strdup(token->token));
 		token_lstadd(&shell->files, name, shell);
@@ -66,9 +77,7 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 		//printf("%d '%s' token redir_type=%d\n", size, token->token, token->redir_type);
 // rewrite this 
 			//!(new->status & HEREDOC) && (new->file = ft_strdup(token->token));
-		if (check_redir(token, i, &new, shell)) // == 2
-			; //new->args[i++] = ft_strdup(shell->heredoc);
-		else
+		if (!check_redir(token, i, &new, shell)) // == 2
 			new->args[i++] = ft_strdup(token->token);
 		token = token->next;
 	}

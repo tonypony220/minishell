@@ -33,6 +33,10 @@ int		_start_shell(t_shell *shell)
 				execute(shell);
 		}
 		/* < add free for heredoc buffer */
+		if (shell->heredoc)
+			free(shell->heredoc);
+		shell->heredoc = NULL;
+
 		if (shell->cmd);
 			ft_lstclear(&shell->cmd, free); // (write free func. for this)
 		if (line)

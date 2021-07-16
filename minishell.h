@@ -263,8 +263,10 @@ void	redir_out(struct process *ps);
 int		check_for_redir(struct process *ps);
 
 
-int	heredoc_test(t_shell *shell, char *stop, struct process *ps);
+int	heredoc_test(t_shell *shell, char *stop);
 size_t	ft_strlen2(const char *s);
+int		heredoc_comp(t_shell *shell, char *stop);
+
 int		exec_heredoc(struct process *ps);
 
 
