@@ -215,10 +215,15 @@ int			create_new_process(struct process *ps)
 ///}
 //
 //
+void pr(void*data)
+{
+	printf("'%s' ",(char*)data);
+}
 
 void	print_process(void *proc)
 {
 	struct process *ps;
+	char *filename;
 	int i;
 
 	i = 0;
@@ -229,13 +234,22 @@ void	print_process(void *proc)
 		printf("(%s) ", ps->args[i]);
 		i++;
 	}
-	printf("] PIPE(%d  %d) FD (%d %d) FILE ('%s' '%s') BUILTIN:(%d) DIRECT:(%d) REDIRECT=%d, HEREDOC=%d)\n"RESET,
+	printf("] PIPE(%d  %d) FD (%d %d) ",
 		   ps->pipe[0],
 		   ps->pipe[1],
 		   ps->fd[0],
-		   ps->fd[1],
-		   ps->file[0],
-		   ps->file[1],
+		   ps->fd[1]
+		   );
+	printf("\nFILES IN: ");
+	ft_lstiter(ps->files_in, pr);
+//	while ((filename = (ft_lstgen(ps->files_in, get_filename))))
+//		printf("%s ", filename);
+	printf("\nFILES OUT: ");
+	ft_lstiter(ps->files_out, pr);
+//	while ((filename = (ft_lstgen(ps->files_out, get_filename))))
+//		printf("'s%p ", filename);
+
+	printf("\nBUILTIN:(%d) DIRECT:(%d) REDIRECT=%d, HEREDOC=%d)\n"RESET,
 		   ps->status & BUILTIN && 1,
 		   ps->status & DIRECT && 1,
 		   ps->status & A_FILE && 1,
@@ -262,8 +276,8 @@ void	print_process(void *proc)
 //}
 char					*get_filename(void* data)
 {
-	printf("%p < data\n", data);
-	return (data);
+	//printf("%p < data\n", data);
+	return ((char*)data);
 }
 
 void start_process(void *proc)
@@ -272,6 +286,7 @@ void start_process(void *proc)
 	int pipe_number;
 	int i;
 	int flag;
+	char *filename;
 
 	//printf("process starting...\n");
 	ps = (struct process*)proc;
@@ -297,43 +312,43 @@ void start_process(void *proc)
 	//	(*find_ps_pipe_to(tmp, pipe_number)).fds = fds;
 	}
 	i = 0;
-	///while (ps->files_in[i])
-	///{
-	///	(*ps).fd[IN] && close((*ps).fd[IN]);
-	///	((*ps).fd[IN] = open((*ps).files_in[i++], O_RDONLY, 0644));
-	///}
-	if ((*ps).file[IN])
+	while ((filename = (ft_lstgen(ps->files_in, get_filename))))
 	{
-		//((**ps).status & W_FILE) && (flag = O_WRONLY);
-		//flag = O_WRONLY;
-		//((*ps).status & R_FILE) && (flag = O_RDONLY);
-		//(flag & O_WRONLY) && (flag |= O_CREATE);
-		//(flag & O_WRONLY) && ((*ps).status & A_FILE) && (flag |= O_APPEND);
-														/* O_TRUNC for > to file to clear it */
-		//((**ps).status & R_FILE) && (flag |= O_RDONLY);
-		//get_open_file_flag(ps, &flag);
-		//printf("%d FLAG std %d\n", flag, std);
-		((*ps).fd[IN] = open((*ps).file[IN], O_RDONLY, 0644));
+		(*ps).fd[IN] && close((*ps).fd[IN]);
+		((*ps).fd[IN] = open(filename, O_RDONLY, 0644));
 	}
-	i = 0;
+////	if ((*ps).file[IN])
+////	{
+////		//((**ps).status & W_FILE) && (flag = O_WRONLY);
+////		//flag = O_WRONLY;
+////		//((*ps).status & R_FILE) && (flag = O_RDONLY);
+////		//(flag & O_WRONLY) && (flag |= O_CREATE);
+////		//(flag & O_WRONLY) && ((*ps).status & A_FILE) && (flag |= O_APPEND);
+////														/* O_TRUNC for > to file to clear it */
+////		//((**ps).status & R_FILE) && (flag |= O_RDONLY);
+////		//get_open_file_flag(ps, &flag);
+////		//printf("%d FLAG std %d\n", flag, std);
+////		((*ps).fd[IN] = open((*ps).file[IN], O_RDONLY, 0644));
+////	}
+////	i = 0;
 
-///	while (filename = (ft_lstgen(ps->files_out, get_filename)))
-///	{
-///
-///		(*ps).fd[OUT] && close((*ps).fd[OUT]);
-///		flag = O_WRONLY | O_CREAT;
-///		((*ps).status & A_FILE) && (flag |= O_APPEND);
-///		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
-///		((*ps).fd[OUT] = open(filename, flag, 0644));
-///	}
-
-	if (ps->file[OUT])
+	while ((filename = (ft_lstgen(ps->files_out, get_filename))))
 	{
+
+		(*ps).fd[OUT] && close((*ps).fd[OUT]);
 		flag = O_WRONLY | O_CREAT;
 		((*ps).status & A_FILE) && (flag |= O_APPEND);
 		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
-		((*ps).fd[OUT] = open((*ps).file[OUT], flag, 0644));
+		((*ps).fd[OUT] = open(filename, flag, 0644));
 	}
+
+////	if (ps->file[OUT])
+////	{
+////		flag = O_WRONLY | O_CREAT;
+////		((*ps).status & A_FILE) && (flag |= O_APPEND);
+////		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
+////		((*ps).fd[OUT] = open((*ps).file[OUT], flag, 0644));
+////	}
 
 	//(**ps) & SEQ && ((**ps).status |= WAIT);
 

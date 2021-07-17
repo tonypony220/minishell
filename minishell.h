@@ -47,6 +47,11 @@
 # define UPPER_EXCLUDED_BUILTINS "EXPORT UNSET EXIT"  /* which has not upper aliases */
 # define SHELL_NAME "minishell"
 
+# define DBL_TO	 1
+# define DBL_FROM 2 
+# define ONE_FROM 3 
+# define ONE_TO 	 4 
+
 
 //struct		vars
 //{

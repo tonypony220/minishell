@@ -25,7 +25,6 @@ void	set_flags(struct process *new, t_shell *shell)
 	shell->flags.pipe_count--;
 	shell->flags.double_q = 0;
 }
-
 int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 {
 	char *name;
@@ -41,14 +40,17 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 		
 		/* FILE NAMES LIST == shell->files */
 		shell->in_compose = token->redir_type;
-		token->redir_type == 1 && ((*new)->status |= A_FILE) && (name = ft_strdup(token->token));
 		token->redir_type == 2 && heredoc_comp(shell, token->token);
-		token->redir_type == 3 && ((*new)->status |= R_FILE) && (name = ft_strdup(token->token));
-		token->redir_type == 4 && (name = ft_strdup(token->token));
+		if (token->redir_type == 1 && ((*new)->status |= A_FILE)) 
+			ft_lstadd_back(&(*new)->files_out, ft_lstnew(ft_strdup(token->token)));
+		if (token->redir_type == 3 && ((*new)->status |= R_FILE))
+			ft_lstadd_back(&(*new)->files_in, ft_lstnew(ft_strdup(token->token)));
+		if (token->redir_type == 4) 
+			ft_lstadd_back(&(*new)->files_out, ft_lstnew(ft_strdup(token->token)));
 		if (token->redir_type == 2)
 			return (0);
-		token_lstadd(&shell->files, name, shell);
-		ft_lstadd_back(&(*new)->files_out, ft_lstnew(name));
+		//token_lstadd(&shell->files, name, shell);
+		//ft_lstadd_back(&(*new)->files_out, ft_lstnew(name));
 		//free(name);
 
 		//printf("%p << files list \n", shell->files);
@@ -59,10 +61,6 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 		return (1);
 	}
 	return (0);
-}
-void pr(void*data)
-{
-	printf("filename %s\n",(char*)data);
 }
 
 int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
@@ -92,16 +90,21 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 		token = token->next;
 	}
 	i = 0;
-	printf("len list %d\n", ft_lstsize(new->files_out));
-	ft_lstiter(new->files_out, pr);
-
-	char* filename = 0;
-	filename = ft_lstgen(new->files_out, get_filename);
-	while (filename && i < 10)
-	{
-		printf("> > > >%p %d\n", filename, i++);
-		filename = ft_lstgen(new->files_out, get_filename);
-	}
+//	printf("len list %d\n", ft_lstsize(new->files_out));
+//	ft_lstiter(new->files_out, pr);
+//
+//	char* filename;
+//	//filename = ft_lstgen(new->files_out, get_filename);
+//	while ((filename = ft_lstgen(new->files_out, get_filename)) && i < 10)
+//	{
+//		printf("> > > >%s %d\n", filename, i++);
+//		//filename = ft_lstgen(new->files_out, get_filename);
+//	}
+//	while ((filename = ft_lstgen(new->files_out, get_filename)) && i < 10)
+//	{
+//		printf("> > > >%s %d\n", filename, i++);
+//		//filename = ft_lstgen(new->files_out, get_filename);
+//	}
 
 	set_flags(new, shell);
 	ft_lstadd_back(cmds, ft_lstnew(new));

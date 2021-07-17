@@ -17,7 +17,8 @@ int func(t_list *lst)
 int main()
 {
 	t_list *lst;
+	int i = 0;
 
-	printf("%p << lst\n", lst);
-	func(lst);
+	printf("%p %d<< lst\n", lst, ++i);
+//	func(lst);
 }

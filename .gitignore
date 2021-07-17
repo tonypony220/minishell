@@ -14,3 +14,5 @@ mini_shell
 libft/libft.a
 cat
 status
+gen.c
+ls
