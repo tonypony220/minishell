@@ -40,22 +40,15 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 		
 		/* FILE NAMES LIST == shell->files */
 		shell->in_compose = token->redir_type;
-		token->redir_type == 2 && heredoc_comp(shell, token->token);
+		if (token->redir_type == 2)
+			heredoc_comp(shell, token->token);
 		if (token->redir_type == 1 && ((*new)->status |= A_FILE)) 
 			ft_lstadd_back(&(*new)->files_out, ft_lstnew(ft_strdup(token->token)));
 		if (token->redir_type == 3 && ((*new)->status |= R_FILE))
 			ft_lstadd_back(&(*new)->files_in, ft_lstnew(ft_strdup(token->token)));
 		if (token->redir_type == 4) 
 			ft_lstadd_back(&(*new)->files_out, ft_lstnew(ft_strdup(token->token)));
-		if (token->redir_type == 2)
-			return (0);
-		//token_lstadd(&shell->files, name, shell);
-		//ft_lstadd_back(&(*new)->files_out, ft_lstnew(name));
-		//free(name);
-
-		//printf("%p << files list \n", shell->files);
-		print_token(shell->files);
-
+		//print_token(shell->files);
 		shell->in_compose = 0;
 		token->redir = 0;
 		return (1);
@@ -82,11 +75,12 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	new->env = shell->env;
 	while (token)
 	{
-		//printf("%d '%s' token redir_type=%d\n", size, token->token, token->redir_type);
-// rewrite this 
-			//!(new->status & HEREDOC) && (new->file = ft_strdup(token->token));
+		//print_token(token);
+		//printf("token=[%s]\nredir=[%d]\n", token->token, token->redir_type);
 		if (!check_redir(token, i, &new, shell)) // == 2
-			new->args[i++] = ft_strdup(token->token);
+			new->args[i] = ft_strdup(token->token);
+		//printf("TESTING %d=[%s]\n", i, new->args[i]);
+		i++;
 		token = token->next;
 	}
 	i = 0;
