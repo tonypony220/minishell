@@ -14,7 +14,7 @@ int	parse_cmd(char *line, t_shell *shell)
 	}
 	while (line[shell->i] != '\0')
 	{
-		if (ft_strchr(" \'\"><|", line[shell->i + 1]) || !line[shell->i + 1])
+		if (ft_strchr(" \'\"><|$", line[shell->i + 1]) || !line[shell->i + 1])
 		{
 			shell->end = shell->i;
 			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
@@ -44,6 +44,7 @@ int	parse_double_quotes(char *line, t_shell *shell)
 			shell->end = (shell->i);
 			shell->flags.double_q = 1;
 			substr = ft_substr(line, shell->start, shell->end - shell->start + 1);
+			check_for_env(&substr, shell);
 			shell->_arg = token_strjoin(shell->_arg, substr);
 			free(substr);
 			shell->i++;

@@ -2,10 +2,10 @@
 
 void	single_quote(char *line, int i, t_shell *shell)
 {
-	int j;
+	int	j;
 
 	j = i;
-	while(line[i] != '\0')
+	while (line[i] != '\0')
 	{
 		if (line[i] == '\'')
 		{
@@ -29,9 +29,9 @@ void	single_quote(char *line, int i, t_shell *shell)
 
 void	double_quote(char *line, int i, t_shell *shell)
 {
-	int j;
+	int	j;
 
-	while(line[i] != '\0')
+	while (line[i] != '\0' && shell->err != -1)
 	{
 		if (line[i] == '\"')
 		{
@@ -56,24 +56,18 @@ void	double_quote(char *line, int i, t_shell *shell)
 
 void	pipe_syntax(char *line, int i, t_shell *shell)
 {
-	while(line[i] != '\0')
+	while (line[i] != '\0' && shell->err != -1)
 	{
 		if (line[i] == '\"')
-		{
-			i++;
-			while (line[i] != '\"')
-				i++;
-		}
+			while (line[++i] != '\"')
+				;
 		if (line[i] == '\'')
-		{
-			i++;
-			while (line[i] != '\'')
-				i++;
-		}
+			while (line[++i] != '\'')
+				;
 		if (line[i] == '|')
 		{
 			shell->flags.pipe_count++;
-			i++;	
+			i++;
 			i = space_skip(line, i);
 			if (line[i] == '\0' || ft_strchr("|><", line[i]))
 				shell->pipe_err = 1;
@@ -86,7 +80,7 @@ void	pipe_syntax(char *line, int i, t_shell *shell)
 
 void	redir_syntax(char *line, int i, t_shell *shell)
 {
-	while(line[i] != '\0')
+	while (line[i] != '\0' && shell->err != -1)
 	{
 		if (line[i] == '\"')
 			while (line[++i] != '\"')
@@ -105,7 +99,6 @@ void	redir_syntax(char *line, int i, t_shell *shell)
 		}
 		i++;
 	}
-	//printf("%d << rerid err %d << pipe err", shell->redir_err,shell->pipe_err);
 	if (shell->redir_err == 1 && shell->pipe_err == 0)
 		error_out(shell, "syntax error near unexpected token 'newline'");
 }

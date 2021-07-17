@@ -36,7 +36,7 @@ t_token	*token_lstadd(t_token **lst, char *line, t_shell *shell)
 	if (new == NULL)
 		return (0);
 	new->token = ft_strdup(line);
-	check_for_env(&new->token, shell);
+	//check_for_env(&new->token, shell);
 	flag_check(&new, shell);
 	new->next = NULL;
 	if (!*lst)
