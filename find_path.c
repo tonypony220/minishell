@@ -30,6 +30,7 @@ char *find_path(char *name)
 	char *path;
 	char *mid;
 
+	path = 0;
 	env_paths = ft_split(getenv("PATH"), ':');
 	mem = env_paths;
 	while(*env_paths)

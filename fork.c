@@ -47,8 +47,12 @@ int	err(char* err_str)
 char *make_err_msg(struct process *ps)
 {
 	if (ps->exit_code)
+	{
+		if (ps->exit_code == CMD_NOT_FOUND_CODE)
+			return ("command not found");
 		//return ("command not found :)");
 		return (strerror(ps->exit_code));
+	}
 	//printf("%d EXIT CODE\n", errno);
 	return (strerror(errno));
 }
@@ -81,24 +85,26 @@ void			dispatching_process(struct process *ps)
 	char **arr;
 	//char *builtins[] = {"env", "echo", "pwd", "export", "unset", "exit"};
 
-	path = ps->args[0];
+	//path = ps->args[0];
+	ps->path = ft_strdup(ps->args[0]); //TODO free path
+	name = 0;
 	/* executable name should be lower case */
 	arr = ft_split(UPPER_EXCLUDED_BUILTINS, ' ');
-	if (!ft_str_in_strs(path, arr))
-		ft_str_to_lower(path);
+	if (!ft_str_in_strs(ps->path, arr))
+		ft_str_to_lower(ps->path);
 //	printmultalloc((void**)arr);
 	//printf(GREEN"HELLO"RESET"\n");
 	freemultalloc((void**)arr);
 
 	arr = ft_split(SELF_BUILTINS, ' ');
-	(ft_str_in_strs(path, arr)) && (ps->status |= DIRECT);
+	(ft_str_in_strs(ps->path, arr)) && (ps->status |= DIRECT);
 //	printmultalloc((void**)arr);
 	freemultalloc((void**)arr);
 
-	!ft_strcmp("export", path) && ps->args[1] && (ps->status |= DIRECT);
+	!ft_strcmp("export", ps->path) && ps->args[1] && (ps->status |= DIRECT);
 
 	arr = ft_split(BUILTINS, ' ');
-	ft_str_in_strs(path, arr) && (ps->status |= BUILTIN);
+	ft_str_in_strs(ps->path, arr) && (ps->status |= BUILTIN);
 //	printmultalloc((void**)arr);
 	freemultalloc((void**)arr);
 
@@ -106,13 +112,17 @@ void			dispatching_process(struct process *ps)
 		return ;
 
 	// todo BUILTINS
-	if (path[0] == '/' || path[0] == '.')
+	if (*ps->path == '/' || *ps->path == '.')
 		return ;
-	printf("searching path for %s...", ps->args[0]);
-	if ((name = find_path(ps->args[0])) && (ps->args[0] = name))
+	printf("searching path for %s...\n", ps->path);
+	//if ((name = find_path(ps->args[0])) && (ps->args[0] = name))
+	if ((name = find_path(ps->path)) && (ps->path = name))
 		free(path);
 	else
+	{
 		(*ps).exit_code = CMD_NOT_FOUND_CODE;
+		display_err(ps);
+	}
 
 	(*ps).status |= WAIT;
 
@@ -147,6 +157,7 @@ int			execute_builtin(struct process *ps)
 int			create_new_process(struct process *ps)
 {
 	int		pid;
+//	char	*exec_path;
 
 	printf(CYAN">>forking process %s %s %s\n"RESET, GREEN, ps->args[0], RESET);
 
@@ -183,7 +194,10 @@ int			create_new_process(struct process *ps)
 	//	printf("%p<<<\n", *envv);
 		//printmultalloc((void**)envv);	
 		//printf("%p<<<\n", *envv); envv
-		execve(ps->args[0], ps->args, ft_lst_to_strs(ps->env, dict_to_str)); // no alloc check
+	///	exec_path = ps->path;
+	///	exec_path || (exec_path = ps->args[0]);
+		printf("%s %s <<<\n", ps->path, ps->args[0], ps->args[1]);
+		execve(ps->path, ps->args, ft_lst_to_strs(ps->env, dict_to_str)); // no alloc check
 	//	execve(ps->args[0], ps->args, environ);
 		display_err(ps);
 		if (errno == 2)
@@ -228,7 +242,8 @@ void	print_process(void *proc)
 
 	i = 0;
 	ps = (struct process*)proc;
-	printf(CYAN"PROCESS args[");
+	printf(CYAN"PROCESS {%s}", ps->path);
+	printf(CYAN" args[");
 	while (ps->args[i])	
 	{
 		printf("(%s) ", ps->args[i]);
@@ -488,7 +503,8 @@ int wait_process(struct process *ps)
 	/* status should exist even if */
 	// todo catch status from signaled and put it to last_exit_code
 	exit_code && (ps->exit_code = exit_code);
-	ps->exit_code && (exit_code = ps->exit_code);// && display_err(ps);
+	ps->exit_code && (exit_code = ps->exit_code);
+	//// (ps->exit_code == CMD_NOT_FOUND_CODE) && display_err(ps);
 	ps->shell->last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
 	printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", ps->shell->last_exit_code , *ps->args);

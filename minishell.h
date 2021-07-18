@@ -150,6 +150,7 @@ typedef struct s_shell
 struct		process
 {
 	char	**args;
+	char	*path;
 	int		pipe[2];     /* pipe number ex.: 1 pipe in, 2 pipe out */
 				         /* when pipe not used it will be -1 */
 	int		fd[2];
