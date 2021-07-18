@@ -26,6 +26,7 @@
 # define REVERSE "\033[;7m"
 
 # define CMD_NOT_FOUND_CODE 127
+# define ABORT_CODE -1
 
 # define NO_PIPE -1
 # define OUT 1
@@ -39,6 +40,7 @@
 # define SEQ 	    1 << 6	/* process terminates ';'. and not concurent executing */
 # define BUILTIN    1 << 7
 # define DIRECT     1 << 8  /*  */
+# define SKIP     	1 << 9  /*  */
 
 # define BUILTINS "env echo pwd export unset exit cd"
 # define WR_BUILTINS "env echo pwd"  			/* which write */
@@ -161,6 +163,8 @@ struct		process
 	t_list	*files_in;   /*  */
 	t_list	*files_out;  /*  */
 
+	/* common vars */ 
+	int		*flag;	
 	t_list	*env;	     /* back link on current shell evniron */
 	t_shell *shell;	     /* back link on current shell obj */
 };

@@ -296,6 +296,8 @@ void start_process(void *proc)
 	 * 	   [0] [ 0][1] [1][2]  1 pipe, 2 file
 	 */
 	//(*ps).env = env;
+	if ((*ps->flag || !ps->args[0]) && (ps->status |= SKIP))  // TODO no args also should enter aborting next 
+		return ;
 	if (ps->pipe[IN] != NO_PIPE)
 	{
 		pipe_number = (*ps).pipe[IN];
@@ -316,6 +318,11 @@ void start_process(void *proc)
 	{
 		(*ps).fd[IN] && close((*ps).fd[IN]);
 		((*ps).fd[IN] = open(filename, O_RDONLY, 0644));
+		if ((*ps).fd[IN] == -1 
+		 && (*ps->flag = ABORT_CODE)
+		 && (ps->status |= SKIP)
+		 && display_err(ps))
+			return ;
 	}
 ////	if ((*ps).file[IN])
 ////	{
@@ -340,8 +347,13 @@ void start_process(void *proc)
 		((*ps).status & A_FILE) && (flag |= O_APPEND);
 		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
 		((*ps).fd[OUT] = open(filename, flag, 0644));
+		if ((*ps).fd[OUT] == -1 
+			&& (*ps->flag = ABORT_CODE)
+			&& (ps->status |= SKIP)
+			&& display_err(ps))
+			return ;
+		/* errors: opening sys files or commands */
 	}
-
 ////	if (ps->file[OUT])
 ////	{
 ////		flag = O_WRONLY | O_CREAT;
@@ -378,8 +390,9 @@ void end_process(void *proc)
 	(*ps).file[OUT] && close((*ps).fd[OUT]);
 	(*ps).file[IN] && close((*ps).fd[IN]);
 //	}
-	wait_process(ps);
-	///free_process(ps, 0); /* todo */
+	(ps->status & SKIP) && (ps->shell->last_exit_code = 1);
+	(ps->status & SKIP) || wait_process(ps);
+	///free_process(ps, 0); /* TODO */
 }
 
 void set_fds_to_ps(void *proc, void *fds)
@@ -390,6 +403,13 @@ void set_fds_to_ps(void *proc, void *fds)
 	ps->fds = fds;
 }
 
+void set_flag_to_ps(void *proc, void *flag)
+{
+	struct process *ps;
+
+	ps = (struct process*)proc;
+	ps->flag = flag;
+}
 //void set_shell_to_ps(void *proc, void *shell)
 //{
 //	struct process *ps;
@@ -417,18 +437,22 @@ void count_redirections(void *proc, void *redirs)
 
 int handle_processes(t_list *cmd, t_list *env)
 {
-	int **fds;
 	int redirs;
+	int **fds;
+	int flag;
 
 	fds = 0;
+	flag = 0;
 	redirs = 0;
 	ft_lstiter_arg(cmd, count_redirections, &redirs);
-	printf("start hadnling cmds... %d redirs <<\n", redirs);
+	printf("start hadnling cmds... %d pipes <<\n", redirs);
 	redirs && (fds = (int**)multalloc(redirs, 0, sizeof(int)));
 	ft_lstiter_arg(cmd, set_fds_to_ps, fds);
+	ft_lstiter_arg(cmd, set_flag_to_ps, &flag);
 	ft_lstiter(cmd, start_process);
 	close_fds(fds);
 	freemultalloc((void**)fds);
+	/* should let iter on error to free memory*/ 
 	ft_lstiter(cmd, end_process);
 	return (1);
 }
@@ -464,7 +488,7 @@ int wait_process(struct process *ps)
 	/* status should exist even if */
 	// todo catch status from signaled and put it to last_exit_code
 	exit_code && (ps->exit_code = exit_code);
-	ps->exit_code && (exit_code = ps->exit_code) && display_err(ps);
+	ps->exit_code && (exit_code = ps->exit_code);// && display_err(ps);
 	ps->shell->last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
 	printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", ps->shell->last_exit_code , *ps->args);

@@ -28,7 +28,7 @@ int		_start_shell(t_shell *shell)
 		if (pre_parser(line, shell))
 		{
 			add_history(line);
-//			print_command(shell); // Print for testing
+			print_command(shell); // Print for testing
 			if (!shell->err)
 				execute(shell);
 		}
