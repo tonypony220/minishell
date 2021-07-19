@@ -116,8 +116,11 @@ void			dispatching_process(struct process *ps)
 		return ;
 	printf("searching path for %s...\n", ps->path);
 	//if ((name = find_path(ps->args[0])) && (ps->args[0] = name))
-	if ((name = find_path(ps->path)) && (ps->path = name))
-		free(path);
+	if ((name = find_path(ps->path)))
+	{
+		free(ps->path);
+		ps->path = name;
+	}
 	else
 	{
 		(*ps).exit_code = CMD_NOT_FOUND_CODE;
@@ -126,7 +129,7 @@ void			dispatching_process(struct process *ps)
 
 	(*ps).status |= WAIT;
 
-	printf("'%s' path args '%s' '%s'\n", path, ps->args[0], ps->args[1]);
+	//printf("'%s' path args '%s' '%s'\n", path, ps->args[0], ps->args[1]);
 	// todo how it exits if wrong path
 	//!path && err(ft_strjoin(ps->args[0], ": command not found"));
 	//ps->args[0] = path;
@@ -138,13 +141,13 @@ int			execute_builtin(struct process *ps)
 	// unset errors with leading numbers or equality sign
 	(ps->status & HEREDOC) && msh_heredoc(ps);
 	printf(CYAN">>executing command builit %s %s\n"RESET, ps->args[0], ps->args[1]);
-	ft_strcmp(ps->args[0], "echo")	 || msh_echo(ps);
-	ft_strcmp(ps->args[0], "export") || msh_export(ps);
-	ft_strcmp(ps->args[0], "pwd") 	 || msh_pwd(ps);
-	ft_strcmp(ps->args[0], "env") 	 || msh_env(ps);
-	ft_strcmp(ps->args[0], "exit")   || msh_exit(ps);
-	ft_strcmp(ps->args[0], "cd")	 || msh_cd(ps);
-	ft_strcmp(ps->args[0], "unset")  || msh_unset(ps);
+	ft_strcmp(ps->path, "echo")	 || msh_echo(ps);
+	ft_strcmp(ps->path, "export") || msh_export(ps);
+	ft_strcmp(ps->path, "pwd") 	 || msh_pwd(ps);
+	ft_strcmp(ps->path, "env") 	 || msh_env(ps);
+	ft_strcmp(ps->path, "exit")   || msh_exit(ps);
+	ft_strcmp(ps->path, "cd")	 || msh_cd(ps);
+	ft_strcmp(ps->path, "unset")  || msh_unset(ps);
 	if (!(ps->status & DIRECT))
 		exit(ps->exit_code);
 	return (0);

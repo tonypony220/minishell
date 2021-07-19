@@ -53,12 +53,13 @@ $(SUBDIRS):
 
 ${NAME}: ${OBJS} ${P_OBJS} ${HEAD}
 		$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline \
-		-L/usr/local/Cellar/readline/8.1/lib \
-		-I/usr/local/Cellar/readline/8.1/include \
+		-L/Users/mehtel/.brew/Cellar/readline/8.1/lib \
+		-I/Users/mehtel/.brew/Cellar/readline/8.1/include \
 		-o ${NAME}
 
-		#-L/Users/mehtel/.brew/Cellar/readline/8.1/lib \
-		#-I/Users/mehtel/.brew/Cellar/readline/8.1/include \
+
+		#-L/usr/local/Cellar/readline/8.1/lib \
+		#-I/usr/local/Cellar/readline/8.1/include \
 #$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
 
 all:	${NAME}
