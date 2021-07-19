@@ -1,21 +1,9 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_sorted_list_insert.c                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: gmariana <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/09/24 14:25:28 by gmariana          #+#    #+#             */
-/*   Updated: 2020/09/24 14:32:42 by gmariana         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "ft_list.h"
+#include "ft_libft.h"
 
 void	ft_sorted_list_insert(t_list **begin_list, void *data, int (*cmp)())
 {
-	t_list *prev;
-	t_list *curr;
+	t_list	*prev;
+	t_list	*curr;
 
 	if (!*begin_list)
 	{

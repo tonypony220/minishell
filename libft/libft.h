@@ -18,7 +18,7 @@
 # include <unistd.h>
 # include <string.h>
 
-typedef struct		s_list
+typedef struct s_list
 {
 	void			*content;
 	struct s_list	*next;
@@ -67,9 +67,9 @@ void				ft_lstadd_back(t_list **lst, t_list *new);
 void				ft_lstdelone(t_list *lst, void (*del)(void*));
 void				ft_lstclear(t_list **lst, void (*del)(void*));
 void				ft_lstiter(t_list *lst, void (*f)(void *));
-char				**ft_lst_to_strs(t_list *lst, char* (*pull_str)());
+char				**ft_lst_to_strs(t_list *lst, char *(*pull_str)());
 t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
-					void (*del)(void *));
+						void (*del)(void *));
 
 void				ft_lstiter_arg(t_list *lst, void (*f)(), void *data);
 void				*ft_lstgen(t_list *lst, void *(*f)(void *));
@@ -77,11 +77,11 @@ void				*ft_lstgen(t_list *lst, void *(*f)(void *));
 void				ft_lst_sort_bubble(t_list **lst, int (*cmp)());
 t_list				*ft_lst_find(t_list *lst, void *data_ref, int (*cmp)());
 void				ft_lst_rm(t_list **lst, void *data_ref,
-								int (*cmp)(), void (*del)(void *));
+						int (*cmp)(), void (*del)(void *));
 int					ft_str_in_strs(char *needle, char **arr);
 int					ft_strcmp(const char *s1, const char *s2);
 
 char				*ft_strjoind(char const *s1, char const *s2,
-								 char const *delim);
+						char const *delim);
 
 #endif

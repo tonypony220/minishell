@@ -12,13 +12,13 @@
 
 #include "libft.h"
 
-static char		*fill_str(char const *s, long int *start, long int *end)
+static char	*fill_str(char const *s, long int *start, long int *end)
 {
 	char		*word;
 
-	if ((*end - *start) && (word = \
-				(char*)malloc(sizeof(char) * (*end - *start + 1))))
+	if (*end - *start)
 	{
+		word = (char *)malloc(sizeof(char) * (*end - *start + 1));
 		word[*end - *start] = '\0';
 		while (*start != (*end)--)
 		{
@@ -31,14 +31,14 @@ static char		*fill_str(char const *s, long int *start, long int *end)
 		return (0);
 }
 
-static void		free_strs(char **arr, long int i)
+static void	free_strs(char **arr, long int i)
 {
 	while (i)
 		free(arr[i]);
 	free(arr[i]);
 }
 
-static int		fill_arr(char **arr, long int arr_len, char const *s, char c)
+static int	fill_arr(char **arr, long int arr_len, char const *s, char c)
 {
 	long int	start;
 	long int	end;
@@ -55,7 +55,8 @@ static int		fill_arr(char **arr, long int arr_len, char const *s, char c)
 		end = start;
 		while (!(s[end] == c) && s[end])
 			end++;
-		if (!(word = fill_str(s, &start, &end)))
+		word = fill_str(s, &start, &end);
+		if (!word)
 		{
 			free_strs(arr, i - 1);
 			return (0);
@@ -65,7 +66,7 @@ static int		fill_arr(char **arr, long int arr_len, char const *s, char c)
 	return (1);
 }
 
-char			**ft_split(char const *s, char c)
+char	**ft_split(char const *s, char c)
 {
 	int			end;
 	long int	arr_len;
@@ -76,9 +77,9 @@ char			**ft_split(char const *s, char c)
 	if (!s)
 		return (0);
 	while (s[++end])
-		(s[end] != c && (s[end + 1] == c || !s[end + 1])) ? \
-			arr_len++ : 1;
-	if (!(arr = (char**)malloc(sizeof(char**) * (arr_len + 1))))
+		(s[end] != c && (s[end + 1] == c || !s[end + 1])) && arr_len++;
+	arr = (char **)malloc(sizeof(char **) * (arr_len + 1));
+	if (!arr)
 		return (0);
 	arr[arr_len] = 0;
 	if (!fill_arr(arr, arr_len, s, c))

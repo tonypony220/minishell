@@ -17,7 +17,7 @@ static int	ft_isupper(int c)
 	return (c >= 65 && c <= 90);
 }
 
-int			ft_tolower(int c)
+int	ft_tolower(int c)
 {
 	if (ft_isupper(c))
 		c += 32;

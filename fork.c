@@ -1,40 +1,6 @@
 #include "minishell.h"
 
-/* commands:
- * cat >> file
- * cat | less file
- * ls | less >> file
- * echo
- * "echo" "strig"
- * "echo" "-n" "strgin"
- * < file
- * < file cat
- * cat < file
- * < file cat << EOF
- * 
- */
-
-/*
-	bash-3.2$ lss
-	bash: lss: command not found
-	bash-3.2$ echo $?
-	127
-	bash-3.2$ ./ssss
-	bash: ./ssss: No such file or directory
-	bash-3.2$ echo $?
-	127
-	bash-3.2$ ./seg_ps
-	Segmentation fault: 11
-	bash-3.2$ echo $?
-	139
- */
-
-extern char** environ;
-//
-int redirs_nbr;
-
 int	err(char* err_str)
-
 {
 	perror(err_str);
 	exit(123);
@@ -50,10 +16,8 @@ char *make_err_msg(struct process *ps)
 	{
 		if (ps->exit_code == CMD_NOT_FOUND_CODE)
 			return ("command not found");
-		//return ("command not found :)");
 		return (strerror(ps->exit_code));
 	}
-	//printf("%d EXIT CODE\n", errno);
 	return (strerror(errno));
 }
 

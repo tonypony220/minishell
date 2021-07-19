@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-char		*ft_itoa(int n)
+char	*ft_itoa(int n)
 {
 	int		len;
 	int		tmp;
@@ -20,17 +20,19 @@ char		*ft_itoa(int n)
 	int		sign;
 
 	tmp = n;
-	sign = n >= 0 ? 1 : -1;
-	len = 1;
-	while (tmp /= 10)
-		len++;
-	(sign > 0) ? len : len++;
-	if ((str = malloc(sizeof(char) * len + 1)))
+	sign = 1 - 2 * (n < 0);
+	len = 0;
+	while (tmp && len++)
+		tmp /= 10;
+	(sign > 0) || len++;
+	str = malloc(sizeof(char) * len + 1);
+	if (str)
 	{
 		str[len] = '\0';
 		while (len--)
 		{
-			str[len] = (sign < 0 && !len) ? '-' : n % 10 * sign + '0';
+			(((sign < 0 && !len) && (str[len] = '-'))
+			 || (str[len] = n % 10 * sign + '0'));
 			n = n / 10;
 		}
 	}

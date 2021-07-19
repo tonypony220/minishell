@@ -1,21 +1,9 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_sorted_list_merge.c                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: gmariana <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/09/24 14:33:44 by gmariana          #+#    #+#             */
-/*   Updated: 2020/09/24 14:34:47 by gmariana         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include "libft.h"
 
-#include "ft_list.h"
-
-t_list *g_head;
-t_list *g_l;
-t_list *g_r;
-t_list *g_tmp;
+t_list	*g_head;
+t_list	*g_l;
+t_list	*g_r;
+t_list	*g_tmp;
 
 void	init(t_list *begin_list1, t_list *begin_list2, int (*cmp)())
 {
@@ -34,7 +22,7 @@ void	init(t_list *begin_list1, t_list *begin_list2, int (*cmp)())
 	g_tmp = g_head;
 }
 
-int		is_null(t_list **begin_list1, t_list *begin_list2)
+int	is_null(t_list **begin_list1, t_list *begin_list2)
 {
 	if (!begin_list2)
 		return (1);

@@ -22,7 +22,7 @@ static int	char_in(int c, char *set)
 	return (0);
 }
 
-char		*ft_strtrim(char const *s1, char const *set)
+char	*ft_strtrim(char const *s1, char const *set)
 {
 	int		start;
 	int		end;
@@ -31,15 +31,16 @@ char		*ft_strtrim(char const *s1, char const *set)
 
 	if (!s1 || !set)
 		return (0);
-	end = ft_strlen((char*)s1) - 1;
+	end = ft_strlen((char *)s1) - 1;
 	found = 0;
 	start = 0;
 	while (!found && start <= end)
-		(char_in(s1[start], (char*)set)) ? start++ : found++;
+		((char_in(s1[start], (char *)set)) && ++start) || ++found;
 	found = 0;
 	while (!found && end >= start)
-		(char_in(s1[end], (char*)set)) ? end-- : found++;
-	if ((trim = malloc(sizeof(char) * (end - start + 2))))
+		((char_in(s1[end], (char *)set)) && end--) || found++;
+	trim = malloc(sizeof(char) * (end - start + 2));
+	if (trim)
 	{
 		found = 0;
 		while (start <= end)

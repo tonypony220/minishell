@@ -14,6 +14,9 @@
 
 void	ft_putnbr_fd(int n, int fd)
 {
-	n > 9 || n < -9 ? ft_putnbr_fd(n / 10, fd) : write(fd, "-", n < 0);
+	if (n > 9 || n < -9)
+		ft_putnbr_fd(n / 10, fd);
+	else
+		write(fd, "-", n < 0);
 	write(fd, &"0123456789"[n % 10 * ((n > 0) - (n < 0))], 1);
 }
