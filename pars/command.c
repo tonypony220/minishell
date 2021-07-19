@@ -31,17 +31,9 @@ int	check_redir(t_token *token, int index, struct process **new, t_shell *shell)
 
 	if (token->redir)
 	{
-		/* 1=>> 2=<< 3=< 4=> 0=NONE */
-		//printf("%d redir type\n", token->redir_type);
-/* 		token->redir_type == 1 && ((*new)->status |= A_FILE) && ((*new)->file[OUT] = ft_strdup(token->token));
-		token->redir_type == 2 && heredoc_comp(shell, token->token);
-		token->redir_type == 3 && ((*new)->status |= R_FILE) && ((*new)->file[IN] = ft_strdup(token->token));
-		token->redir_type == 4 && ((*new)->file[OUT] = ft_strdup(token->token)); */
-		
-		/* FILE NAMES LIST == shell->files */
 		shell->in_compose = token->redir_type;
 		if (token->redir_type == 2)
-			heredoc_comp(shell, token->token);
+			heredoc_init(shell, token->token);
 		if (token->redir_type == 1 && ((*new)->status |= A_FILE)) 
 			ft_lstadd_back(&(*new)->files_out, ft_lstnew(ft_strdup(token->token)));
 		if (token->redir_type == 3 && ((*new)->status |= R_FILE))
@@ -83,22 +75,6 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 		token = token->next;
 	}
 	i = 0;
-//	printf("len list %d\n", ft_lstsize(new->files_out));
-//	ft_lstiter(new->files_out, pr);
-//
-//	char* filename;
-//	//filename = ft_lstgen(new->files_out, get_filename);
-//	while ((filename = ft_lstgen(new->files_out, get_filename)) && i < 10)
-//	{
-//		printf("> > > >%s %d\n", filename, i++);
-//		//filename = ft_lstgen(new->files_out, get_filename);
-//	}
-//	while ((filename = ft_lstgen(new->files_out, get_filename)) && i < 10)
-//	{
-//		printf("> > > >%s %d\n", filename, i++);
-//		//filename = ft_lstgen(new->files_out, get_filename);
-//	}
-
 	set_flags(new, shell);
 	ft_lstadd_back(cmds, ft_lstnew(new));
 	return (1);

@@ -1,16 +1,5 @@
 #include "minishell.h"
 
-void		do_signals(int sig)
-{
-	if (sig == SIGINT)
-	{
-		write(1, "\n", 1);
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
-
 int		_start_shell(t_shell *shell)
 {
 	char *line;
@@ -18,6 +7,8 @@ int		_start_shell(t_shell *shell)
 	shell->status = 1;
 	while (shell->status)
 	{
+		signal(SIGQUIT, SIG_IGN);
+		signal(SIGINT, do_signals);
 		line = readline("["SHELL_NAME"]# ");
 		if (line == NULL)
 			return (1);
@@ -62,8 +53,6 @@ int _main(int ac, char **av, char **envp)
 	//struct vars;
 	t_shell	shell;
 
-	signal(SIGQUIT, SIG_IGN);
-	signal(SIGINT, do_signals);
 	ft_bzero(&shell, sizeof(shell));
 	upload_env_to_dict(envp, &shell.env);
 	_start_shell(&shell);

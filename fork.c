@@ -132,6 +132,8 @@ int			create_new_process(struct process *ps)
 		err("fork failed"); // todo not exit
 	else if (pid == CHILD_PID)
 	{
+		signal(SIGQUIT, SIG_DFL);
+		signal(SIGINT, SIG_DFL);
 		//printf("%s %d %d fds pipe %d %d %d\n",
 		//	   ps->args[0], ps->fd[IN], ps->fd[OUT], ps->pipe[IN],
 		//	   ps->pipe[OUT], ps->status & BUILTIN);
@@ -466,6 +468,8 @@ int wait_process(struct process *ps)
 		exit_code = WEXITSTATUS(status);
 	//	printf("\t\tExit status: %d\n", WEXITSTATUS(status));
 
+	if (WTERMSIG(status) == SIGQUIT)
+		printf("Quit\n");
 	if (WIFSIGNALED(status))
 	{
 		//	printf(GREEN"%d"RESET"\n", WIFSIGNALED(status));

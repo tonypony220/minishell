@@ -1,16 +1,6 @@
 #include "../minishell.h"
 
-int		exec_heredoc(struct process *ps)
-{
-	int fd[2];
-
-	pipe(fd);
-	write(fd[1], ps->shell->heredoc, ft_strlen2(ps->shell->heredoc));
-	close(fd[1]);
-	dup2(fd[0], ps->fd[IN]);
-	close(fd[0]);
-	return (1);
-}
+int		g_heredoc_status;
 
 int		heredoc_comp(t_shell *shell, char *stop)
 {
@@ -21,39 +11,82 @@ int		heredoc_comp(t_shell *shell, char *stop)
 		new = (struct process*)ft_calloc(1, sizeof(*new));
 		if (new == NULL)
 			return (-1);
-		new->args = (char **)ft_calloc(shell->hd_cnt + 1, sizeof(char *));
+		new->args = (char **)ft_calloc(2, sizeof(char *));
 		if (new->args == NULL)
 			return (-1);
 		new->status |= (BUILTIN | HEREDOC);
-		if (shell->hd_cnt)
-		{
-			new->args[0] = ft_strdup(shell->heredoc);
-			free(shell->heredoc);
-		}
+		new->args[0] = ft_strdup(shell->heredoc);
+		free(shell->heredoc);
 		new->env = shell->env;
 		new->shell = shell;
 		shell->heredoc = NULL;
 		shell->flags.pipe_count++;
-		//printf("PIPE COUNT=[%d]\n", shell->flags.pipe_count);
-		//if (shell->flags.has_pipe == 0)
 		shell->flags.pipe_out = shell->flags.pipe_in + 1;
 		set_flags(new, shell);
 		shell->flags.pipe_out++;
 		ft_lstadd_back(&shell->cmd, ft_lstnew(new));
 	}
 	shell->flags.heredoc = 0;
-	shell->hd_cnt = 0;
 	return (1);
 }
 
-void	heredoc_init(t_shell *shell)
+int		heredoc_init(t_shell *shell, char *stop)
 {
+	g_heredoc_status = 1;
 	if (shell->heredoc)
 		free(shell->heredoc);
 	shell->heredoc = NULL;
-	shell->hd_cnt = 0;
 	shell->flags.heredoc = 1;
 	shell->flags.double_q = 1;
+	heredoc_comp(shell, stop);
+	return (1);
+}
+
+/* void	heredoc_sig(int sig)
+{
+	if (sig == SIGINT)
+	{
+		g_heredoc_status = 0;
+		write(1, 0x03, 1);
+		//rl_on_new_line();
+  		rl_replace_line("\n", 0);
+		//rl_redisplay();
+		rl_done = 1;
+	}
+} */
+
+void		do_signals(int sig)
+{
+	if (sig == SIGINT && !g_heredoc_status)
+	{
+		write(1, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+	if (sig == SIGINT && g_heredoc_status)
+	{
+		g_heredoc_status = 0;
+		rl_replace_line("", 0);
+		rl_redisplay();
+		//rl_done = 1;
+	}
+}
+
+int		finish_heredoc(t_shell *shell, char *line)
+{
+	if (g_heredoc_status)
+	{	
+		if (line)
+			free(line);
+		shell->heredoc = token_strjoin(shell->heredoc, "");
+	}
+	else
+	{
+		shell->err = -1;
+		return (1);
+	}
+	return (1);
 }
 
 int	heredoc_test(t_shell *shell, char *stop)
@@ -61,24 +94,19 @@ int	heredoc_test(t_shell *shell, char *stop)
 	char	*line;
 
 	line = NULL;
-	heredoc_init(shell);
-	while (1)
+	while (g_heredoc_status)
 	{
+		//signal(SIGINT, SIG_IGN);
 		line = readline("> ");
 		if (line == NULL)
-			return (printf("bash: warning: here-document delimited by end-of-file (wanted `%s')\n", stop)); // bash warning
+			return (finish_heredoc(shell, line));
 		if (ft_strcmp(line, stop) == 0)
-		{
-			free(line);
-			if (shell->heredoc)
-				shell->hd_cnt++;
-			return (1);
-		}
+			return (finish_heredoc(shell, line));
 		check_for_env(&line, shell);
-		shell->heredoc = token_strjoin(shell->heredoc, line);	// NEED TO BE FREED	
-		shell->heredoc = token_strjoin(shell->heredoc, "\n"); 
+		shell->heredoc = token_strjoin(shell->heredoc, line);
+		shell->heredoc = token_strjoin(shell->heredoc, "\n");
 		if (line)
 			free(line);
 	}
-	return (1);
+	return (finish_heredoc(shell, line));
 }
