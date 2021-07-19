@@ -181,6 +181,8 @@ int			create_new_process(struct process *ps)
 		//write(1, "WTF<<\n", 6);
 		//printf("%p fds\n", ps->fds);
 		close_fds(ps->fds);
+	//	close(ps->fd[IN]);
+	//	close(ps->fd[OUT]);
 		ps->file[IN] && close(ps->fd[IN]);
 		ps->file[OUT] && close(ps->fd[OUT]);
 	//	if (ps->status & HEREDOC) /* HEREDOC */
@@ -316,7 +318,7 @@ void start_process(void *proc)
 	 * 	   [0] [ 0][1] [1][2]  1 pipe, 2 file
 	 */
 	//(*ps).env = env;
-	if ((*ps->flag || !ps->args[0]) && (ps->status |= SKIP))  // TODO no args also should enter aborting next 
+	if ((!ps->args[0]) && (ps->status |= SKIP))  // TODO no args also should enter aborting next 
 		return ;
 	if (ps->pipe[IN] != NO_PIPE)
 	{
@@ -339,10 +341,12 @@ void start_process(void *proc)
 		(*ps).fd[IN] && close((*ps).fd[IN]);
 		((*ps).fd[IN] = open(filename, O_RDONLY, 0644));
 		if ((*ps).fd[IN] == -1 
-		 && (*ps->flag = ABORT_CODE)
+//		 && (*ps->flag = ABORT_CODE)
 		 && (ps->status |= SKIP)
 		 && display_err(ps))
 			return ;
+		ps->file[IN] = filename;
+		//free(ps->file[IN]);
 	}
 ////	if ((*ps).file[IN])
 ////	{
@@ -368,10 +372,12 @@ void start_process(void *proc)
 		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
 		((*ps).fd[OUT] = open(filename, flag, 0644));
 		if ((*ps).fd[OUT] == -1 
-			&& (*ps->flag = ABORT_CODE)
+//			&& (*ps->flag = ABORT_CODE)
 			&& (ps->status |= SKIP)
 			&& display_err(ps))
 			return ;
+		ps->file[OUT] = filename;
+		//free(ps->file[IN]);
 		/* errors: opening sys files or commands */
 	}
 ////	if (ps->file[OUT])
@@ -407,12 +413,14 @@ void end_process(void *proc)
 	ps = (struct process*)proc;
 //	if ((*ps).file) /* auxillaty close */
 //	{
+//j	close(ps->fd[IN]);
+//j	close(ps->fd[OUT]);
 	(*ps).file[OUT] && close((*ps).fd[OUT]);
 	(*ps).file[IN] && close((*ps).fd[IN]);
 //	}
 	(ps->status & SKIP) && (ps->shell->last_exit_code = 1);
 	(ps->status & SKIP) || wait_process(ps);
-	///free_process(ps, 0); /* TODO */
+	//free_process(ps, 0); /* TODO */
 }
 
 void set_fds_to_ps(void *proc, void *fds)
@@ -474,6 +482,7 @@ int handle_processes(t_list *cmd, t_list *env)
 	freemultalloc((void**)fds);
 	/* should let iter on error to free memory*/ 
 	ft_lstiter(cmd, end_process);
+	//ft_lstclear(&((struct process*)cmd->content)->shell->cmd, free_process);
 	return (1);
 }
 

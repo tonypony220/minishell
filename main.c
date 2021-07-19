@@ -37,8 +37,9 @@ int		_start_shell(t_shell *shell)
 			free(shell->heredoc);
 		shell->heredoc = NULL;
 
-		if (shell->cmd);
-			ft_lstclear(&shell->cmd, free); // (write free func. for this)
+
+//		if (shell->cmd);
+		ft_lstclear(&shell->cmd, free_process); // protected pointer cmd 
 		if (line)
 			free(line);
 	}

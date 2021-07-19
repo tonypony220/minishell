@@ -49,10 +49,11 @@
 # define UPPER_EXCLUDED_BUILTINS "EXPORT UNSET EXIT"  /* which has not upper aliases */
 # define SHELL_NAME "minishell"
 
-# define DBL_TO	 1
+# define DBL_TO	  1
 # define DBL_FROM 2 
 # define ONE_FROM 3 
-# define ONE_TO 	 4 
+# define ONE_TO   4 
+
 # define VERBOSE 0
 
 //struct		vars
@@ -216,8 +217,10 @@ int			msh_cd(struct process *ps);
 int			msh_exit(struct process *ps);
 int			msh_heredoc(struct process *ps);
 
-void		free_processes(struct process **ps);
-void		free_process(struct process *ps, int child);
+//void		free_processes(struct process **ps);
+//void		free_process(struct process *ps, int child);
+void		free_process(void *proc);
+
 
 
 t_flags		_init_flags(void);
