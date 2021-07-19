@@ -68,7 +68,6 @@ int		compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	while (token)
 	{
 		//print_token(token);
-		//printf("token=[%s]\nredir=[%d]\n", token->token, token->redir_type);
 		if (!check_redir(token, i, &new, shell)) // == 2
 			new->args[i++] = ft_strdup(token->token);
 		//printf("TESTING %d=[%s]\n", i, new->args[i]);

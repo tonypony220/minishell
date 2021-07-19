@@ -12,7 +12,7 @@ int		_start_shell(t_shell *shell)
 		line = readline("["SHELL_NAME"]# ");
 		if (line == NULL)
 			return (1);
-		shell->err = 0;	
+		shell->err = 0;
 		if (ft_strncmp(line, "exit", ft_strlen(line) + 1) == 0)
 			shell->status = 0;
 		shell->flags = _init_flags();
@@ -27,7 +27,6 @@ int		_start_shell(t_shell *shell)
 		if (shell->heredoc)
 			free(shell->heredoc);
 		shell->heredoc = NULL;
-
 
 //		if (shell->cmd);
 		ft_lstclear(&shell->cmd, free_process); // protected pointer cmd 

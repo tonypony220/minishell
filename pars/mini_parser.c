@@ -181,10 +181,7 @@ int			pre_parser(char *line, t_shell *shell)
 	if (check_cmd(line, shell) < 1) //check for syntax errors
 		return (-1);
 	main_parser(line, shell, &token);
-	//print_token(token); // print token for tests
-	//print_token(shell->files); // files
 	token_lstclear(&token);
-	token_lstclear(&shell->files); // CLEARING FILE LIST
 	if (shell->cmd == NULL)
 		return (0);
 	return (1);
