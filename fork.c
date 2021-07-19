@@ -114,7 +114,7 @@ void			dispatching_process(struct process *ps)
 	// todo BUILTINS
 	if (*ps->path == '/' || *ps->path == '.')
 		return ;
-	printf("searching path for %s...\n", ps->path);
+//	printf("searching path for %s...\n", ps->path);
 	//if ((name = find_path(ps->args[0])) && (ps->args[0] = name))
 	if ((name = find_path(ps->path)))
 	{
@@ -140,13 +140,13 @@ int			execute_builtin(struct process *ps)
 {
 	// unset errors with leading numbers or equality sign
 	(ps->status & HEREDOC) && msh_heredoc(ps);
-	printf(CYAN">>executing command builit %s %s\n"RESET, ps->args[0], ps->args[1]);
-	ft_strcmp(ps->path, "echo")	 || msh_echo(ps);
+	VERBOSE && printf(CYAN">>executing command builit %s %s\n"RESET, ps->args[0], ps->args[1]);
+	ft_strcmp(ps->path, "echo")	  || msh_echo(ps);
 	ft_strcmp(ps->path, "export") || msh_export(ps);
-	ft_strcmp(ps->path, "pwd") 	 || msh_pwd(ps);
-	ft_strcmp(ps->path, "env") 	 || msh_env(ps);
+	ft_strcmp(ps->path, "pwd") 	  || msh_pwd(ps);
+	ft_strcmp(ps->path, "env") 	  || msh_env(ps);
 	ft_strcmp(ps->path, "exit")   || msh_exit(ps);
-	ft_strcmp(ps->path, "cd")	 || msh_cd(ps);
+	ft_strcmp(ps->path, "cd")	  || msh_cd(ps);
 	ft_strcmp(ps->path, "unset")  || msh_unset(ps);
 	if (!(ps->status & DIRECT))
 		exit(ps->exit_code);
@@ -162,7 +162,7 @@ int			create_new_process(struct process *ps)
 	int		pid;
 //	char	*exec_path;
 
-	printf(CYAN">>forking process %s %s %s\n"RESET, GREEN, ps->args[0], RESET);
+////////////	printf(CYAN">>forking process %s %s %s\n"RESET, GREEN, ps->args[0], RESET);
 
 	if ((pid = fork()) == -1) // todo why fork creates several leaks ????
 		err("fork failed"); // todo not exit
@@ -199,7 +199,7 @@ int			create_new_process(struct process *ps)
 		//printf("%p<<<\n", *envv); envv
 	///	exec_path = ps->path;
 	///	exec_path || (exec_path = ps->args[0]);
-		printf("%s %s <<<\n", ps->path, ps->args[0], ps->args[1]);
+		//printf("%s %s <<<\n", ps->path, ps->args[0], ps->args[1]);
 		execve(ps->path, ps->args, ft_lst_to_strs(ps->env, dict_to_str)); // no alloc check
 	//	execve(ps->args[0], ps->args, environ);
 		display_err(ps);
@@ -243,6 +243,8 @@ void	print_process(void *proc)
 	char *filename;
 	int i;
 
+	if (!VERBOSE) 
+		return ;
 	i = 0;
 	ps = (struct process*)proc;
 	printf(CYAN"PROCESS {%s}", ps->path);
@@ -463,7 +465,7 @@ int handle_processes(t_list *cmd, t_list *env)
 	flag = 0;
 	redirs = 0;
 	ft_lstiter_arg(cmd, count_redirections, &redirs);
-	printf("start hadnling cmds... %d pipes <<\n", redirs);
+	VERBOSE && printf("start hadnling cmds... %d pipes <<\n", redirs);
 	redirs && (fds = (int**)multalloc(redirs, 0, sizeof(int)));
 	ft_lstiter_arg(cmd, set_fds_to_ps, fds);
 	ft_lstiter_arg(cmd, set_flag_to_ps, &flag);
@@ -491,14 +493,15 @@ int wait_process(struct process *ps)
 		exit_code = WEXITSTATUS(status);
 	//	printf("\t\tExit status: %d\n", WEXITSTATUS(status));
 
-	else if (WIFSIGNALED(status))
+	if (WIFSIGNALED(status))
 	{
 		//	printf(GREEN"%d"RESET"\n", WIFSIGNALED(status));
 		
 		/* WIFSIGNALED True if the process terminated
 		 * due to receipt of a signal. */
-		//psignal(WTERMSIG(status), "Exit signal");
-		exit_code = WTERMSIG(status);
+	//	psignal(WTERMSIG(status), "Exit signal");
+		write(1, "\r", 1);
+		exit_code = WTERMSIG(status) + 128;
 	}
 
 	//printf("\t\texit code: %d (%s)\n", exit_code , *ps->args);
@@ -510,7 +513,8 @@ int wait_process(struct process *ps)
 	//// (ps->exit_code == CMD_NOT_FOUND_CODE) && display_err(ps);
 	ps->shell->last_exit_code = exit_code;
 	//!ps->exit_code && (last_exit_code = exit_code);
-	printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", ps->shell->last_exit_code , *ps->args);
+	
+	VERBOSE && printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", ps->shell->last_exit_code , *ps->args);
 	return (0);
 }
 
@@ -521,7 +525,7 @@ int execute(t_shell *shell)
 
 int __main(int ac, char **av, char **envp)
 {
-	write(1, "start\n\n", 7);
+	//write(1, "start\n\n", 7);
 
 	//char *str = ft_strdup("STRING");
 	//printf("%s>>\n", str);

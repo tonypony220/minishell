@@ -53,7 +53,7 @@
 # define DBL_FROM 2 
 # define ONE_FROM 3 
 # define ONE_TO 	 4 
-
+# define VERBOSE 0
 
 //struct		vars
 //{

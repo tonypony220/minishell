@@ -22,7 +22,7 @@ int					msh_echo(struct process *ps)
 		virgin++;
 		i++;
 	}
-	!ft_strcmp(ps->args[1], "-n") && printf("\n");
+	!ft_strcmp(ps->args[1], "-n") || printf("\n");
 	return (1);
 }
 

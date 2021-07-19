@@ -102,7 +102,7 @@ void					dict_print(void* d)
 	struct dict* content;
 
 	content = d;
-	printf("\t%s=%s\n", content->key, content->value);
+	printf("%s=%s\n", content->key, content->value);
 }
 
 struct dict			*new_dict(char *key, char *value)
