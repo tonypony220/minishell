@@ -591,7 +591,6 @@ int __main(int ac, char **av, char **envp)
 	//char *args2[3] = {"/bin/cat", "-e", 0};
 	//char *args2[3] = {"ls", 0, 0};
 	//char *args2[3] = {"/usr/bin/less", 0, 0};
-	redirs_nbr = 0;
 
 	ps = ft_calloc(1, sizeof(struct process));
 	ps->args = ft_split("cat ttt", ' ');

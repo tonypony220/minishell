@@ -19,6 +19,8 @@ static char	*fill_str(char const *s, long int *start, long int *end)
 	if (*end - *start)
 	{
 		word = (char *)malloc(sizeof(char) * (*end - *start + 1));
+		if (!word)
+			return (0);
 		word[*end - *start] = '\0';
 		while (*start != (*end)--)
 		{

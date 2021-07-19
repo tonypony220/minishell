@@ -21,7 +21,8 @@ char	*ft_itoa(int n)
 
 	tmp = n;
 	sign = 1 - 2 * (n < 0);
-	len = 0;
+	len = 1;
+	tmp /= 10;
 	while (tmp && len++)
 		tmp /= 10;
 	(sign > 0) || len++;
