@@ -1,7 +1,6 @@
-
 #include "../minishell.h"
 
-int		space_skip(const char *nptr, int index)
+int	space_skip(const char *nptr, int index)
 {
 	while ((nptr[index] == ' ') || (nptr[index] == '\n')
 		|| (nptr[index] == '\f') || (nptr[index] == '\v')

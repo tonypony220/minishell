@@ -1,19 +1,17 @@
 #include "../minishell.h"
 
-int		g_heredoc_status;
-
-int		heredoc_comp(t_shell *shell, char *stop)
+int	heredoc_comp(t_shell *shell, char *stop)
 {
-	struct process *new;
+	struct process	*new;
 
 	if (heredoc_test(shell, stop))
 	{
-		new = (struct process*)ft_calloc(1, sizeof(*new));
+		new = (struct process *)ft_calloc(1, sizeof(*new));
 		if (new == NULL)
-			return (-1);
+			return (set_error(shell, -5));
 		new->args = (char **)ft_calloc(2, sizeof(char *));
 		if (new->args == NULL)
-			return (-1);
+			return (set_error(shell, -5));
 		new->status |= (BUILTIN | HEREDOC);
 		new->args[0] = ft_strdup(shell->heredoc);
 		free(shell->heredoc);
@@ -30,9 +28,8 @@ int		heredoc_comp(t_shell *shell, char *stop)
 	return (1);
 }
 
-int		heredoc_init(t_shell *shell, char *stop)
+int	heredoc_init(t_shell *shell, char *stop)
 {
-	g_heredoc_status = 1;
 	if (shell->heredoc)
 		free(shell->heredoc);
 	shell->heredoc = NULL;
@@ -42,50 +39,11 @@ int		heredoc_init(t_shell *shell, char *stop)
 	return (1);
 }
 
-/* void	heredoc_sig(int sig)
+int	finish_heredoc(t_shell *shell, char *line)
 {
-	if (sig == SIGINT)
-	{
-		g_heredoc_status = 0;
-		write(1, 0x03, 1);
-		//rl_on_new_line();
-  		rl_replace_line("\n", 0);
-		//rl_redisplay();
-		rl_done = 1;
-	}
-} */
-
-void		do_signals(int sig)
-{
-	if (sig == SIGINT && !g_heredoc_status)
-	{
-		write(1, "\n", 1);
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-	if (sig == SIGINT && g_heredoc_status)
-	{
-		g_heredoc_status = 0;
-		rl_replace_line("", 0);
-		rl_redisplay();
-		//rl_done = 1;
-	}
-}
-
-int		finish_heredoc(t_shell *shell, char *line)
-{
-	if (g_heredoc_status)
-	{	
-		if (line)
-			free(line);
-		shell->heredoc = token_strjoin(shell->heredoc, "");
-	}
-	else
-	{
-		shell->err = -1;
-		return (1);
-	}
+	if (line)
+		free(line);
+	shell->heredoc = token_strjoin(shell->heredoc, "");
 	return (1);
 }
 
@@ -94,9 +52,9 @@ int	heredoc_test(t_shell *shell, char *stop)
 	char	*line;
 
 	line = NULL;
-	while (g_heredoc_status)
+	while (1)
 	{
-		//signal(SIGINT, SIG_IGN);
+		signal(SIGINT, SIG_IGN);
 		line = readline("> ");
 		if (line == NULL)
 			return (finish_heredoc(shell, line));

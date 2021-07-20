@@ -126,6 +126,7 @@ typedef struct s_shell
 	int				in_compose;
 	int				status;
 	int				err;
+	char			*err_msg;
 	int				dq_err;
 	int				sq_err;
 	int				pipe_err;
@@ -136,7 +137,7 @@ typedef struct s_shell
 	int				_env_exit;
 	int				redir_count; // REDIRECT COUNT
 	int				i;
-	int				start;
+	int				st;
 	int				end;
 	int				after_redir;
 	int				last_exit_code;
@@ -262,8 +263,8 @@ void		free_command(t_cmd **list);
 void		print_command(t_shell *shell);
 
 /* check_cmd */
-void	pipe_syntax(char *line, int i, t_shell *shell);
-void	redir_syntax(char *line, int i, t_shell *shell);
+int		pipe_syntax(char *line, int i, t_shell *shell);
+int		redir_syntax(char *line, int i, t_shell *shell);
 void	single_quote(char *line, int i, t_shell *shell);
 void	double_quote(char *line, int i, t_shell *shell);
 
@@ -277,16 +278,15 @@ void		print_token(t_token *token);
 
 /* util */
 int			space_skip(const char *nptr, int index);
-int			error_out(t_shell *shell, char *error);
 void		ft_putendl(char *s, int endl);
+int			error_out(t_shell *shell);
+int			set_error(t_shell *shell, int error);
 
 /* signals */
 void		do_signals(int sig);
 
 /* redirects */
-void	redir_in(struct process *ps);
-void	redir_out(struct process *ps);
-int		check_for_redir(struct process *ps);
+int		check_redir(t_token *token, struct process **new, t_shell *shell);
 
 
 int	heredoc_test(t_shell *shell, char *stop);

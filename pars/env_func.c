@@ -1,17 +1,11 @@
 #include "../minishell.h"
 
-void	ft_env(t_shell *shell)
-{
-	ft_lstiter(shell->env, dict_print);	
-}
-
 int	get_env(t_shell *shell, char *line, int i, int end)
-{
-	/* function stores found values in shell structure */		
-	t_list *one;
-	struct dict *d;
-	char *key;
-	int	ret; 
+{		
+	t_list		*one;
+	struct dict	*d;
+	char		*key;
+	int			ret;
 
 	if (shell->_env_exit)
 	{
@@ -19,54 +13,68 @@ int	get_env(t_shell *shell, char *line, int i, int end)
 		return (1);
 	}
 	ret = 0;
-	key = ft_substr(line, i, end - i + 1); // no check for malloc failure
-	one = ft_lst_find(shell->env, (d = new_dict(key, 0)), cmp_dict_keys); // mo malloc dict check also
+	key = ft_substr(line, i, end - i + 1);// no check for malloc failure
+	one = ft_lst_find(shell->env, (d = new_dict(key, 0)),
+			cmp_dict_keys);// mo malloc dict check also
 	if (one)
 	{
 		shell->env_len = ft_strlen(dict_value(one->content));
-		shell->env_value = ft_strdup(dict_value(one->content));  // can't use direct pointer from dict content
+		shell->env_value = ft_strdup(dict_value(one->content));
 		ret = 1;
 	}
 	free(key);
-	//free(one);
 	return (ret);
-	
-/// ......TO BE SUBSTITUTED CODE	.........
-/* 	char *key;
-	t_list *env_tmp;
-
-	env_tmp = shell->env;
-	key = ft_substr(line, i, end - i + 1);
-	//ft_putendl(tmp, 1);
-	while (env_tmp)
-	{
-		if ((ft_strncmp(key, env_tmp->key, ft_strlen(key) + 1) == 0))
-		{
-			free(key);
-			shell->env_len = ft_strlen(env_tmp->value);
-			shell->env_value = ft_strdup(env_tmp->value);
-			//ft_env_clear(&env_tmp);
-			return (1);
-		}
-		env_tmp = env_tmp->next;
-	}
-	free(key);
-	//ft_env_clear(&env_tmp);
-	return (0); */
 }
 
-int		ifkey(char c)
+void	free_env_shell(t_shell *shell)
+{
+	shell->env_len = 0;
+	if (shell->env_value)
+		free(shell->env_value);
+	shell->env_value = NULL;
+}
+
+int	parse_env_sign(char *line, t_shell *shell)
+{
+	if (line[(shell->i) + 1] == ' ' || line[(shell->i) + 1] == '\0')
+	{
+		shell->_arg = ft_strdup("$");
+		return (1);
+	}
+	shell->st = ++shell->i;
+	if (line[shell->i] == '?')
+		shell->_env_exit = 1;
+	while (line[shell->i] != '\0')
+	{
+		if (ft_strchr(" \'\"\\$><|", line[shell->i + 1]) || !line[shell->i + 1])
+		{
+			shell->end = shell->i;
+			get_env(shell, line, shell->st, shell->end);
+			shell->st = 0;
+			shell->end = shell->env_len;
+			shell->_arg = token_strjoin(shell->_arg, shell->env_value);
+			free_env_shell(shell);
+			if (ft_strchr("\'\"\\$><|", line[shell->i]))
+				(shell->i)--;
+			return (1);
+		}
+		(shell->i)++;
+	}
+	return (1);
+}
+
+int	ifkey(char c)
 {
 	if (c == '_' || ft_isalnum(c))
 		return (1);
 	return (0);
 }
 
-int		check_env_syntax(char *line, int i)
+int	check_env_syntax(char *line, int i)
 {
 	if (line[i] >= '0' && line[i] <= '9')
 		return (-1);
-	while(line[i] != '=')
+	while (line[i] != '=')
 	{
 		if (!(ifkey(line[i])))
 			return (-1);

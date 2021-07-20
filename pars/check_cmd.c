@@ -24,14 +24,14 @@ void	single_quote(char *line, int i, t_shell *shell)
 		i++;
 	}
 	if (shell->sq_err == 1)
-		error_out(shell, "syntax error single quotes");
+		set_error(shell, -1);
 }
 
 void	double_quote(char *line, int i, t_shell *shell)
 {
 	int	j;
 
-	while (line[i] != '\0' && shell->err != -1)
+	while (line[i] != '\0' && !shell->err)
 	{
 		if (line[i] == '\"')
 		{
@@ -51,12 +51,12 @@ void	double_quote(char *line, int i, t_shell *shell)
 		i++;
 	}
 	if (shell->dq_err == 1 && shell->sq_err == 0)
-		error_out(shell, "syntax error double quotes");
+		set_error(shell, -2);
 }
 
-void	pipe_syntax(char *line, int i, t_shell *shell)
+int	pipe_syntax(char *line, int i, t_shell *shell)
 {
-	while (line[i] != '\0' && shell->err != -1)
+	while (line[i] != '\0' && !shell->err)
 	{
 		if (line[i] == '\"')
 			while (line[++i] != '\"')
@@ -70,24 +70,20 @@ void	pipe_syntax(char *line, int i, t_shell *shell)
 			i++;
 			i = space_skip(line, i);
 			if (line[i] == '\0' || ft_strchr("|><", line[i]))
-				shell->pipe_err = 1;
+			{
+				set_error(shell, -3);
+				return (-1);
+			}
 		}
 		i++;
 	}
-	if (shell->pipe_err == 1 && shell->dq_err == 0)
-		error_out(shell, "syntax error near unexpected token '|'");
+	return (0);
 }
 
-void	redir_syntax(char *line, int i, t_shell *shell)
+int	redir_syntax(char *line, int i, t_shell *shell)
 {
-	while (line[i] != '\0' && shell->err != -1)
+	while (line[i] != '\0' && !shell->err)
 	{
-		if (line[i] == '\"')
-			while (line[++i] != '\"')
-				;
-		if (line[i] == '\'')
-			while (line[++i] != '\'')
-				;
 		if (ft_strchr("><", line[i]))
 		{
 			i++;
@@ -96,12 +92,19 @@ void	redir_syntax(char *line, int i, t_shell *shell)
 			i = space_skip(line, i);
 			if (ft_strchr("|><", line[i]))
 			{
-				shell->redir_err = 1;
-				break ;
+				set_error(shell, -4);
+				return (-1);
 			}
 		}
+		if (line[i] == '\"')
+		{
+			while (line[++i] != '\"')
+				;
+		}
+		if (line[i] == '\'')
+			while (line[++i] != '\'')
+				;
 		i++;
 	}
-	if (shell->redir_err == 1 && shell->pipe_err == 0)
-		error_out(shell, "syntax error near unexpected token 'newline'");
+	return (0);
 }

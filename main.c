@@ -1,10 +1,20 @@
 #include "minishell.h"
 
+void		do_signals(int sig)
+{
+	if (sig == SIGINT)
+	{
+		write(1, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+}
+
 int		_start_shell(t_shell *shell)
 {
 	char *line;
 
-	shell->status = 1;
 	while (shell->status)
 	{
 		signal(SIGQUIT, SIG_IGN);
@@ -23,12 +33,9 @@ int		_start_shell(t_shell *shell)
 			if (!shell->err)
 				handle_processes(shell->cmd, shell->env);
 		}
-		/* < add free for heredoc buffer */
 		if (shell->heredoc)
 			free(shell->heredoc);
 		shell->heredoc = NULL;
-
-//		if (shell->cmd);
 		ft_lstclear(&shell->cmd, free_process); // protected pointer cmd 
 		if (line)
 			free(line);
@@ -54,6 +61,7 @@ int _main(int ac, char **av, char **envp)
 
 	ft_bzero(&shell, sizeof(shell));
 	upload_env_to_dict(envp, &shell.env);
+	shell.status = 1;
 	_start_shell(&shell);
 	return (0);
 }

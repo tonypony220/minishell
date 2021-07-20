@@ -37,7 +37,8 @@ char	*ft_strdup(const char *s)
 	{
 		i++;
 	}
-	if (!(dup = (char *)malloc(i + 1 * sizeof(*s))))
+	dup = (char *)malloc(i + 1 * sizeof(*s));
+	if (dup == NULL)
 		return (0);
 	i = 0;
 	while (s[i] != '\0')
@@ -61,10 +62,10 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
 
-int		ft_isalnum(int c)
+int	ft_isalnum(int c)
 {
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-	|| (c >= '0' && c <= '9'))
+		|| (c >= '0' && c <= '9'))
 		return (1);
 	else
 		return (0);
@@ -72,22 +73,16 @@ int		ft_isalnum(int c)
 
 int	ft_strchr(const char *s, int c)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	while (s[i])
 	{
 		if (s[i] == (unsigned char)c)
-			return (1); // + i
+			return (1);
 		i++;
 	}
 	if ((unsigned char)c == '\0')
-		return (1); // + i
+		return (1);
 	return (0);
-}
-
-void	ft_putchar(char c)
-{
-	write(1, &c, 1);
-	write(1, "\n", 1);
 }
