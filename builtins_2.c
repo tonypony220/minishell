@@ -34,7 +34,7 @@ int	msh_cd(struct s_process *ps)
 
 int	msh_exit(struct s_process *ps)
 {
-	if (ps->flag)
+	if (*ps->flag)
 		return (0);
 	printf("exit\n");
 	free_and_null(ps->shell->heredoc, ps->shell->line);

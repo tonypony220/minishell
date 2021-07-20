@@ -2,11 +2,11 @@
 
 int	heredoc_comp(t_shell *shell, char *stop)
 {
-	struct process	*new;
+	struct s_process	*new;
 
 	if (heredoc_test(shell, stop))
 	{
-		new = (struct process *)ft_calloc(1, sizeof(*new));
+		new = (struct s_process *)ft_calloc(1, sizeof(*new));
 		if (new == NULL)
 			return (set_error(shell, -5));
 		new->args = (char **)ft_calloc(2, sizeof(char *));
@@ -50,21 +50,33 @@ int	finish_heredoc(t_shell *shell, char *line)
 int	heredoc_test(t_shell *shell, char *stop)
 {
 	char	*line;
+	int pid; 
+	int status;
 
-	line = NULL;
-	while (1)
+	((pid = fork()) == -1) && err("fork failed");
+	if (pid == CHILD_PID)
 	{
-		signal(SIGINT, SIG_IGN);
-		line = readline("> ");
-		if (line == NULL)
-			return (finish_heredoc(shell, line));
-		if (ft_strcmp(line, stop) == 0)
-			return (finish_heredoc(shell, line));
-		check_for_env(&line, shell);
-		shell->heredoc = token_strjoin(shell->heredoc, line);
-		shell->heredoc = token_strjoin(shell->heredoc, "\n");
-		if (line)
-			free(line);
+		signal(SIGQUIT, SIG_DFL);
+		signal(SIGINT, SIG_DFL);
+		line = NULL;
+		while (1)
+		{
+			signal(SIGINT, SIG_IGN);
+			line = readline("> ");
+			if (line == NULL)
+				return (finish_heredoc(shell, line));
+			if (ft_strcmp(line, stop) == 0)
+				return (finish_heredoc(shell, line));
+			check_for_env(&line, shell);
+			shell->heredoc = token_strjoin(shell->heredoc, line);
+			shell->heredoc = token_strjoin(shell->heredoc, "\n");
+			if (line)
+				free(line);
+		}
+		return (finish_heredoc(shell, line));
 	}
-	return (finish_heredoc(shell, line));
+	else
+	{
+		waitpid(0, &status, 0);
+	}
 }
