@@ -26,8 +26,8 @@ int	check_for_env(char **line, t_shell *shell)
 
 static void	join_and_free(char **tmp, char *env, char *tmp2, char *line)
 {
-	*tmp = ft_strjoin(*tmp, env);
-	*tmp = ft_strjoin(*tmp, tmp2);
+	*tmp = token_strjoin(*tmp, env);
+	*tmp = token_strjoin(*tmp, tmp2);
 	if (env)
 		free(env);
 	if (tmp2)

@@ -11,6 +11,8 @@
 # include <sys/errno.h>
 # include <sys/param.h>  /* MAXPATHLEN value */
 # include <termcap.h>
+# include <sys/wait.h>
+# include <sys/types.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 
@@ -281,6 +283,8 @@ void			ft_putendl(char *s, int endl);
 int				error_out(t_shell *shell);
 int				set_error(t_shell *shell, int error);
 void			free_and_null(char *str1, char *str2);
+
+char			**split_env(char *str, char c);
 
 /* signals */
 void			do_signals(int sig);

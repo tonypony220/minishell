@@ -30,7 +30,7 @@ int	export_ps_args(struct s_process *ps)
 	{
 		if (check_env_syntax(ps->args[i], 0) == 1)
 		{
-			key_value = ft_split(ps->args[i], '=');
+			key_value = split_env(ps->args[i], '=');
 			if (!(key_value))
 				return (0);
 			ret = dict_set_default(ps->env, key_value[0], key_value[1]);
@@ -61,7 +61,7 @@ int	msh_export(struct s_process *ps)
 int	msh_unset(struct s_process *ps)
 {
 	struct s_dict	*d;
-	int			i;
+	int				i;
 
 	i = 0;
 	while (ps->args[++i])

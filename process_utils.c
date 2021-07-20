@@ -28,7 +28,7 @@ void	count_redirections(void *proc, void *redirs)
 void	print_process(void *proc)
 {
 	struct s_process	*ps;
-	int				i;
+	int					i;
 
 	if (!VERBOSE)
 		return ;

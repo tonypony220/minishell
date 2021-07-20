@@ -2,9 +2,9 @@
 
 int	get_env(t_shell *shell, char *line, int i, int end)
 {		
-	t_list		*one;
-	struct dict	*d;
-	char		*key;
+	t_list			*one;
+	struct s_dict	*d;
+	char			*key;
 
 	if (shell->_env_exit)
 	{

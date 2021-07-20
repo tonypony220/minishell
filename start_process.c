@@ -57,7 +57,7 @@ int	files_out_redirects(struct s_process *ps)
 void	start_process(void *proc)
 {
 	struct s_process	*ps;
-	int				pipe_number;
+	int					pipe_number;
 
 	ps = (struct s_process *)proc;
 	if (ps->pipe[IN] != NO_PIPE)

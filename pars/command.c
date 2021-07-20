@@ -10,7 +10,7 @@ void	free_and_null(char *str1, char *str2)
 	str2 = NULL;
 }
 
-void	set_flags(struct process *new, t_shell *shell)
+void	set_flags(struct s_process *new, t_shell *shell)
 {
 	new->pipe[0] = shell->flags.pipe_in;
 	if (shell->flags.pipe_count)
@@ -26,7 +26,7 @@ void	set_flags(struct process *new, t_shell *shell)
 	shell->flags.double_q = 0;
 }
 
-int	check_redir(t_token *token, struct process **new, t_shell *shell)
+int	check_redir(t_token *token, struct s_process **new, t_shell *shell)
 {
 	if (token->redir)
 	{
@@ -57,9 +57,9 @@ int	check_redir(t_token *token, struct process **new, t_shell *shell)
 
 int	compose_command(t_list **cmds, t_token *token, t_shell *shell)
 {
-	struct process	*new;
-	int				i;
-	int				size;
+	struct s_process	*new;
+	int					i;
+	int					size;
 
 	i = 0;
 	if (token == NULL)
@@ -67,7 +67,7 @@ int	compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	size = token_lstsize(token);
 	if (token->redir_type == 2)
 		size = 1;
-	new = (struct process *)ft_calloc(1, sizeof(*new));
+	new = (struct s_process *)ft_calloc(1, sizeof(*new));
 	new->args = (char **)ft_calloc((size + 1), sizeof(char *));
 	if (new == NULL || new->args == NULL)
 		return (set_error(shell, -5));
