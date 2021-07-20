@@ -63,3 +63,13 @@ char	*add_env_to_str(char *line, t_shell *shell)
 	}
 	return (line);
 }
+
+void	join_env_string(t_shell *shell, char *line)
+{
+	shell->end = shell->i;
+	get_env(shell, line, shell->st, shell->end);
+	shell->st = 0;
+	shell->end = shell->env_len;
+	shell->_arg = token_strjoin(shell->_arg, shell->env_value);
+	free_env_shell(shell);
+}

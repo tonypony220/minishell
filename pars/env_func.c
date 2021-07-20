@@ -11,15 +11,15 @@ int	get_env(t_shell *shell, char *line, int i, int end)
 		shell->env_value = ft_itoa(shell->last_exit_code);
 		return (1);
 	}
-	key = ft_substr(line, i, end - i + 1);// no check for malloc failure
+	key = ft_substr(line, i, end - i + 1);
 	one = ft_lst_find(shell->env, (d = new_dict(key, 0)),
-			cmp_dict_keys);// mo malloc dict check also
+			cmp_dict_keys);
 	if (one)
 	{
 		shell->env_len = ft_strlen(dict_value(one->content));
 		shell->env_value = ft_strdup(dict_value(one->content));
 	}
-	else // SEGFAULT IN HEREDOC IF $ENV_VALUE NOT SET
+	else
 		shell->env_value = ft_strdup("");
 	free(key);
 	return (1);
@@ -43,16 +43,16 @@ int	parse_env_sign(char *line, t_shell *shell)
 	shell->st = ++shell->i;
 	if (line[shell->i] == '?')
 		shell->_env_exit = 1;
+	if (ft_isdigit(line[shell->i]))
+	{
+		shell->_arg = ft_strdup("");
+		return (1);
+	}
 	while (line[shell->i] != '\0')
 	{
 		if (ft_strchr(" \'\"\\$><|=![].,?@#%%^&*()=+|/:;'\0", line[shell->i + 1]))
 		{
-			shell->end = shell->i;
-			get_env(shell, line, shell->st, shell->end);
-			shell->st = 0;
-			shell->end = shell->env_len;
-			shell->_arg = token_strjoin(shell->_arg, shell->env_value);
-			free_env_shell(shell);
+			join_env_string(shell, line);
 			if (ft_strchr("\'\"\\$><|", line[shell->i]))
 				(shell->i)--;
 			return (1);

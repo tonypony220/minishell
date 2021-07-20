@@ -260,6 +260,7 @@ int			parse_pipe(char *line, t_shell *shell);
 char		*add_env_to_str(char *line, t_shell *shell);
 int			check_for_env(char **line, t_shell *shell);
 void		free_env_shell(t_shell *shell);
+void		join_env_string(t_shell *shell, char *line);
 
 void		set_flags(struct process *new, t_shell *shell);
 int			get_env(t_shell *shell, char *line, int i, int end);
