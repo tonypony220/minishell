@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void		do_signals(int sig)
+void	do_signals(int sig)
 {
 	if (sig == SIGINT)
 	{
@@ -11,7 +11,8 @@ void		do_signals(int sig)
 	}
 }
 
-int		_start_shell(t_shell *shell)
+/* add exit func */
+int	_start_shell(t_shell *shell)
 {
 	while (shell->status)
 	{
@@ -19,7 +20,7 @@ int		_start_shell(t_shell *shell)
 		signal(SIGINT, do_signals);
 		shell->line = readline("["SHELL_NAME"]# ");
 		if (shell->line == NULL)
-			return (1);//add exit func
+			return (1);
 		shell->err = 0;
 		if (ft_strncmp(shell->line, "exit", ft_strlen(shell->line) + 1) == 0)
 			shell->status = 0;
@@ -30,7 +31,7 @@ int		_start_shell(t_shell *shell)
 			if (!shell->err)
 				handle_processes(shell->cmd, shell->env);
 		}
-		ft_lstclear(&shell->cmd, free_process); // protected pointer cmd 
+		ft_lstclear(&shell->cmd, free_process);
 		free_and_null(shell->heredoc, shell->line);
 	}
 	ft_lstclear(&shell->env, del_dict);
@@ -41,15 +42,14 @@ t_flags	_init_flags(void)
 {
 	t_flags	flags;
 
-	ft_memset((void*)&flags, 0, sizeof(flags));
+	ft_memset((void *)&flags, 0, sizeof(flags));
 	flags.pipe_in = -1;
 	flags.pipe_out = -1;
 	return (flags);
 }
 
-int _main(int ac, char **av, char **envp)
+int	_main(int ac, char **av, char **envp)
 {
-	//struct vars;
 	t_shell	shell;
 
 	ft_bzero(&shell, sizeof(shell));
@@ -61,14 +61,5 @@ int _main(int ac, char **av, char **envp)
 
 int	main(int ac, char **av, char **envp)
 {
-	return(_main(ac, av, envp));
-//	int i = 1000;
-//
-//	while (i--)
-//	{
-//		struct process *ps = (struct process*)ft_calloc(sizeof(struct process), 1);
-//		printf("%p[%d %d]\n", ps->fd, ps->fd[0], ps->fd[1]);	
-//		if (ps->filed[0] || ps->filed[1])
-//			printf("%p[%p %p]\n", ps->filed, ps->filed[0], ps->filed[1]);	
-//	}
+	return (_main(ac, av, envp));
 }

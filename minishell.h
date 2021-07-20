@@ -41,6 +41,7 @@
 # define BUILTIN    1 << 7
 # define DIRECT     1 << 8  /*  */
 # define SKIP     	1 << 9  /*  */
+# define ONLY_FILE  1 << 10  /*  */
 
 # define BUILTINS "env echo pwd export unset exit cd"
 # define WR_BUILTINS "env echo pwd"  			/* which write */
@@ -219,6 +220,8 @@ int			dict_add_back(t_list **env, struct dict *content);
 int			upload_env_to_dict(char **envp, t_list **env);
 void		env_dict_print(struct dict* content);
 char		*env_pull_to_str(struct dict* content);
+
+void	count_redirections(void *proc, void *redirs);
 
 /* builtins */
 int			msh_echo(struct process *ps);

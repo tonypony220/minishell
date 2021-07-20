@@ -1,17 +1,17 @@
 #include "minishell.h"
 
-int			execute_builtin(struct process *ps)
+int	execute_builtin(struct process *ps)
 {
-	// unset errors with leading numbers or equality sign
 	(ps->status & HEREDOC) && msh_heredoc(ps);
-	VERBOSE && printf(CYAN">>executing command builit %s %s\n"RESET, ps->args[0], ps->args[1]);
-	ft_strcmp(ps->path, "echo")	  || msh_echo(ps);
+	VERBOSE && printf(CYAN">>executing command builit %s %s\n"RESET,
+			ps->args[0], ps->args[1]);
+	ft_strcmp(ps->path, "echo") || msh_echo(ps);
 	ft_strcmp(ps->path, "export") || msh_export(ps);
-	ft_strcmp(ps->path, "pwd") 	  || msh_pwd(ps);
-	ft_strcmp(ps->path, "env") 	  || msh_env(ps);
-	ft_strcmp(ps->path, "exit")   || msh_exit(ps);
-	ft_strcmp(ps->path, "cd")	  || msh_cd(ps);
-	ft_strcmp(ps->path, "unset")  || msh_unset(ps);
+	ft_strcmp(ps->path, "pwd") || msh_pwd(ps);
+	ft_strcmp(ps->path, "env") || msh_env(ps);
+	ft_strcmp(ps->path, "exit") || msh_exit(ps);
+	ft_strcmp(ps->path, "cd") || msh_cd(ps);
+	ft_strcmp(ps->path, "unset") || msh_unset(ps);
 	if (!(ps->status & DIRECT))
 		exit(ps->exit_code);
 	return (0);
@@ -21,11 +21,12 @@ int			execute_builtin(struct process *ps)
  * so to save time those are won't be hadleled.
  * Closing fds is reuquired, cause pipes waits for closing 
  * all it's end or EOF */
-int			create_new_process(struct process *ps)
+int	create_new_process(struct process *ps)
 {
 	int		pid;
 
-	VERBOSE && printf(CYAN">>forking process %s %s %s\n"RESET, GREEN, ps->args[0], RESET);
+	VERBOSE && printf(CYAN">>forking process %s %s %s\n"RESET,
+			GREEN, ps->args[0], RESET);
 	((pid = fork()) == -1) && err("fork failed");
 	if (pid == CHILD_PID)
 	{
@@ -37,7 +38,7 @@ int			create_new_process(struct process *ps)
 		ps->file[IN] && close(ps->fd[IN]);
 		ps->file[OUT] && close(ps->fd[OUT]);
 		(ps->status & BUILTIN) && execute_builtin(ps);
-		execve(ps->path, ps->args, ft_lst_to_strs(ps->env, dict_to_str)); // no alloc check
+		execve(ps->path, ps->args, ft_lst_to_strs(ps->env, dict_to_str));
 		display_err(ps);
 		if (errno == 2)
 			exit(CMD_NOT_FOUND_CODE);
@@ -46,31 +47,21 @@ int			create_new_process(struct process *ps)
 	return (1);
 }
 
-
-void end_process(void *proc)
+void	end_process(void *proc)
 {
-	struct process *ps;
+	struct process	*ps;
 
-	ps = (struct process*)proc;
+	ps = (struct process *)proc;
 	(*ps).file[OUT] && close((*ps).fd[OUT]);
 	(*ps).file[IN] && close((*ps).fd[IN]);
 	(ps->status & SKIP) && (ps->shell->last_exit_code = 1);
 	(ps->status & SKIP) || wait_process(ps);
 }
 
-void count_redirections(void *proc, void *redirs)
+int	wait_process(struct process *ps)
 {
-	struct process *ps;
-
-	ps = (struct process*)proc;
-	if ((*ps).pipe[OUT] != NO_PIPE)		
-		*(int*)redirs += 1;
-}
-
-int wait_process(struct process *ps)
-{
-	int status;
-	int exit_code;
+	int	status;
+	int	exit_code;
 
 	status = 0;
 	ps->exit_code || (ps->status & DIRECT) || wait(&status);
@@ -86,27 +77,28 @@ int wait_process(struct process *ps)
 	exit_code && (ps->exit_code = exit_code);
 	ps->exit_code && (exit_code = ps->exit_code);
 	ps->shell->last_exit_code = exit_code;
-	VERBOSE && printf(CYAN"\t\tExit code: %d (%s)"RESET"\n", ps->shell->last_exit_code , *ps->args);
+	VERBOSE && printf(CYAN"\t\tExit code: %d (%s)"RESET"\n",
+		ps->shell->last_exit_code, *ps->args);
 	return (0);
 }
 
-int handle_processes(t_list *cmd, t_list *env)
+int	handle_processes(t_list *cmd, t_list *env)
 {
-	int redirs;
-	int **fds;
-	int flag;
+	int	redirs;
+	int	**fds;
+	int	flag;
 
 	fds = 0;
 	flag = 0;
 	redirs = 0;
 	ft_lstiter_arg(cmd, count_redirections, &redirs);
 	VERBOSE && printf("start hadnling cmds... %d pipes <<\n", redirs);
-	redirs && (fds = (int**)multalloc(redirs, 0, sizeof(int)));
+	redirs && (fds = (int **)multalloc(redirs, 0, sizeof(int)));
 	ft_lstiter_arg(cmd, set_fds_to_ps, fds);
 	ft_lstiter_arg(cmd, set_flag_to_ps, &flag);
 	ft_lstiter(cmd, start_process);
 	close_fds(fds);
-	freemultalloc((void**)fds);
+	freemultalloc((void **)fds);
 	ft_lstiter(cmd, end_process);
 	return (1);
 }

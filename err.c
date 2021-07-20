@@ -1,15 +1,15 @@
 #include "minishell.h"
 
 /* don't know how to force return int that compiler accept it */
-int	err(char* err_str)
+int	err(char *err_str)
 {
 	write(2, err_str, ft_strlen(err_str));
 	exit(1);
-	return 1; 
+	return (1);
 }
 
 /* function calls on getcwd failed as well */
-char *make_err_msg(struct process *ps)
+char	*make_err_msg(struct process *ps)
 {
 	if (ps->exit_code)
 	{
@@ -20,8 +20,14 @@ char *make_err_msg(struct process *ps)
 	return (strerror(errno));
 }
 
-int display_err(struct process *ps)
+int	display_err(struct process *ps)
 {
 	printf(RED""SHELL_NAME": %s: %s"RESET"\n", *(ps->args), make_err_msg(ps));
+	return (1);
+}
+
+int	display_err_direct(char *arg, char *msg)
+{
+	printf(SHELL_NAME": %s: %s\n", arg, msg);
 	return (1);
 }

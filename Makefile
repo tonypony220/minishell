@@ -6,14 +6,15 @@ SRCS	=	fork.c 				\
 			builtins.c  		\
 			builtins_2.c  		\
 			dict_func.c 		\
+			dict_func_2.c 		\
 			environ.c   		\
 			exiting.c   		\
 			main.c 				\
 			dispatch_process.c	\
 			err.c				\
 			process_utils.c		\
-			start_process.c
-
+			start_process.c		\
+			util.c
 
 P_DIR	= 	pars/
 
@@ -42,7 +43,7 @@ CC		=	gcc
 
 RM		=	-rm	-f
 
-NAME	=	a.out
+NAME	=	minishell
 
 SUBDIRS := libft
 #
@@ -60,12 +61,12 @@ $(SUBDIRS):
 
 ${NAME}: ${OBJS} ${P_OBJS} ${HEAD}
 		$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline \
-		-L/usr/local/Cellar/readline/8.1/lib \
-		-I/usr/local/Cellar/readline/8.1/include \
+		-L/Users/mehtel/.brew/Cellar/readline/8.1/lib \
+		-I/Users/mehtel/.brew/Cellar/readline/8.1/include \
 		-o ${NAME}
 
-		#-L/Users/mehtel/.brew/Cellar/readline/8.1/lib \
-		#-I/Users/mehtel/.brew/Cellar/readline/8.1/include \
+		#-L/usr/local/Cellar/readline/8.1/lib \
+		#-I/usr/local/Cellar/readline/8.1/include \
 
 #$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
 
