@@ -69,10 +69,13 @@ int	pipe_syntax(char *line, int i, t_shell *shell)
 			shell->flags.pipe_count++;
 			i++;
 			i = space_skip(line, i);
-			if (line[i] == '\0' || ft_strchr("|><", line[i]))
+			if (ft_strchr("|><", line[i]))
 			{
-				set_error(shell, -3);
-				return (-1);
+				if (check_more_pipe(i, line))
+				{
+					set_error(shell, -3);
+					return (-1);
+				}
 			}
 		}
 		i++;

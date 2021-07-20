@@ -268,6 +268,7 @@ int				pipe_syntax(char *line, int i, t_shell *shell);
 int				redir_syntax(char *line, int i, t_shell *shell);
 void			single_quote(char *line, int i, t_shell *shell);
 void			double_quote(char *line, int i, t_shell *shell);
+int				check_more_pipe(int i, char *line);
 
 /* token */
 t_token			*token_lstlast(t_token *lst);

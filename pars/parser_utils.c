@@ -73,3 +73,20 @@ void	join_env_string(t_shell *shell, char *line)
 	shell->_arg = token_strjoin(shell->_arg, shell->env_value);
 	free_env_shell(shell);
 }
+
+int	check_more_pipe(int i, char *line)
+{
+	if (line[i] == '|')
+		return (1);
+	while (line[i] != '\0')
+	{
+		if (ft_strchr("><", line[i]))
+		{
+			i = space_skip(line, i);
+			if (line[i] == '\0')
+				return (1);
+		}
+		i++;
+	}
+	return (0);
+}
