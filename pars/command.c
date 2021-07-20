@@ -1,8 +1,13 @@
 #include "../minishell.h"
 
-void	print_command(t_shell *shell)
+void	free_and_null(char *str1, char *str2)
 {
-	ft_lstiter(shell->cmd, print_process);
+	if (str1)
+		free(str1);
+	str1 = NULL;
+	if (str2)
+		free(str2);
+	str2 = NULL;
 }
 
 void	set_flags(struct process *new, t_shell *shell)

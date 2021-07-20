@@ -104,6 +104,9 @@ int					msh_cd(struct process *ps)
 
 int					msh_exit(struct process *ps)
 {
+	//		free_and_null(ps->shell->heredoc, ps->shell->line);
+	//		ft_lstclear(&ps->shell->cmd, free_process);
+	//		ft_lstclear(&ps->shell->env, del_dict);
 	return (1);
 }
 

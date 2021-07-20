@@ -120,6 +120,7 @@ typedef struct s_shell
 	t_token			*files;
 	char			**args;
 	char			*_arg;
+	char			*line;
 	char			*env_value;
 	char			*heredoc;
 	int				hd_cnt;
@@ -281,6 +282,7 @@ int			space_skip(const char *nptr, int index);
 void		ft_putendl(char *s, int endl);
 int			error_out(t_shell *shell);
 int			set_error(t_shell *shell, int error);
+void		free_and_null(char *str1, char *str2);
 
 /* signals */
 void		do_signals(int sig);

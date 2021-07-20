@@ -13,32 +13,25 @@ void		do_signals(int sig)
 
 int		_start_shell(t_shell *shell)
 {
-	char *line;
-
 	while (shell->status)
 	{
 		signal(SIGQUIT, SIG_IGN);
 		signal(SIGINT, do_signals);
-		line = readline("["SHELL_NAME"]# ");
-		if (line == NULL)
-			return (1);
+		shell->line = readline("["SHELL_NAME"]# ");
+		if (shell->line == NULL)
+			return (1);//add exit func
 		shell->err = 0;
-		if (ft_strncmp(line, "exit", ft_strlen(line) + 1) == 0)
+		if (ft_strncmp(shell->line, "exit", ft_strlen(shell->line) + 1) == 0)
 			shell->status = 0;
 		shell->flags = _init_flags();
-		if (pre_parser(line, shell))
+		if (pre_parser(shell->line, shell))
 		{
-			add_history(line);
-//			print_command(shell); // Print for testing
+			add_history(shell->line);
 			if (!shell->err)
 				handle_processes(shell->cmd, shell->env);
 		}
-		if (shell->heredoc)
-			free(shell->heredoc);
-		shell->heredoc = NULL;
 		ft_lstclear(&shell->cmd, free_process); // protected pointer cmd 
-		if (line)
-			free(line);
+		free_and_null(shell->heredoc, shell->line);
 	}
 	ft_lstclear(&shell->env, del_dict);
 	return (1);
