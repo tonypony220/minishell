@@ -22,6 +22,7 @@ int	get_env(t_shell *shell, char *line, int i, int end)
 	else
 		shell->env_value = ft_strdup("");
 	free(key);
+	free(d);
 	return (1);
 }
 

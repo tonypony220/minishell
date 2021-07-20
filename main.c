@@ -11,6 +11,14 @@ void	do_signals(int sig)
 	}
 }
 
+static int	ctrld_exit(t_shell *shell)
+{
+	ft_lstclear(&shell->cmd, free_process);
+	free_and_null(shell->heredoc, shell->line);
+	ft_lstclear(&shell->env, del_dict);
+	return (1);
+}
+
 /* add exit func */
 int	_start_shell(t_shell *shell)
 {
@@ -20,17 +28,14 @@ int	_start_shell(t_shell *shell)
 		signal(SIGINT, do_signals);
 		shell->line = readline("["SHELL_NAME"]# ");
 		if (shell->line == NULL)
-			return (1);
+			return (ctrld_exit(shell));
 		shell->err = 0;
-		if (ft_strncmp(shell->line, "exit", ft_strlen(shell->line) + 1) == 0)
-			shell->status = 0;
 		shell->flags = _init_flags();
-		if (pre_parser(shell->line, shell))
-		{
+		pre_parser(shell->line, shell);
+		if (shell->line)
 			add_history(shell->line);
-			if (!shell->err)
-				handle_processes(shell->cmd);
-		}
+		if (!shell->err)
+			handle_processes(shell->cmd);
 		ft_lstclear(&shell->cmd, free_process);
 		free_and_null(shell->heredoc, shell->line);
 	}
@@ -48,7 +53,7 @@ t_flags	_init_flags(void)
 	return (flags);
 }
 
-int	_main(int ac, char **av, char **envp)
+int	main(int ac, char **av, char **envp)
 {
 	t_shell	shell;
 
@@ -59,9 +64,4 @@ int	_main(int ac, char **av, char **envp)
 	shell.status = 1;
 	_start_shell(&shell);
 	return (0);
-}
-
-int	main(int ac, char **av, char **envp)
-{
-	return (_main(ac, av, envp));
 }

@@ -199,7 +199,6 @@ void			pr(void *data);
 int				err(char *err_str);
 void			close_fds(int **fds);
 /* execute */
-<<<<<<< HEAD
 int				execute(t_shell *shell);
 
 				/* dict and env functions */
