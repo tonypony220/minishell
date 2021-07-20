@@ -51,7 +51,7 @@ char	*add_env_to_str(char *line, t_shell *shell)
 		{
 			end = i++;
 			tmp = ft_substr(line, 0, end);
-			while (ft_strchr(" \'\"\\$;:|", line[i]) == 0)
+			while (ft_isalnum(line[i]) || line[i] == '_')
 				i++;
 			tmp2 = ft_substr(line, i, ft_strlen(line) - i);
 			if (get_env(shell, line, end + 1, i - 1) == 1)
