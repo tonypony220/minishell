@@ -199,6 +199,7 @@ void			pr(void *data);
 int				err(char *err_str);
 void			close_fds(int **fds);
 /* execute */
+<<<<<<< HEAD
 int				execute(t_shell *shell);
 
 				/* dict and env functions */
@@ -250,6 +251,7 @@ int				parse_pipe(char *line, t_shell *shell);
 char			*add_env_to_str(char *line, t_shell *shell);
 int				check_for_env(char **line, t_shell *shell);
 void			free_env_shell(t_shell *shell);
+void			join_env_string(t_shell *shell, char *line);
 
 void			set_flags(struct s_process *new, t_shell *shell);
 int				get_env(t_shell *shell, char *line, int i, int end);
