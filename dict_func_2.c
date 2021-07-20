@@ -4,7 +4,7 @@ struct dict	*new_dict(char *key, char *value)
 {
 	struct dict		*new;
 
-	new = malloc(sizeof(struct dict *));
+	new = malloc(sizeof(struct dict));
 	if ((new))
 	{
 		new->key = key;

@@ -14,7 +14,7 @@ void	free_process(void *proc)
 	struct process	*ps;
 
 	ps = (struct process *)proc;
-	freemultalloc((void**)ps->args);
+	freemultalloc((void **)ps->args);
 	ft_lstclear(&ps->files_in, free_str);
 	ft_lstclear(&ps->files_out, free_str);
 	if (ps->path)
