@@ -62,7 +62,7 @@ char	**split_env(char *str, char c)
 		return (NULL);
 	while (str[i] != '\0')
 	{
-		if (str[i] == '=')
+		if (str[i] == c)
 		{
 			ret[0] = ft_substr(str, 0, i);
 			if (ret[0] == NULL)
