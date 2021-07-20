@@ -1,14 +1,19 @@
 dir		=   .
 
-SRCS	=	fork.c 			\
-			multalloc.c 	\
-			find_path.c 	\
-			builtins.c  	\
-			builtins_2.c  	\
-			dict_func.c 	\
-			environ.c   	\
-			exiting.c   	\
-			main.c 			
+SRCS	=	fork.c 				\
+			multalloc.c 		\
+			find_path.c 		\
+			builtins.c  		\
+			builtins_2.c  		\
+			dict_func.c 		\
+			environ.c   		\
+			exiting.c   		\
+			main.c 				\
+			dispatch_process.c	\
+			err.c				\
+			process_utils.c		\
+			start_process.c
+
 
 P_DIR	= 	pars/
 
@@ -53,13 +58,13 @@ $(SUBDIRS):
 
 ${NAME}: ${OBJS} ${P_OBJS} ${HEAD}
 		$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline \
-		-L/Users/mehtel/.brew/Cellar/readline/8.1/lib \
-		-I/Users/mehtel/.brew/Cellar/readline/8.1/include \
+		-L/usr/local/Cellar/readline/8.1/lib \
+		-I/usr/local/Cellar/readline/8.1/include \
 		-o ${NAME}
 
+		#-L/Users/mehtel/.brew/Cellar/readline/8.1/lib \
+		#-I/Users/mehtel/.brew/Cellar/readline/8.1/include \
 
-		#-L/usr/local/Cellar/readline/8.1/lib \
-		#-I/usr/local/Cellar/readline/8.1/include \
 #$(CC) ${OBJS} ${P_OBJS} -Llibft -lft -lreadline -ltermcap -o ${NAME}
 
 all:	${NAME}

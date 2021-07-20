@@ -186,6 +186,17 @@ int			printmultalloc(void **p);
 int			wait_process(struct process *ps);
 void		print_process(void *ps);
 
+void		start_process(void *proc);
+int			files_in_redirects(struct process *ps);
+int			files_out_redirects(struct process *ps);
+
+void			dispatching_process(struct process *ps);
+void			dispatch_status(struct process *ps);
+
+void set_flag_to_ps(void *proc, void *flag);
+void set_fds_to_ps(void *proc, void *fds);
+void pr(void*data);
+
 /* execute */
 int execute(t_shell *shell);
 
@@ -200,7 +211,7 @@ void		dict_print(void* content);
 char		*dict_value(void* data);
 char					*dict_to_str(void* data);
 
-int display_err(struct process *ps);
+int			display_err(struct process *ps);
 
 int			dict_add_back(t_list **env, struct dict *content);
 int			upload_env_to_dict(char **envp, t_list **env);

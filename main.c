@@ -21,7 +21,7 @@ int		_start_shell(t_shell *shell)
 			add_history(line);
 //			print_command(shell); // Print for testing
 			if (!shell->err)
-				execute(shell);
+				handle_processes(shell->cmd, shell->env);
 		}
 		/* < add free for heredoc buffer */
 		if (shell->heredoc)
