@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-char	*get_filename(void *data)
+void	*get_filename(void *data)
 {
 	return ((char *)data);
 }

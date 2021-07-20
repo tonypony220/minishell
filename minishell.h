@@ -175,9 +175,12 @@ struct		process
 };
 
 /* global status */
-char					*get_filename(void* data);
+void					*get_filename(void* data);
 //extern int	g_status;
 
+int			create_new_process(struct process *ps);
+int			execute_builtin(struct process *ps);
+int			handle_processes(t_list *cmd);
 void		ft_str_to_lower(char *str);
 int			arr_len(void **p);
 int			path_executable(char *name);
@@ -196,10 +199,11 @@ int			files_out_redirects(struct process *ps);
 void			dispatching_process(struct process *ps);
 void			dispatch_status(struct process *ps);
 
-void set_flag_to_ps(void *proc, void *flag);
-void set_fds_to_ps(void *proc, void *fds);
-void pr(void*data);
-
+void			set_flag_to_ps(void *proc, void *flag);
+void 			set_fds_to_ps(void *proc, void *fds);
+void 			pr(void*data);
+int		err(char *err_str);
+void	close_fds(int **fds);
 /* execute */
 int execute(t_shell *shell);
 
@@ -218,7 +222,7 @@ int			display_err(struct process *ps);
 
 int			dict_add_back(t_list **env, struct dict *content);
 int			upload_env_to_dict(char **envp, t_list **env);
-void		env_dict_print(struct dict* content);
+void		env_dict_print(void* content);
 char		*env_pull_to_str(struct dict* content);
 
 void	count_redirections(void *proc, void *redirs);
@@ -301,6 +305,7 @@ int		heredoc_init(t_shell *shell, char *stop);
 
 int		exec_heredoc(struct process *ps);
 
+int	check_env_syntax(char *line, int i);
 
 void rl_replace_line();
 

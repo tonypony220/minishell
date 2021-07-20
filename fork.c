@@ -82,7 +82,7 @@ int	wait_process(struct process *ps)
 	return (0);
 }
 
-int	handle_processes(t_list *cmd, t_list *env)
+int	handle_processes(t_list *cmd)
 {
 	int	redirs;
 	int	**fds;

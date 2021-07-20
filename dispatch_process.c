@@ -21,7 +21,6 @@ void	dispatch_status(struct process *ps)
 /* executable name should be lower case */
 void	dispatching_process(struct process *ps)
 {
-	char	*path;
 	char	*name;
 
 	name = 0;

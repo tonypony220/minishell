@@ -3,7 +3,6 @@
 int	check_cmd(char *line, t_shell *shell)
 {
 	int		j;
-	char	qq;
 
 	j = shell->i;
 	single_quote(line, j, shell);

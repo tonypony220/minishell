@@ -29,7 +29,7 @@ int	_start_shell(t_shell *shell)
 		{
 			add_history(shell->line);
 			if (!shell->err)
-				handle_processes(shell->cmd, shell->env);
+				handle_processes(shell->cmd);
 		}
 		ft_lstclear(&shell->cmd, free_process);
 		free_and_null(shell->heredoc, shell->line);
@@ -52,6 +52,8 @@ int	_main(int ac, char **av, char **envp)
 {
 	t_shell	shell;
 
+	ac = 0;
+	av = 0;
 	ft_bzero(&shell, sizeof(shell));
 	upload_env_to_dict(envp, &shell.env);
 	shell.status = 1;

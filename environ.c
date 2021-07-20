@@ -35,8 +35,11 @@ int	upload_env_to_dict(char **envp, t_list **env)
 	return (ret);
 }
 
-void	env_dict_print(struct dict *content)
+void	env_dict_print(void *d)
 {
+	struct dict	*content;
+
+	content = (struct dict *)d;
 	printf("declare -x %s=%s\n", content->key, content->value);
 }
 
