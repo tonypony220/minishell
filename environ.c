@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int	dict_add_back(t_list **env, struct dict *content)
+int	dict_add_back(t_list **env, struct s_dict *content)
 {
 	t_list				*new;
 
@@ -17,7 +17,7 @@ int	dict_add_back(t_list **env, struct dict *content)
 /* note key and value strs are allocated */
 int	upload_env_to_dict(char **envp, t_list **env)
 {
-	struct dict		*dict;
+	struct s_dict		*dict;
 	char			**key_value;
 	int				ret;
 
@@ -37,16 +37,16 @@ int	upload_env_to_dict(char **envp, t_list **env)
 
 void	env_dict_print(void *d)
 {
-	struct dict	*content;
+	struct s_dict	*content;
 
-	content = (struct dict *)d;
+	content = (struct s_dict *)d;
 	printf("declare -x %s=%s\n", content->key, content->value);
 }
 
 /* content of dict should not be freed 
  * 0 return should be handled in calling func 
  * */
-char	*env_pull_to_str(struct dict *content)
+char	*env_pull_to_str(struct s_dict *content)
 {
 	return (ft_strjoind(content->key, content->value, "="));
 }

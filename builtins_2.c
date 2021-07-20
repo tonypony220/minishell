@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int	msh_heredoc(struct process *ps)
+int	msh_heredoc(struct s_process *ps)
 {
 	write(1, ps->args[0], ft_strlen(ps->args[0]));
 	exit(0);
@@ -17,7 +17,7 @@ int	msh_heredoc(struct process *ps)
  *	  1 - ok
  *	 -1 - bad dir
  */
-int	msh_cd(struct process *ps)
+int	msh_cd(struct s_process *ps)
 {
 	char	buf[MAXPATHLEN];
 	char	*path;
@@ -32,8 +32,10 @@ int	msh_cd(struct process *ps)
 	return (r);
 }
 
-int	msh_exit(struct process *ps)
+int	msh_exit(struct s_process *ps)
 {
+	if (ps->flag)
+		return (0);
 	printf("exit\n");
 	free_and_null(ps->shell->heredoc, ps->shell->line);
 	ft_lstclear(&ps->shell->cmd, free_process);
@@ -43,7 +45,7 @@ int	msh_exit(struct process *ps)
 }
 
 /* function return always ok because prints error directly */
-int	msh_pwd(struct process *ps)
+int	msh_pwd(struct s_process *ps)
 {
 	char	buf[MAXPATHLEN];
 

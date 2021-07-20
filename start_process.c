@@ -1,11 +1,11 @@
 #include "minishell.h"
 
-int	assign_status_to_ps(struct process *ps, int stat)
+int	assign_status_to_ps(struct s_process *ps, int stat)
 {
 	return ((ps->status |= stat));
 }
 
-int	files_in_redirects(struct process *ps)
+int	files_in_redirects(struct s_process *ps)
 {
 	int		flag;
 	char	*filename;
@@ -16,17 +16,17 @@ int	files_in_redirects(struct process *ps)
 	{
 		(*ps).fd[IN] && close((*ps).fd[IN]);
 		((*ps).fd[IN] = open(filename, O_RDONLY, 0644));
+		ps->file[IN] = filename;
 		if ((*ps).fd[IN] == -1
 			&& assign_status_to_ps(ps, SKIP)
 			&& display_err(ps))
 			return (0);
-		ps->file[IN] = filename;
 		filename = (ft_lstgen(ps->files_in, get_filename));
 	}
 	return (1);
 }
 
-int	files_out_redirects(struct process *ps)
+int	files_out_redirects(struct s_process *ps)
 {
 	int		flag;
 	char	*filename;
@@ -40,11 +40,11 @@ int	files_out_redirects(struct process *ps)
 		((*ps).status & A_FILE) && (flag |= O_APPEND);
 		!((*ps).status & A_FILE) && (flag |= O_TRUNC);
 		((*ps).fd[OUT] = open(filename, flag, 0644));
+		ps->file[OUT] = filename;
 		if ((*ps).fd[OUT] == -1
 			&& assign_status_to_ps(ps, SKIP)
 			&& display_err(ps))
 			return (0);
-		ps->file[OUT] = filename;
 		filename = (ft_lstgen(ps->files_out, get_filename));
 	}
 	return (1);
@@ -56,10 +56,10 @@ int	files_out_redirects(struct process *ps)
  */
 void	start_process(void *proc)
 {
-	struct process	*ps;
+	struct s_process	*ps;
 	int				pipe_number;
 
-	ps = (struct process *)proc;
+	ps = (struct s_process *)proc;
 	if (ps->pipe[IN] != NO_PIPE)
 	{
 		pipe_number = (*ps).pipe[IN];

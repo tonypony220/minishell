@@ -9,7 +9,7 @@ int	err(char *err_str)
 }
 
 /* function calls on getcwd failed as well */
-char	*make_err_msg(struct process *ps)
+char	*make_err_msg(struct s_process *ps)
 {
 	if (ps->exit_code)
 	{
@@ -20,9 +20,14 @@ char	*make_err_msg(struct process *ps)
 	return (strerror(errno));
 }
 
-int	display_err(struct process *ps)
+int	display_err(struct s_process *ps)
 {
-	printf(RED""SHELL_NAME": %s: %s"RESET"\n", *(ps->args), make_err_msg(ps));
+	char	*arg;
+
+	arg = *(ps->args);
+	ps->fd[IN] == -1 && (arg = ps->file[IN]);
+	ps->fd[OUT] == -1 && (arg = ps->file[OUT]);
+	printf(RED""SHELL_NAME": %s: %s"RESET"\n", arg, make_err_msg(ps));
 	return (1);
 }
 

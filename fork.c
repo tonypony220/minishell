@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int	execute_builtin(struct process *ps)
+int	execute_builtin(struct s_process *ps)
 {
 	(ps->status & HEREDOC) && msh_heredoc(ps);
 	VERBOSE && printf(CYAN">>executing command builit %s %s\n"RESET,
@@ -21,7 +21,7 @@ int	execute_builtin(struct process *ps)
  * so to save time those are won't be hadleled.
  * Closing fds is reuquired, cause pipes waits for closing 
  * all it's end or EOF */
-int	create_new_process(struct process *ps)
+int	create_new_process(struct s_process *ps)
 {
 	int		pid;
 
@@ -49,16 +49,16 @@ int	create_new_process(struct process *ps)
 
 void	end_process(void *proc)
 {
-	struct process	*ps;
+	struct s_process	*ps;
 
-	ps = (struct process *)proc;
+	ps = (struct s_process *)proc;
 	(*ps).file[OUT] && close((*ps).fd[OUT]);
 	(*ps).file[IN] && close((*ps).fd[IN]);
 	(ps->status & SKIP) && (ps->shell->last_exit_code = 1);
 	(ps->status & SKIP) || wait_process(ps);
 }
 
-int	wait_process(struct process *ps)
+int	wait_process(struct s_process *ps)
 {
 	int	status;
 	int	exit_code;
@@ -89,11 +89,11 @@ int	handle_processes(t_list *cmd)
 	int	flag;
 
 	fds = 0;
-	flag = 0;
 	redirs = 0;
 	ft_lstiter_arg(cmd, count_redirections, &redirs);
 	VERBOSE && printf("start hadnling cmds... %d pipes <<\n", redirs);
 	redirs && (fds = (int **)multalloc(redirs, 0, sizeof(int)));
+	flag = redirs;
 	ft_lstiter_arg(cmd, set_fds_to_ps, fds);
 	ft_lstiter_arg(cmd, set_flag_to_ps, &flag);
 	ft_lstiter(cmd, start_process);

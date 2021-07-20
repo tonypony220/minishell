@@ -2,37 +2,37 @@
 
 void	set_fds_to_ps(void *proc, void *fds)
 {
-	struct process	*ps;
+	struct s_process	*ps;
 
-	ps = (struct process *)proc;
+	ps = (struct s_process *)proc;
 	ps->fds = fds;
 }
 
 void	set_flag_to_ps(void *proc, void *flag)
 {
-	struct process	*ps;
+	struct s_process	*ps;
 
-	ps = (struct process *)proc;
+	ps = (struct s_process *)proc;
 	ps->flag = flag;
 }
 
 void	count_redirections(void *proc, void *redirs)
 {
-	struct process	*ps;
+	struct s_process	*ps;
 
-	ps = (struct process *)proc;
+	ps = (struct s_process *)proc;
 	if ((*ps).pipe[OUT] != NO_PIPE)
 		*(int *)redirs += 1;
 }
 
 void	print_process(void *proc)
 {
-	struct process	*ps;
+	struct s_process	*ps;
 	int				i;
 
 	if (!VERBOSE)
 		return ;
-	ps = (struct process *)proc;
+	ps = (struct s_process *)proc;
 	printf(CYAN"PROCESS {%s}", ps->path) && printf(CYAN" args[");
 	i = -1;
 	while (ps->args[++i])

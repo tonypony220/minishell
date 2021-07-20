@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void	dispatch_status(struct process *ps)
+void	dispatch_status(struct s_process *ps)
 {
 	char	**arr;
 
@@ -19,7 +19,7 @@ void	dispatch_status(struct process *ps)
 }
 
 /* executable name should be lower case */
-void	dispatching_process(struct process *ps)
+void	dispatching_process(struct s_process *ps)
 {
 	char	*name;
 

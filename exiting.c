@@ -11,10 +11,10 @@ void	free_str(void *s)
 
 void	free_process(void *proc)
 {
-	struct process	*ps;
+	struct s_process	*ps;
 
-	ps = (struct process *)proc;
-	freemultalloc((void**)ps->args);
+	ps = (struct s_process *)proc;
+	freemultalloc((void **)ps->args);
 	ft_lstclear(&ps->files_in, free_str);
 	ft_lstclear(&ps->files_out, free_str);
 	if (ps->path)

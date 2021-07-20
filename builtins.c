@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int	msh_echo(struct process *ps)
+int	msh_echo(struct s_process *ps)
 {
 	int				i;
 	int				virgin;
@@ -19,7 +19,7 @@ int	msh_echo(struct process *ps)
 	return (1);
 }
 
-int	export_ps_args(struct process *ps)
+int	export_ps_args(struct s_process *ps)
 {
 	int		i;
 	int		ret;
@@ -43,7 +43,7 @@ int	export_ps_args(struct process *ps)
 	return (ret);
 }
 
-int	msh_export(struct process *ps)
+int	msh_export(struct s_process *ps)
 {
 	int				ret;
 
@@ -58,9 +58,9 @@ int	msh_export(struct process *ps)
 	return (ret);
 }
 
-int	msh_unset(struct process *ps)
+int	msh_unset(struct s_process *ps)
 {
-	struct dict	*d;
+	struct s_dict	*d;
 	int			i;
 
 	i = 0;
@@ -73,7 +73,7 @@ int	msh_unset(struct process *ps)
 	return (1);
 }
 
-int	msh_env(struct process *ps)
+int	msh_env(struct s_process *ps)
 {
 	ft_lstiter(ps->env, dict_print);
 	return (1);
