@@ -245,7 +245,7 @@ int				check_cmd(char *line, t_shell *shell);
 int				parse_cmd(char *line, t_shell *shell);
 int				parse_single_quotes(char *line, t_shell *shell);
 int				parse_double_quotes(char *line, t_shell *shell);
-int				parse_env_sign(char *line, t_shell *shell);
+int				parse_env_sign(char *st, t_shell *shell);
 int				parse_redirect(char *line, t_shell *shell);
 int				parse_pipe(t_shell *shell);
 

@@ -34,27 +34,27 @@ void	free_env_shell(t_shell *shell)
 	shell->env_value = NULL;
 }
 
-int	parse_env_sign(char *line, t_shell *shell)
+int	parse_env_sign(char *st, t_shell *shell)
 {
-	if (line[(shell->i) + 1] == ' ' || line[(shell->i) + 1] == '\0')
+	if (!ft_isalnum(st[(shell->i) + 1]) && !ft_strchr("_?", st[(shell->i) + 1]))
 	{
-		shell->_arg = ft_strdup("$");
+		shell->_arg = token_strjoin(shell->_arg, "$");
 		return (1);
 	}
 	shell->st = ++shell->i;
-	if (line[shell->i] == '?')
+	if (st[shell->i] == '?')
 		shell->_env_exit = 1;
-	if (ft_isdigit(line[shell->i]))
+	if (ft_isdigit(st[shell->i]))
 	{
 		shell->_arg = ft_strdup("");
 		return (1);
 	}
-	while (line[shell->i] != '\0')
+	while (st[shell->i] != '\0')
 	{
-		if (ft_strchr(" \'\"\\$><|=![].,?@#%%^&*()=+|/:;'\0", line[shell->i + 1]))
+		if (ft_strchr(" \'\"\\$><|=![].,?@#%%^&*()=+|/:;'\0", st[shell->i + 1]))
 		{
-			join_env_string(shell, line);
-			if (ft_strchr("\'\"\\$><|", line[shell->i]))
+			join_env_string(shell, st);
+			if (ft_strchr("\'\"\\$><|", st[shell->i]))
 				(shell->i)--;
 			return (1);
 		}
