@@ -70,15 +70,14 @@ int	heredoc_test(t_shell *shell, char *stop, char *filename)
 {
 	int		pid;
 	int		status;
-	int		fd;
 
 	((pid = fork()) == -1) && err("fork failed");
 	if (pid == CHILD_PID)
 	{
 		signal(SIGINT, SIG_DFL);
-		fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		heredoc_read(shell, stop, fd);
-		close(fd);
+		shell->h_fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		heredoc_read(shell, stop, shell->h_fd);
+		close(shell->h_fd);
 		exit(0);
 	}
 	else
@@ -89,7 +88,8 @@ int	heredoc_test(t_shell *shell, char *stop, char *filename)
 			if (WIFSIGNALED(status))
 				set_error(shell, -6);
 			unlink(filename);
-			return (0); // to abort executing all next commands
+			free(filename);
+			return (0);
 		}
 	}
 	return (1);

@@ -131,7 +131,6 @@ typedef struct s_shell
 	int			sq_err;
 	int			pipe_err;
 	int			redir_err;
-	int			arg_size;
 	int			env_len;
 	int			env_sign;
 	int			_env_exit;
@@ -139,8 +138,8 @@ typedef struct s_shell
 	int			i;
 	int			st;
 	int			end;
-	int			after_redir;
 	int			last_exit_code;
+	int			h_fd;
 	int			mem;
 }	t_shell;
 
