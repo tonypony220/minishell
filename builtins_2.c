@@ -2,7 +2,20 @@
 
 int	msh_heredoc(struct s_process *ps)
 {
-	write(1, ps->args[0], ft_strlen(ps->args[0]));
+	int fd;
+	char *buff;
+	int r;
+
+	fd = open(ps->args[0], O_RDONLY, 0644);
+	buff = malloc(2);
+	r = 1;
+	while (r)
+	{
+		r = read(fd, buff, 2);
+		write(1, buff, r);
+	}
+	free(buff);
+	unlink(ps->args[0]);
 	exit(0);
 	return (1);
 }

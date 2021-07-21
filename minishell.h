@@ -141,6 +141,7 @@ typedef struct s_shell
 	int			end;
 	int			after_redir;
 	int			last_exit_code;
+	int			mem;
 }	t_shell;
 
 /* pipe: 	  number ex.: 1 pipe in, 2 pipe out */
@@ -294,7 +295,7 @@ void			do_signals(int sig);
 int				check_redir(t_token *token,
 					struct s_process **new, t_shell *shell);
 
-int				heredoc_test(t_shell *shell, char *stop);
+int				heredoc_test(t_shell *shell, char *stop, char *filename);
 size_t			ft_strlen2(const char *s);
 int				heredoc_comp(t_shell *shell, char *stop);
 int				heredoc_init(t_shell *shell, char *stop);

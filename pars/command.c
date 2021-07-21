@@ -12,6 +12,9 @@ void	free_and_null(char *str1, char *str2)
 
 void	set_flags(struct s_process *new, t_shell *shell)
 {
+
+	new->env = shell->env;
+	new->shell = shell;
 	new->pipe[0] = shell->flags.pipe_in;
 	if (shell->flags.pipe_count)
 		new->pipe[1] = shell->flags.pipe_out;
@@ -71,8 +74,6 @@ int	compose_command(t_list **cmds, t_token *token, t_shell *shell)
 	new->args = (char **)ft_calloc((size + 1), sizeof(char *));
 	if (new == NULL || new->args == NULL)
 		return (set_error(shell, -5));
-	new->shell = shell;
-	new->env = shell->env;
 	while (token)
 	{
 		if (!check_redir(token, &new, shell))

@@ -3,8 +3,10 @@
 int	heredoc_comp(t_shell *shell, char *stop)
 {
 	struct s_process	*new;
+	char				*file;
 
-	if (heredoc_test(shell, stop))
+	file = ft_itoa(++shell->mem);
+	if (heredoc_test(shell, stop, file))
 	{
 		new = (struct s_process *)ft_calloc(1, sizeof(*new));
 		if (new == NULL)
@@ -13,11 +15,7 @@ int	heredoc_comp(t_shell *shell, char *stop)
 		if (new->args == NULL)
 			return (set_error(shell, -5));
 		new->status |= (BUILTIN | HEREDOC);
-		new->args[0] = ft_strdup(shell->heredoc);
-		free(shell->heredoc);
-		new->env = shell->env;
-		new->shell = shell;
-		shell->heredoc = NULL;
+		new->args[0] = file;
 		shell->flags.pipe_count++;
 		shell->flags.pipe_out = shell->flags.pipe_in + 1;
 		set_flags(new, shell);
@@ -47,36 +45,50 @@ int	finish_heredoc(t_shell *shell, char *line)
 	return (1);
 }
 
-int	heredoc_test(t_shell *shell, char *stop)
+void heredoc_read(t_shell *shell, char *stop, int fd)
 {
 	char	*line;
-	int pid; 
-	int status;
+
+	line = NULL;
+	while (1)
+	{
+		line = readline("> ");
+		if (line == NULL)
+			break ;
+		if (ft_strcmp(line, stop) == 0)
+			break ;
+		check_for_env(&line, shell);
+		write(fd, line, ft_strlen(line));
+		write(fd, "\n", 1);
+		if (line)
+			free(line);
+	}
+}
+
+int	heredoc_test(t_shell *shell, char *stop, char *filename)
+{
+	int		pid; 
+	int 	status;
+	int 	fd;
 
 	((pid = fork()) == -1) && err("fork failed");
 	if (pid == CHILD_PID)
 	{
 		signal(SIGQUIT, SIG_DFL);
 		signal(SIGINT, SIG_DFL);
-		line = NULL;
-		while (1)
-		{
-			signal(SIGINT, SIG_IGN);
-			line = readline("> ");
-			if (line == NULL)
-				return (finish_heredoc(shell, line));
-			if (ft_strcmp(line, stop) == 0)
-				return (finish_heredoc(shell, line));
-			check_for_env(&line, shell);
-			shell->heredoc = token_strjoin(shell->heredoc, line);
-			shell->heredoc = token_strjoin(shell->heredoc, "\n");
-			if (line)
-				free(line);
-		}
-		return (finish_heredoc(shell, line));
+		fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		heredoc_read(shell, stop, fd);
+		close(fd);
+		exit(0);
 	}
 	else
 	{
 		waitpid(0, &status, 0);
+		if (status) 
+		{
+			unlink(filename);
+			return (0); // to abort executing all next commands
+		}
 	}
+	return (1);
 }
