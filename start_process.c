@@ -14,6 +14,7 @@ int	files_redirects(struct s_process *ps)
 	file = (struct s_file *)(ft_lstgen(ps->files, get_filename));
 	while (file)
 	{
+		printf("filename <<%s\n", file->filename);
 		(*ps).fd[file->std] && close((*ps).fd[file->std]);
 		if (file->std == OUT)
 		{

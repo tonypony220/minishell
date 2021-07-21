@@ -64,7 +64,7 @@
 # define ONE_FROM 3
 # define ONE_TO   4
 
-# define VERBOSE 0
+# define VERBOSE 1
 
 struct		s_dict
 {
@@ -165,7 +165,6 @@ struct			s_process
 	int			exit_code;
 	char		*file[2];
 	t_list		*files;
-	//t_list		*files_out;
 	int			*flag;
 	t_list		*env;
 	t_shell		*shell;
@@ -181,7 +180,6 @@ struct s_file	*new_file(char *filename, int std);
 void			*get_filename(void *data);
 
 char			*my_getenv(t_list *env, char *key);
-
 
 int				create_new_process(struct s_process *ps);
 int				execute_builtin(struct s_process *ps);

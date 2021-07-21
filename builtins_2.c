@@ -50,13 +50,17 @@ int	msh_cd(struct s_process *ps)
 
 int	msh_exit(struct s_process *ps)
 {
+
+	int		code;
+
 	if (*ps->flag)
 		return (0);
 	printf("exit\n");
+	code = ps->shell->last_exit_code;
 	free_and_null(ps->shell->heredoc, ps->shell->line);
 	ft_lstclear(&ps->shell->cmd, free_process);
 	ft_lstclear(&ps->shell->env, del_dict);
-	exit(0);
+	exit(code);
 	return (1);
 }
 
