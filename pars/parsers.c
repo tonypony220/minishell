@@ -4,7 +4,6 @@ int	parse_cmd(char *line, t_shell *shell)
 {
 	char	*substr;
 
-	substr = NULL;
 	shell->i = space_skip(line, shell->i);
 	shell->st = shell->i;
 	if (ft_strchr("$\'\"><|", line[shell->i]))
@@ -35,7 +34,10 @@ int	parse_double_quotes(char *line, t_shell *shell)
 
 	(shell->i)++;
 	if (line[shell->i] == '\"')
+	{
+		shell->_arg = token_strjoin(shell->_arg, "");
 		return (1);
+	}
 	shell->st = shell->i;
 	while (line[shell->i] != '\0')
 	{
@@ -61,7 +63,10 @@ int	parse_single_quotes(char *line, t_shell *shell)
 
 	(shell->i)++;
 	if (line[shell->i] == '\'')
+	{
+		shell->_arg = token_strjoin(shell->_arg, "");
 		return (1);
+	}
 	shell->st = shell->i;
 	while (line[shell->i] != '\0')
 	{

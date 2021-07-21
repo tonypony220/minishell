@@ -19,7 +19,6 @@ static int	ctrld_exit(t_shell *shell)
 	return (1);
 }
 
-/* add exit func */
 int	_start_shell(t_shell *shell)
 {
 	while (shell->status)

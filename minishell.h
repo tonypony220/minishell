@@ -272,7 +272,7 @@ int				check_more_pipe(int i, char *line);
 
 /* token */
 t_token			*token_lstlast(t_token *lst);
-t_token			*token_lstadd(t_token **lst, char *line, t_shell *shell);
+int				token_lstadd(t_token **lst, char *line, t_shell *shell);
 int				token_lstsize(t_token *lst);
 void			token_lstclear(t_token **list);
 char			*token_strjoin(char *rmd, char *buffer);

@@ -28,20 +28,9 @@ int	heredoc_comp(t_shell *shell, char *stop)
 
 int	heredoc_init(t_shell *shell, char *stop)
 {
-	if (shell->heredoc)
-		free(shell->heredoc);
-	shell->heredoc = NULL;
 	shell->flags.heredoc = 1;
 	shell->flags.double_q = 1;
 	heredoc_comp(shell, stop);
-	return (1);
-}
-
-int	finish_heredoc(t_shell *shell, char *line)
-{
-	if (line)
-		free(line);
-	shell->heredoc = token_strjoin(shell->heredoc, "");
 	return (1);
 }
 
@@ -63,7 +52,8 @@ void	heredoc_read(t_shell *shell, char *stop, int fd)
 		if (line)
 			free(line);
 	}
-	finish_heredoc(shell, line);
+	if (line)
+		free(line);
 }
 
 int	heredoc_test(t_shell *shell, char *stop, char *filename)

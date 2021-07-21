@@ -25,16 +25,16 @@ void	flag_check(t_token **token, t_shell *shell)
 		(*token)->redir_type = shell->in_compose;
 }
 
-t_token	*token_lstadd(t_token **lst, char *line, t_shell *shell)
+int	token_lstadd(t_token **lst, char *line, t_shell *shell)
 {
 	t_token	*first;
 	t_token	*new;
 
 	if (!line)
-		return (NULL);
+		return (0);
 	new = (t_token *)ft_calloc(sizeof(*new), 1);
 	if (new == NULL)
-		return (0);
+		return (set_error(shell, -5));
 	new->token = ft_strdup(line);
 	flag_check(&new, shell);
 	new->next = NULL;
@@ -48,7 +48,7 @@ t_token	*token_lstadd(t_token **lst, char *line, t_shell *shell)
 		(*lst)->next = new;
 		*lst = first;
 	}
-	return (new);
+	return (1);
 }
 
 int	token_lstsize(t_token *lst)
