@@ -2,7 +2,20 @@
 
 void	*get_filename(void *data)
 {
-	return ((char *)data);
+	return (data);
+}
+
+struct s_file	*new_file(char *filename, int std)
+{
+	struct s_file	*new;
+
+	new = malloc(sizeof(struct s_file));
+	if ((new))
+	{
+		new->filename = filename;
+		new->std = std;
+	}
+	return (new);
 }
 
 void	close_fds(int **fds)
@@ -17,5 +30,8 @@ void	close_fds(int **fds)
 
 void	pr(void*data)
 {
-	printf("'%s' ", (char *)data);
+	struct s_file	*f;
+
+	f = data;
+	printf("'%s'[%d] ", f->filename, f->std);
 }

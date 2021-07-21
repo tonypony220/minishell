@@ -164,13 +164,20 @@ struct			s_process
 	int			status;
 	int			exit_code;
 	char		*file[2];
-	t_list		*files_in;
-	t_list		*files_out;
+	t_list		*files;
+	//t_list		*files_out;
 	int			*flag;
 	t_list		*env;
 	t_shell		*shell;
 };
 
+struct			s_file
+{
+	char		*filename;
+	int			std;
+};
+
+struct s_file	*new_file(char *filename, int std);
 void			*get_filename(void *data);
 /* global status */
 

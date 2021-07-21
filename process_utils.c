@@ -39,10 +39,8 @@ void	print_process(void *proc)
 		printf("(%s) ", ps->args[i]);
 	printf("] PIPE(%d  %d) FD (%d %d) ", ps->pipe[0], ps->pipe[1],
 		   ps->fd[0], ps->fd[1]);
-	printf("\nFILES IN: ");
-	ft_lstiter(ps->files_in, pr);
-	printf("\nFILES OUT: ");
-	ft_lstiter(ps->files_out, pr);
+	printf("\nFILES: ");
+	ft_lstiter(ps->files, pr);
 	printf("\nBUILTIN:(%d) DIRECT:(%d) REDIRECT=%d, HEREDOC=%d)\n"RESET,
 		   ps->status & BUILTIN && 1,
 		   ps->status & DIRECT && 1,

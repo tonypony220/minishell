@@ -38,18 +38,18 @@ int	check_redir(t_token *token, struct s_process **new, t_shell *shell)
 		if (token->redir_type == 1)
 		{
 			(*new)->status |= A_FILE;
-			ft_lstadd_back(&(*new)->files_out,
-				ft_lstnew(ft_strdup(token->token)));
+			ft_lstadd_back(&(*new)->files,
+				ft_lstnew(new_file(ft_strdup(token->token), OUT)));
 		}
 		if (token->redir_type == 3)
 		{
 			(*new)->status |= R_FILE;
-			ft_lstadd_back(&(*new)->files_in,
-				ft_lstnew(ft_strdup(token->token)));
+			ft_lstadd_back(&(*new)->files,
+				ft_lstnew(new_file(ft_strdup(token->token), IN)));
 		}
 		if (token->redir_type == 4)
-			ft_lstadd_back(&(*new)->files_out,
-				ft_lstnew(ft_strdup(token->token)));
+			ft_lstadd_back(&(*new)->files,
+				ft_lstnew(new_file(ft_strdup(token->token), OUT)));
 		shell->in_compose = 0;
 		token->redir = 0;
 		return (1);
