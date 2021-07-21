@@ -72,7 +72,7 @@ int	ifkey(char c)
 
 int	check_env_syntax(char *line, int i)
 {
-	if (line[i] >= '0' && line[i] <= '9' || line[i] == '=')
+	if ((line[i] >= '0' && line[i] <= '9') || line[i] == '=')
 		return (-1);
 	while (line[i] != '=')
 	{

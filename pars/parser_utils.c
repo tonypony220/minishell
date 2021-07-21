@@ -45,6 +45,7 @@ char	*add_env_to_str(char *line, t_shell *shell)
 	int		end;
 
 	i = -1;
+	env = NULL;
 	while (line[++i] != '\0')
 	{
 		if (line[i] == '$')

@@ -51,7 +51,7 @@ void	main_parser(char *line, t_shell *shell, t_token **token)
 		else if (line[shell->i] == '>' || line[shell->i] == '<')
 			parse_redirect(line, shell);
 		else if (line[shell->i] == '|')
-			parse_pipe(line, shell);
+			parse_pipe(shell);
 		else
 			parse_cmd(line, shell);
 		if (ft_strchr(" ><|", line[shell->i + 1]) || !line[shell->i + 1])

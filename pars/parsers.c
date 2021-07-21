@@ -107,7 +107,7 @@ int	parse_redirect(char *line, t_shell *shell)
 	return (0);
 }
 
-int	parse_pipe(char *line, t_shell *shell)
+int	parse_pipe(t_shell *shell)
 {
 	shell->flags.has_pipe = 1;
 	shell->flags.pipe_in = shell->flags.pipe_out;

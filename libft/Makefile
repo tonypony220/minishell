@@ -17,11 +17,11 @@ OBJS	=	${SRCS:.c=.o}
 
 OBJS_B	=	${SRCS_BONUS:.c=.o}
 
-CFLAGS	= -O0 -g #-Wall -Wextra -Werror
+CFLAGS	= -O0 -g -Wall -Wextra -Werror
 
 HEAD	=	libft.h
 
-CC		=	gcc
+CC		=	clang
 
 RM		=	rm	-f
 

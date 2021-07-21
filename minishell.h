@@ -247,7 +247,7 @@ int				parse_single_quotes(char *line, t_shell *shell);
 int				parse_double_quotes(char *line, t_shell *shell);
 int				parse_env_sign(char *line, t_shell *shell);
 int				parse_redirect(char *line, t_shell *shell);
-int				parse_pipe(char *line, t_shell *shell);
+int				parse_pipe(t_shell *shell);
 
 char			*add_env_to_str(char *line, t_shell *shell);
 int				check_for_env(char **line, t_shell *shell);

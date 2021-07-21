@@ -34,11 +34,11 @@ OBJS	=	${SRCS:.c=.o}
 P_OBJS  =   ${PARSERS:.c=.o}
 
 
-CFLAGS	=   -O0 -g  #-Wall -Wextra -Werror #-g #-fsanitize=address
+CFLAGS	=   -O0 -g  -Wall -Wextra -Werror #-g #-fsanitize=address
 
 HEAD	=	minishell.h
 
-CC		=	gcc
+CC		=	clang
 
 RM		=	-rm	-f
 
