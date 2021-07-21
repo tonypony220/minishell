@@ -269,6 +269,7 @@ int				redir_syntax(char *line, int i, t_shell *shell);
 void			single_quote(char *line, int i, t_shell *shell);
 void			double_quote(char *line, int i, t_shell *shell);
 int				check_more_pipe(int i, char *line);
+int				pre_check(char *line, t_shell *shell);
 
 /* token */
 t_token			*token_lstlast(t_token *lst);
@@ -302,6 +303,6 @@ int				heredoc_init(t_shell *shell, char *stop);
 int				exec_heredoc(struct s_process *ps);
 
 int				check_env_syntax(char *line, int i);
-void 			rl_replace_line(const char *text, int clear_undo);
+void			rl_replace_line(const char *text, int clear_undo);
 
 #endif

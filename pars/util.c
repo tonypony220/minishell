@@ -63,3 +63,11 @@ char	*token_strjoin(char *rmd, char *buffer)
 	free(rmd);
 	return (str);
 }
+
+int	pre_check(char *line, t_shell *shell)
+{
+	if ((line[shell->i] == '>' && line[shell->i + 1] == '<')
+		|| (line[shell->i] == '<' && line[shell->i + 1] == '>'))
+		return (set_error(shell, -4));
+	return (0);
+}
