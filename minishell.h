@@ -179,7 +179,9 @@ struct			s_file
 
 struct s_file	*new_file(char *filename, int std);
 void			*get_filename(void *data);
-/* global status */
+
+char			*my_getenv(t_list *env, char *key);
+
 
 int				create_new_process(struct s_process *ps);
 int				execute_builtin(struct s_process *ps);
@@ -187,7 +189,7 @@ int				handle_processes(t_list *cmd);
 void			ft_str_to_lower(char *str);
 int				arr_len(void **p);
 int				path_executable(char *name);
-char			*find_path(char *name);
+char			*find_path(struct s_process *ps, char *name);
 void			tst_find_path(void);
 int				freemultalloc(void **p);
 void			**multalloc(int rows, int columns, unsigned long size);

@@ -27,7 +27,7 @@ void	dispatching_process(struct s_process *ps)
 	dispatch_status(ps);
 	if (ps->status & BUILTIN || *ps->path == '/' || *ps->path == '.')
 		return ;
-	name = find_path(ps->path);
+	name = find_path(ps, ps->path);
 	if (name)
 	{
 		free(ps->path);

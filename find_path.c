@@ -21,7 +21,7 @@ void	ft_str_to_lower(char *str)
  * function will not fit for variables cause they case sensitive
  * todo different handlingn of returned NULL in cases with '/' or without
  * todo join(char **arr) function */
-char	*find_path(char *name)
+char	*find_path(struct s_process *ps, char *name)
 {
 	char	**env_paths;
 	char	**mem;
@@ -29,7 +29,9 @@ char	*find_path(char *name)
 	char	*mid;
 
 	path = 0;
-	env_paths = ft_split(getenv("PATH"), ':');
+	env_paths = ft_split(my_getenv(ps->env, "PATH"), ':');
+	if (env_paths == NULL)
+		return (NULL);
 	mem = env_paths;
 	while (*env_paths && *name != '\0')
 	{
@@ -46,4 +48,22 @@ char	*find_path(char *name)
 	}
 	freemultalloc((void **)mem);
 	return (path);
+}
+
+char	*my_getenv(t_list *env, char *key)
+{		
+	t_list			*one;
+	struct s_dict	*d;
+	char			*value;
+
+	one = ft_lst_find(env, (d = new_dict(key, 0)),
+			cmp_dict_keys);
+	if (one)
+	{
+		value = dict_value(one->content);
+		free(d);
+		return (value);
+	}
+	free(d);
+	return (NULL);
 }
