@@ -43,7 +43,7 @@ char	*find_path(struct s_process *ps, char *name)
 		}
 		free(path);
 		free(mid);
-		path = 0;
+		path = NULL;
 		env_paths++;
 	}
 	freemultalloc((void **)mem);

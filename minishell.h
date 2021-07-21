@@ -64,7 +64,7 @@
 # define ONE_FROM 3
 # define ONE_TO   4
 
-# define VERBOSE 1
+# define VERBOSE 0
 
 struct		s_dict
 {
@@ -224,6 +224,7 @@ char			*dict_value(void *data);
 char			*dict_to_str(void *data);
 
 int				display_err(struct s_process *ps);
+int				display_err_direct(char *arg, char *msg);
 
 int				dict_add_back(t_list **env, struct s_dict *content);
 int				upload_env_to_dict(char **envp, t_list **env);

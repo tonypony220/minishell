@@ -36,7 +36,10 @@ int	msh_cd(struct s_process *ps)
 	char	*path;
 	int		r;
 
-	path = ps->args[1];
+	(path = ps->args[1]) || (path = my_getenv(ps->env, "HOME"), ':');
+	(path || display_err_direct(ps->args[0], "HOME not set"));
+	if (!path)
+		return (0);
 	(r = chdir(path)) && display_err(ps);
 	if (r)
 		return (-1);

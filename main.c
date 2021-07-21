@@ -13,10 +13,13 @@ void	do_signals(int sig)
 
 static int	ctrld_exit(t_shell *shell)
 {
+	int		code;
+
+	code = shell->last_exit_code;
 	ft_lstclear(&shell->cmd, free_process);
 	free_and_null(shell->heredoc, shell->line);
 	ft_lstclear(&shell->env, del_dict);
-	return (1);
+	return (code);
 }
 
 int	_start_shell(t_shell *shell)
@@ -55,12 +58,13 @@ t_flags	_init_flags(void)
 int	main(int ac, char **av, char **envp)
 {
 	t_shell	shell;
+	int		code;
 
 	ac = 0;
 	av = 0;
 	ft_bzero(&shell, sizeof(shell));
 	upload_env_to_dict(envp, &shell.env);
 	shell.status = 1;
-	_start_shell(&shell);
-	return (0);
+	code = _start_shell(&shell);
+	return (code);
 }
