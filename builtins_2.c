@@ -2,9 +2,9 @@
 
 int	msh_heredoc(struct s_process *ps)
 {
-	int fd;
-	char *buff;
-	int r;
+	int		fd;
+	char	*buff;
+	int		r;
 
 	fd = open(ps->args[0], O_RDONLY, 0644);
 	buff = malloc(2);

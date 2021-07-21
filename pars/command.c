@@ -12,7 +12,6 @@ void	free_and_null(char *str1, char *str2)
 
 void	set_flags(struct s_process *new, t_shell *shell)
 {
-
 	new->env = shell->env;
 	new->shell = shell;
 	new->pipe[0] = shell->flags.pipe_in;

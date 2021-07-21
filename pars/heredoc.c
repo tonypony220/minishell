@@ -45,7 +45,7 @@ int	finish_heredoc(t_shell *shell, char *line)
 	return (1);
 }
 
-void heredoc_read(t_shell *shell, char *stop, int fd)
+void	heredoc_read(t_shell *shell, char *stop, int fd)
 {
 	char	*line;
 
@@ -63,18 +63,18 @@ void heredoc_read(t_shell *shell, char *stop, int fd)
 		if (line)
 			free(line);
 	}
+	finish_heredoc(shell, line);
 }
 
 int	heredoc_test(t_shell *shell, char *stop, char *filename)
 {
-	int		pid; 
-	int 	status;
-	int 	fd;
+	int		pid;
+	int		status;
+	int		fd;
 
 	((pid = fork()) == -1) && err("fork failed");
 	if (pid == CHILD_PID)
 	{
-		signal(SIGQUIT, SIG_DFL);
 		signal(SIGINT, SIG_DFL);
 		fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		heredoc_read(shell, stop, fd);
@@ -84,8 +84,10 @@ int	heredoc_test(t_shell *shell, char *stop, char *filename)
 	else
 	{
 		waitpid(0, &status, 0);
-		if (status) 
+		if (status)
 		{
+			if (WIFSIGNALED(status))
+				set_error(shell, -6);
 			unlink(filename);
 			return (0); // to abort executing all next commands
 		}

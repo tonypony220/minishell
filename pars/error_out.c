@@ -8,9 +8,9 @@ int	error_out(t_shell *shell)
 		return (-1);
 	}
 	if (shell->err == -5)
-	{
 		printf("Malloc error\n");
-	}
+	if (shell->err == -6)
+		write(1, "\r", 1);
 	return (0);
 }
 
