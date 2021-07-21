@@ -31,7 +31,7 @@ char	*find_path(char *name)
 	path = 0;
 	env_paths = ft_split(getenv("PATH"), ':');
 	mem = env_paths;
-	while (*env_paths)
+	while (*env_paths && *name != '\0')
 	{
 		path = ft_strjoin(*env_paths, (mid = ft_strjoin("/", name)));
 		if (path_executable(path))

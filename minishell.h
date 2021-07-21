@@ -64,7 +64,7 @@
 # define ONE_FROM 3
 # define ONE_TO   4
 
-# define VERBOSE 0
+# define VERBOSE 1
 
 struct		s_dict
 {
@@ -302,5 +302,6 @@ int				heredoc_init(t_shell *shell, char *stop);
 int				exec_heredoc(struct s_process *ps);
 
 int				check_env_syntax(char *line, int i);
+void 			rl_replace_line(const char *text, int clear_undo);
 
 #endif
