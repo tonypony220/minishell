@@ -87,12 +87,13 @@ int	parse_single_quotes(char *line, t_shell *shell)
 int	parse_redirect(char *line, t_shell *shell)
 {
 	shell->flags.has_redir = 1;
-	if (line[shell->i + 1] == '>')
+	pre_check(line, shell);
+	if (line[shell->i + 1] == '>' && line[shell->i] != '<')
 	{
 		shell->flags.redir_type = 1;
 		shell->i += 2;
 	}
-	else if (line[shell->i + 1] == '<')
+	else if (line[shell->i + 1] == '<' && line[shell->i] != '>')
 	{
 		shell->flags.redir_type = 2;
 		shell->i += 2;
